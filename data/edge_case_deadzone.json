@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "network_name": "Edge Case 2: Range Dead-Zone (Offline Intermediate Chargers)",
+    "source": "MOCK_EDGE_CASE_DEADZONE",
+    "version": "1.0"
+  },
+  "default_ev": {
+    "model_name": "Standard Range EV (50 kWh)",
+    "battery_capacity_kwh": 50,
+    "initial_soc_kwh": 45,
+    "min_reserve_kwh": 10,
+    "consumption_kwh_per_km": 0.20,
+    "max_charge_acceptance_kw": 80
+  },
+  "nodes": [
+    {"node_id": "N01", "name": "Quetta", "lat": 30.1798, "lon": 66.9750, "station": {"station_id": "CS-QTA", "name": "Quetta Hub", "power_kw": 80, "cost_per_kwh": 55, "is_available": true, "queue_wait_hours": 0.1}},
+    {"node_id": "N02", "name": "Kalat (Charger Offline)", "lat": 29.0266, "lon": 66.5936, "station": {"station_id": "CS-KLT", "name": "Kalat Point", "power_kw": 50, "cost_per_kwh": 50, "is_available": false, "queue_wait_hours": 0.1}},
+    {"node_id": "N03", "name": "Khuzdar (Charger Offline)", "lat": 27.8120, "lon": 66.6172, "station": {"station_id": "CS-KHZ", "name": "Khuzdar Point", "power_kw": 50, "cost_per_kwh": 50, "is_available": false, "queue_wait_hours": 0.1}},
+    {"node_id": "N04", "name": "Gwadar", "lat": 25.1264, "lon": 62.3225, "station": {"station_id": "CS-GWD", "name": "Gwadar Port Hub", "power_kw": 100, "cost_per_kwh": 60, "is_available": true, "queue_wait_hours": 0.1}}
+  ],
+  "edges": [
+    {"u": "N01", "v": "N02", "distance_km": 140, "speed_kmh": 90, "is_blocked": false, "road_name": "N-25 North"},
+    {"u": "N02", "v": "N03", "distance_km": 160, "speed_kmh": 90, "is_blocked": false, "road_name": "N-25 Central"},
+    {"u": "N03", "v": "N04", "distance_km": 320, "speed_kmh": 95, "is_blocked": false, "road_name": "M-8 Coastal Link"}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "network_name": "Edge Case 3: Over-Constrained Time Budget (T_max Violation)",
+    "source": "MOCK_EDGE_CASE_TIGHT_TIME",
+    "version": "1.0"
+  },
+  "default_ev": {
+    "model_name": "BYD Atto 3",
+    "battery_capacity_kwh": 75,
+    "initial_soc_kwh": 50,
+    "min_reserve_kwh": 12,
+    "consumption_kwh_per_km": 0.18,
+    "max_charge_acceptance_kw": 120
+  },
+  "max_allowed_time_hours": 9.5
+}

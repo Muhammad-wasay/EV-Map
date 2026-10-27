@@ -1,0 +1,239 @@
+{
+  "metadata": {
+    "network_name": "Pakistan National EV Highway Corridor (M-2 / M-3 / M-4 / M-5 / N-5)",
+    "source": "MOCK_FALLBACK_DATASET",
+    "version": "1.0"
+  },
+  "default_ev": {
+    "model_name": "BYD Atto 3 / MG ZS EV Long Range",
+    "battery_capacity_kwh": 75,
+    "initial_soc_kwh": 65,
+    "min_reserve_kwh": 12,
+    "consumption_kwh_per_km": 0.18,
+    "max_charge_acceptance_kw": 120
+  },
+  "nodes": [
+    {
+      "node_id": "N01",
+      "name": "Karachi (Start Hub)",
+      "lat": 24.8607,
+      "lon": 67.0011,
+      "station": {
+        "station_id": "CS-KHI",
+        "name": "K-Electric SuperHub Karachi",
+        "power_kw": 120,
+        "cost_per_kwh": 55.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N02",
+      "name": "Hyderabad (M-9 Interchange)",
+      "lat": 25.3960,
+      "lon": 68.3578,
+      "station": {
+        "station_id": "CS-HYD",
+        "name": "PSO ElectroCharge Hyderabad",
+        "power_kw": 60,
+        "cost_per_kwh": 48.0,
+        "is_available": true,
+        "queue_wait_hours": 0.15
+      }
+    },
+    {
+      "node_id": "N03",
+      "name": "Nawabshah (N-5 Corridor)",
+      "lat": 26.2442,
+      "lon": 68.4100,
+      "station": {
+        "station_id": "CS-NWB",
+        "name": "Nawabshah AC Fast Point",
+        "power_kw": 40,
+        "cost_per_kwh": 42.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N04",
+      "name": "Dadu (Indus Highway N-55)",
+      "lat": 26.7319,
+      "lon": 67.7750,
+      "station": {
+        "station_id": "CS-DAD",
+        "name": "Indus Rest-Stop Charger",
+        "power_kw": 30,
+        "cost_per_kwh": 40.0,
+        "is_available": false,
+        "queue_wait_hours": 0.25
+      }
+    },
+    {
+      "node_id": "N05",
+      "name": "Moro (Highway Service Area)",
+      "lat": 26.6652,
+      "lon": 68.0016,
+      "station": {
+        "station_id": "CS-MOR",
+        "name": "Moro Highway DC Hub",
+        "power_kw": 90,
+        "cost_per_kwh": 52.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N06",
+      "name": "Sukkur (M-5 Southern Terminal)",
+      "lat": 27.7052,
+      "lon": 68.8574,
+      "station": {
+        "station_id": "CS-SUK",
+        "name": "Sukkur Barrage UltraCharge",
+        "power_kw": 120,
+        "cost_per_kwh": 62.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N07",
+      "name": "Rahim Yar Khan (M-5 Service Stop)",
+      "lat": 28.4202,
+      "lon": 70.2952,
+      "station": {
+        "station_id": "CS-RYK",
+        "name": "RYK Motorway Oasis DC",
+        "power_kw": 100,
+        "cost_per_kwh": 58.0,
+        "is_available": true,
+        "queue_wait_hours": 0.15
+      }
+    },
+    {
+      "node_id": "N08",
+      "name": "Bahawalpur (Sutlej Hub)",
+      "lat": 29.3956,
+      "lon": 71.6836,
+      "station": {
+        "station_id": "CS-BWP",
+        "name": "Bahawalpur EcoCharge",
+        "power_kw": 75,
+        "cost_per_kwh": 46.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N09",
+      "name": "Multan (M-4 / M-5 Junction)",
+      "lat": 30.1575,
+      "lon": 71.5249,
+      "station": {
+        "station_id": "CS-MUX",
+        "name": "Multan SuperGrid 150kW",
+        "power_kw": 150,
+        "cost_per_kwh": 68.0,
+        "is_available": true,
+        "queue_wait_hours": 0.08
+      }
+    },
+    {
+      "node_id": "N10",
+      "name": "Sahiwal (GT Road N-5)",
+      "lat": 30.6682,
+      "lon": 73.1114,
+      "station": {
+        "station_id": "CS-SWL",
+        "name": "Sahiwal GreenVolt Station",
+        "power_kw": 60,
+        "cost_per_kwh": 44.0,
+        "is_available": true,
+        "queue_wait_hours": 0.15
+      }
+    },
+    {
+      "node_id": "N11",
+      "name": "Faisalabad (M-3 / M-4 Hub)",
+      "lat": 31.4504,
+      "lon": 73.1350,
+      "station": {
+        "station_id": "CS-FSD",
+        "name": "Faisalabad M-4 RapidCharge",
+        "power_kw": 110,
+        "cost_per_kwh": 54.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N12",
+      "name": "Lahore (M-2 / M-3 Ravi Hub)",
+      "lat": 31.5204,
+      "lon": 74.3587,
+      "station": {
+        "station_id": "CS-LHE",
+        "name": "Lahore Expo HyperCharge",
+        "power_kw": 150,
+        "cost_per_kwh": 65.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N13",
+      "name": "Bhera / Chakwal (M-2 Salt Range)",
+      "lat": 32.4826,
+      "lon": 72.9086,
+      "station": {
+        "station_id": "CS-BHR",
+        "name": "Bhera Service Area M-2 Charger",
+        "power_kw": 120,
+        "cost_per_kwh": 60.0,
+        "is_available": true,
+        "queue_wait_hours": 0.10
+      }
+    },
+    {
+      "node_id": "N14",
+      "name": "Islamabad (Zero Point Destination)",
+      "lat": 33.6844,
+      "lon": 73.0479,
+      "station": {
+        "station_id": "CS-ISB",
+        "name": "Islamabad BlueArea EV Plaza",
+        "power_kw": 120,
+        "cost_per_kwh": 55.0,
+        "is_available": true,
+        "queue_wait_hours": 0.05
+      }
+    }
+  ],
+  "edges": [
+    {"u": "N01", "v": "N02", "distance_km": 160, "speed_kmh": 100, "is_blocked": false, "road_name": "M-9 Motorway"},
+    {"u": "N01", "v": "N04", "distance_km": 290, "speed_kmh": 80,  "is_blocked": true,  "road_name": "N-55 Lower Indus (Submerged/Closed)"},
+    {"u": "N02", "v": "N03", "distance_km": 125, "speed_kmh": 95,  "is_blocked": false, "road_name": "N-5 Highway South"},
+    {"u": "N02", "v": "N04", "distance_km": 175, "speed_kmh": 85,  "is_blocked": false, "road_name": "Indus Link Road"},
+    {"u": "N02", "v": "N05", "distance_km": 195, "speed_kmh": 95,  "is_blocked": false, "road_name": "N-5 Direct Express"},
+    {"u": "N03", "v": "N05", "distance_km": 85,  "speed_kmh": 90,  "is_blocked": false, "road_name": "N-5 Moro Link"},
+    {"u": "N03", "v": "N06", "distance_km": 210, "speed_kmh": 95,  "is_blocked": false, "road_name": "N-5 Rohri Corridor"},
+    {"u": "N04", "v": "N05", "distance_km": 45,  "speed_kmh": 80,  "is_blocked": false, "road_name": "Dadu-Moro Bridge"},
+    {"u": "N04", "v": "N06", "distance_km": 190, "speed_kmh": 85,  "is_blocked": false, "road_name": "N-55 Larkana Link"},
+    {"u": "N05", "v": "N06", "distance_km": 150, "speed_kmh": 100, "is_blocked": false, "road_name": "N-5 Sukkur Express"},
+    {"u": "N06", "v": "N07", "distance_km": 195, "speed_kmh": 110, "is_blocked": false, "road_name": "M-5 Motorway South"},
+    {"u": "N07", "v": "N08", "distance_km": 185, "speed_kmh": 110, "is_blocked": false, "road_name": "M-5 Uch Sharif Section"},
+    {"u": "N07", "v": "N09", "distance_km": 265, "speed_kmh": 115, "is_blocked": false, "road_name": "M-5 Direct Multan"},
+    {"u": "N08", "v": "N09", "distance_km": 95,  "speed_kmh": 105, "is_blocked": false, "road_name": "N-5 Lodhran Express"},
+    {"u": "N08", "v": "N10", "distance_km": 215, "speed_kmh": 95,  "is_blocked": false, "road_name": "Sutlej Valley Highway"},
+    {"u": "N09", "v": "N10", "distance_km": 175, "speed_kmh": 100, "is_blocked": false, "road_name": "N-5 Khanewal-Sahiwal"},
+    {"u": "N09", "v": "N11", "distance_km": 240, "speed_kmh": 115, "is_blocked": false, "road_name": "M-4 Motorway"},
+    {"u": "N10", "v": "N11", "distance_km": 95,  "speed_kmh": 95,  "is_blocked": false, "road_name": "Sahiwal-Faisalabad Link"},
+    {"u": "N10", "v": "N12", "distance_km": 170, "speed_kmh": 100, "is_blocked": false, "road_name": "N-5 Okara-Lahore"},
+    {"u": "N11", "v": "N12", "distance_km": 145, "speed_kmh": 115, "is_blocked": false, "road_name": "M-3 Abdul Hakim Motorway"},
+    {"u": "N11", "v": "N13", "distance_km": 155, "speed_kmh": 115, "is_blocked": false, "road_name": "M-4 / M-2 Pindi Bhattian"},
+    {"u": "N12", "v": "N13", "distance_km": 180, "speed_kmh": 115, "is_blocked": false, "road_name": "M-2 Lahore-Bhera"},
+    {"u": "N13", "v": "N14", "distance_km": 165, "speed_kmh": 110, "is_blocked": false, "road_name": "M-2 Salt Range-Islamabad"},
+    {"u": "N12", "v": "N14", "distance_km": 355, "speed_kmh": 95,  "is_blocked": true,  "road_name": "GT Road N-5 Direct (Blocked for Construction)"}
+  ]
+}

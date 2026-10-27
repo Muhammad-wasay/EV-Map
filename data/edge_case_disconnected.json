@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "network_name": "Edge Case 1: Disconnected Network (Isolated Northern Hubs)",
+    "source": "MOCK_EDGE_CASE_DISCONNECTED",
+    "version": "1.0"
+  },
+  "default_ev": {
+    "model_name": "BYD Atto 3",
+    "battery_capacity_kwh": 75,
+    "initial_soc_kwh": 65,
+    "min_reserve_kwh": 12,
+    "consumption_kwh_per_km": 0.18,
+    "max_charge_acceptance_kw": 120
+  },
+  "nodes": [
+    {"node_id": "N01", "name": "Islamabad", "lat": 33.6844, "lon": 73.0479, "station": {"station_id": "CS-1", "name": "ISB Charger", "power_kw": 120, "cost_per_kwh": 55, "is_available": true, "queue_wait_hours": 0.1}},
+    {"node_id": "N02", "name": "Abbottabad", "lat": 34.1688, "lon": 73.2215, "station": {"station_id": "CS-2", "name": "ABT Charger", "power_kw": 60, "cost_per_kwh": 50, "is_available": true, "queue_wait_hours": 0.1}},
+    {"node_id": "N03", "name": "Gilgit (Isolated)", "lat": 35.9208, "lon": 74.3080, "station": {"station_id": "CS-3", "name": "GIL Charger", "power_kw": 50, "cost_per_kwh": 60, "is_available": true, "queue_wait_hours": 0.1}},
+    {"node_id": "N04", "name": "Skardu (Isolated)", "lat": 35.2971, "lon": 75.6333, "station": {"station_id": "CS-4", "name": "SKD Charger", "power_kw": 50, "cost_per_kwh": 65, "is_available": true, "queue_wait_hours": 0.1}}
+  ],
+  "edges": [
+    {"u": "N01", "v": "N02", "distance_km": 110, "speed_kmh": 80, "is_blocked": false, "road_name": "Hazara Motorway M-15"},
+    {"u": "N02", "v": "N03", "distance_km": 320, "speed_kmh": 60, "is_blocked": true,  "road_name": "Karakoram Highway (Landslide Blocked)"},
+    {"u": "N03", "v": "N04", "distance_km": 205, "speed_kmh": 65, "is_blocked": false, "road_name": "Gilgit-Skardu Road S-1"}
+  ]
+}
