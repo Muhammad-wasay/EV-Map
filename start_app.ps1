@@ -3,10 +3,17 @@
 # ============================================================================
 Write-Host "Starting VoltPath FastAPI Backend (:8000) and React Frontend (:5173)..." -ForegroundColor Cyan
 
-# 1. Start FastAPI Server in a new PowerShell window
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "python -m uvicorn api.server:app --host 127.0.0.1 --port 8000 --reload"
+# 1. Setup venv if missing
+if (-not (Test-Path "venv\Scripts\python.exe")) {
+    Write-Host "Creating Python virtual environment (venv)..." -ForegroundColor Yellow
+    python -m venv venv
+    .\venv\Scripts\pip.exe install -r requirements.txt
+}
 
-# 2. Install frontend packages if node_modules is missing, then launch Vite React dev server
+# 2. Start FastAPI Server in a new PowerShell window using venv Python
+Start-Process powershell -ArgumentList "-NoExit", "-Command", ".\venv\Scripts\python.exe -m uvicorn api.server:app --host 127.0.0.1 --port 8000 --reload"
+
+# 3. Install frontend packages if node_modules is missing, then launch Vite React dev server
 if (-not (Test-Path "frontend/node_modules")) {
     Write-Host "Installing React (Vite + Leaflet) dependencies..." -ForegroundColor Yellow
     Push-Location frontend
