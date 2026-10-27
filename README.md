@@ -22,14 +22,14 @@
 
 ## 📌 Project Overview
 
-**VoltPath** is an algorithmic decision-support system designed to help Electric Vehicle (EV) owners plan long-distance journeys across highway networks by computing an optimal driving route and selecting cost- and time-optimal charging stops.
+**VoltPath** is a full-stack algorithmic decision-support system (**React + Vite Frontend** powered by a **Python FastAPI Backend**) designed to help Electric Vehicle (EV) owners plan long-distance journeys across highway networks by computing an optimal driving route and selecting cost- and time-optimal charging stops.
 
 In strict compliance with the **CT-363 Complex Engineering Problem (CEP)** guidelines, the system decomposes the real-world engineering problem into two core algorithmic paradigms working in tandem:
 
 1. **Part A — Spatial Route Discovery (`A*` Heuristic Search Paradigm):**  
    Computes the optimal highway route between the starting city and destination using real GPS coordinates and an admissible **Haversine Great-Circle Heuristic** $h(n)$, while excluding blocked roads, handling tie-breaking via station power density, and supporting **incremental route repair** when roads close mid-trip.
 2. **Part B — Charging Stop & Energy Allocation (`Dynamic Programming` Paradigm):**  
-   Models the sequence of available charging stations along the `A*` route as a multi-stage state-space Dynamic Programming problem $DP[i][b]$. It determines **which stations to stop at** and **how much battery energy ($\Delta \text{kWh}$) to charge** at each stop, reconciling conflicting constraints:
+   Models the sequence of available charging stations along the `A*` route as a multi-stage Pareto State-Space Dynamic Programming problem $DP[i][b]$. It determines **which stations to stop at** and **how much battery energy ($\Delta \text{kWh}$) to charge** at each stop, reconciling conflicting constraints:
    - **Technical:** Limited battery capacity ($B_{\max}$) and variable charger speeds ($P_i$ in kW: Level 2 AC, DC Fast, Ultra-Fast).
    - **Safety:** Mandatory minimum arrival battery reserve ($B_{\min}$, e.g., $\ge 15\%$ SoC) at every node and the final destination.
    - **Economic:** Variable electricity tariffs ($\text{PKR/kWh}$) across charging stations.
@@ -38,15 +38,13 @@ In strict compliance with the **CT-363 Complex Engineering Problem (CEP)** guide
 
 ---
 
-## 🌐 Hybrid API + Automatic Offline Mock Fallback Architecture
+## 🌐 Double-Layer Fallback Architecture (Zero Evaluation or Deployment Failures)
 
-VoltPath includes a production-ready **External API Adapter Layer (`src/api_client.py`)** with **automatic fallback to local curated Mock/JSON datasets (`data/`)**:
-
-- **Live API Mode (Zero-Key or Optional API Key):**
-  - **OpenChargeMap REST API** (`https://api.openchargemap.io/v3/poi`): Fetches live EV charging station metadata (kW power, operational status, GPS coordinates). Uses `OPENCHARGEMAP_API_KEY` if configured.
-  - **OSRM (Open Source Routing Machine) REST API** (`https://router.project-osrm.org`): Queries live highway distances & driving durations between GPS coordinates.
-- **Automatic Mock Fallback Mode (Default / Offline / No Key):**
-  - Whenever no API key is configured, the user is offline, or an endpoint is unreachable, `VoltPathAPIClient` **automatically falls back** to the curated mock datasets in `data/highway_network.json` (plus the 3 mandatory CEP edge-case datasets) with zero interruption.
+1. **Backend Hybrid API + Mock Fallback (`src/api_client.py`):**
+   - Queries live **OpenChargeMap** and **OSRM** endpoints when enabled, and automatically falls back to local curated Mock datasets (`data/highway_network.json`) when no API key is configured or when offline.
+2. **Frontend FastAPI + Client Mock Fallback (`frontend/src/App.jsx` & `mockFallback.js`):**
+   - Connects directly to the local **FastAPI server (`http://127.0.0.1:8000`)** during live evaluation (`🟢 FastAPI Backend Connected (:8000)`).
+   - If the FastAPI server is not running or the React app is deployed as a static site (e.g., on Vercel/Netlify), the frontend automatically falls back to its built-in client mock engine (`🟠 Client Mock Fallback Active`) so the UI never fails.
 
 ---
 
@@ -55,9 +53,23 @@ VoltPath includes a production-ready **External API Adapter Layer (`src/api_clie
 ```text
 DAA-PROJECT/
 ├── README.md                          # Project documentation, setup, and CEP alignment guide
-├── requirements.txt                   # Optional dependencies (100% free open-source libraries)
-├── .env.example                       # Optional API configuration template (falls back to mock if omitted)
-├── main.py                            # Main CLI entry point (runs Part A, Part B, Part C, API test & Edge Cases)
+├── requirements.txt                   # FastAPI, Uvicorn & Python dependencies
+├── start_app.ps1                      # 1-Click launcher for FastAPI Backend (:8000) + React UI (:5173)
+├── main.py                            # CLI runner (Part A, Part B, Part C, API test & Edge Cases)
+│
+├── api/                               # FastAPI REST Backend (for Local Evaluation with React)
+│   ├── __init__.py
+│   └── server.py                      # Endpoints: /api/plan, /api/incremental-update, /api/edge-cases, /api/sensitivity
+│
+├── frontend/                          # React + Vite + Leaflet.js Interactive Frontend
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── index.html
+│   └── src/
+│       ├── main.jsx
+│       ├── App.jsx                    # 4-Tab CEP Dashboard (Planner, Incremental Repair, Edge Cases, Sensitivity)
+│       ├── App.css
+│       └── mockFallback.js            # Automatic client-side fallback dataset
 │
 ├── data/                              # Mock Fallback & CEP Benchmark Datasets
 │   ├── highway_network.json           # Primary dataset (14 cities, 24 highway segments, EV chargers)
@@ -76,45 +88,44 @@ DAA-PROJECT/
 │   └── pipeline.py                    # Part C: Integrated A* + DP pipeline & Sensitivity Analysis runner
 │
 ├── tests/                             # Automated Unit & CEP Rubric Verification Suite
-│   ├── __init__.py
-│   ├── test_astar.py                  # Tests Part A: optimality, tie-breaking, incremental road closure
-│   ├── test_dp.py                     # Tests Part B: DP state transitions, backtracking, charger exclusion
-│   └── test_cep_scenarios.py          # End-to-end verification of all CEP rubric requirements & API fallback
-│
-├── ui/                                # Interactive Web Visualization Dashboard
-│   ├── dashboard.py                   # Generates interactive HTML map (Leaflet.js + OpenStreetMap)
-│   └── voltpath_map.html              # Generated interactive route & SoC profile visualization
+│   ├── test_astar.py
+│   ├── test_dp.py
+│   └── test_cep_scenarios.py
 │
 └── docs/                              # CEP Academic Report & Formal Deliverables (6-Page Report Material)
-    ├── architecture.md                # System Architecture, Block Diagrams & Sequence Flows
-    ├── complexity_and_proofs.md       # WP1-WP3: Mathematical Formulation, Optimality Proofs & Big-O
-    └── pseudocode.md                  # Clean, labeled pseudocode for Part A, Part B, and Part C
+    ├── architecture.md
+    ├── complexity_and_proofs.md
+    └── pseudocode.md
 ```
 
 ---
 
-## 🧮 CEP Rubric Compliance Matrix (WP1 – WP5)
+## 🚀 How to Run (FastAPI Backend + React Frontend)
 
-| Rubric Criterion | Weight | Implementation in VoltPath |
-| :--- | :---: | :--- |
-| **WP1: Depth of Engineering Knowledge** | **10%** | Clear mathematical decomposition into **Part A (`A*` Heuristic Search)** for spatial routing and **Part B (`Dynamic Programming`)** for multi-stage charging optimization. |
-| **WP2: Range of Conflicting Requirements** | **20%** | Reconciles **Cost** ($\text{PKR/kWh}$) vs. **Time** (charger speed $P_i$ & trip cap $T_{\max}$) vs. **Capacity** ($B_{\max}$) vs. **Safety Reserve** ($B_{\min}$). |
-| **WP3: Depth of Analysis** | **30%** | Formal proofs of **Admissibility & Consistency** for `A*` and **Optimal Substructure** for `DP`, plus exact time/space complexity vs. Brute Force in [`docs/complexity_and_proofs.md`](docs/complexity_and_proofs.md). |
-| **WP5: Extent of Applicable Code** | **40%** | Modular, tested implementation with backtracking reconstruction, incremental route update, sensitivity analysis, API-to-mock fallback, and all mandatory edge-case tests. |
+### Option A: 1-Click Automatic Startup (PowerShell)
+```powershell
+.\start_app.ps1
+```
 
----
+### Option B: Manual 2-Terminal Startup (Recommended During Evaluation)
 
-## 🚀 Quick Start & Commands
+**Terminal 1 — Start the FastAPI Python Backend (`http://127.0.0.1:8000`):**
+```powershell
+pip install fastapi uvicorn pydantic requests
+python -m uvicorn api.server:app --host 127.0.0.1 --port 8000 --reload
+```
+*(Interactive Swagger API Docs available at: `http://127.0.0.1:8000/docs`)*
 
-1. **Run the Complete CEP Pipeline (Worked Example + API Fallback Demo + 3 Edge Cases + Sensitivity Analysis + HTML Map):**
-   ```bash
-   python main.py
-   ```
-2. **Run with Live API Attempt (Automatically Falls Back to Mock if No Key/Offline):**
-   ```bash
-   python main.py --use-api
-   ```
-3. **Run Automated Unit & Edge-Case Verification Suite:**
-   ```bash
-   python -m unittest discover -s tests -v
-   ```
+**Terminal 2 — Start the React (Vite) Frontend (`http://localhost:5173`):**
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+*(Then open `http://localhost:5173` in your browser!)*
+
+### Option C: Run the CLI Pipeline & Automated Unit Tests
+```powershell
+python main.py
+python -m unittest discover -s tests -v
+```
