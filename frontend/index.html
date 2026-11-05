@@ -3,21 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VoltPath — EV Trip Charging Planner (NED CT-363 DAA CEP)</title>
+    <title>VoltPath — EV Trip & Energy Intelligence (NED CT-363 DAA)</title>
+    <!-- Fonts & Icons from Stitch Kinetic Horizon -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Leaflet OpenStreetMap CSS -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Tailwind CDN for Stitch kinetic horizon utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              surface: "#f9f9ff",
+              "surface-dim": "#cfdaf2",
+              "surface-bright": "#f9f9ff",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f0f3ff",
+              "surface-container": "#e7eeff",
+              "surface-container-high": "#dee8ff",
+              "surface-container-highest": "#d8e3fb",
+              "on-surface": "#111c2d",
+              "on-surface-variant": "#3c4a46",
+              "inverse-surface": "#263143",
+              "inverse-on-surface": "#ecf1ff",
+              outline: "#6c7a76",
+              "outline-variant": "#bbcac4",
+              primary: "#006b5c",
+              "on-primary": "#ffffff",
+              "primary-container": "#00c2a8",
+              "on-primary-container": "#00493e",
+              "inverse-primary": "#41ddc2",
+              secondary: "#0058bc",
+              "on-secondary": "#ffffff",
+              "secondary-container": "#0070eb",
+              tertiary: "#006c49",
+              "tertiary-container": "#28c38a",
+              error: "#ba1a1a",
+              "error-container": "#ffdad6",
+              "primary-fixed": "#65fade",
+              "primary-fixed-dim": "#41ddc2",
+              "tertiary-fixed": "#6ffbbe"
+            },
+            fontFamily: {
+              sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      }
+    </script>
   </head>
-  <body>
+  <body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-container">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

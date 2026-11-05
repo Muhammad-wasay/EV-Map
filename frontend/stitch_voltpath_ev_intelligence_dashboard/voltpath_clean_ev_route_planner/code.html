@@ -1,0 +1,426 @@
+<!DOCTYPE html><html lang="en" style=""><svg class="inline-defs-container" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden"></svg><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-secondary-container":"#fefcff","tertiary":"#006c49","on-error-container":"#93000a","primary-fixed-dim":"#41ddc2","on-tertiary":"#ffffff","outline":"#6c7a76","on-primary-fixed-variant":"#005045","secondary-fixed-dim":"#adc6ff","tertiary-fixed-dim":"#4edea3","on-secondary":"#ffffff","on-tertiary-fixed-variant":"#005236","inverse-on-surface":"#ecf1ff","on-background":"#111c2d","secondary-container":"#0070eb","on-error":"#ffffff","background":"#f9f9ff","primary":"#006b5c","tertiary-fixed":"#6ffbbe","tertiary-container":"#28c38a","outline-variant":"#bbcac4","surface-container-highest":"#d8e3fb","primary-fixed":"#65fade","error":"#ba1a1a","on-tertiary-fixed":"#002113","surface-container-lowest":"#ffffff","surface":"#f9f9ff","on-primary":"#ffffff","on-primary-fixed":"#00201b","on-primary-container":"#00493e","on-tertiary-container":"#004a31","secondary":"#0058bc","primary-container":"#00c2a8","secondary-fixed":"#d8e2ff","error-container":"#ffdad6","surface-dim":"#cfdaf2","inverse-primary":"#41ddc2","surface-variant":"#d8e3fb","inverse-surface":"#263143","surface-container":"#e7eeff","on-surface":"#111c2d","on-surface-variant":"#3c4a46","surface-bright":"#f9f9ff","surface-container-high":"#dee8ff","surface-container-low":"#f0f3ff","on-secondary-fixed":"#001a41","on-secondary-fixed-variant":"#004493","surface-tint":"#006b5c"},borderRadius:{DEFAULT:"1rem",lg:"2rem",xl:"3rem",full:"9999px"},spacing:{"space-xl":"2rem","space-sm":"0.5rem",margin:"1rem","margin-tablet":"1.5rem","space-xs":"0.25rem",gutter:"1rem","margin-desktop":"2rem","gutter-desktop":"1.5rem","space-md":"1rem","gutter-tablet":"1.25rem","space-lg":"1.5rem"},fontFamily:{"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"display-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"body-lg":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"]},fontSize:{"headline-lg":["32px",{lineHeight:"40px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-sm":["18px",{lineHeight:"24px",letterSpacing:"-0.005em",fontWeight:"600"}],"label-sm":["10px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"700"}],"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.02em",fontWeight:"600"}],"body-md":["14px",{lineHeight:"20px",fontWeight:"400"}],"headline-md":["22px",{lineHeight:"28px",letterSpacing:"-0.01em",fontWeight:"600"}],"display-lg":["40px",{lineHeight:"48px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-lg-mobile":["26px",{lineHeight:"32px",letterSpacing:"-0.01em",fontWeight:"700"}],"body-lg":["16px",{lineHeight:"24px",fontWeight:"400"}],"label-lg":["14px",{lineHeight:"20px",letterSpacing:"0.01em",fontWeight:"600"}],"body-sm":["12px",{lineHeight:"16px",fontWeight:"400"}]}}}};</script></head><body class="bg-surface text-on-surface antialiased"><header class="fixed top-0 left-0 w-full z-50 pointer-events-none"><div class="h-20 w-full px-margin-desktop flex items-center justify-between"><div class="pointer-events-auto flex items-center gap-space-lg"><div class="flex items-center gap-space-sm bg-surface-container-lowest/90 backdrop-blur-xl px-space-md py-space-xs rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)]"><div class="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container"><span class="material-symbols-outlined text-[20px]">bolt</span></div><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">VoltPath</span></div><nav class="hidden lg:flex items-center gap-space-xs bg-surface-container-lowest/80 backdrop-blur-xl p-space-xs rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)]" data-active-classes="bg-surface-container-high text-on-surface font-semibold"><a aria-current="page" class="px-space-md py-space-xs rounded-full transition-colors bg-surface-container-high text-on-surface font-semibold" data-path="route-planner" href="#">Route Planner</a><a class="font-label-md text-label-md px-space-md py-space-xs rounded-full text-on-surface hover:bg-surface-container-high transition-colors font-medium flex items-center gap-1" data-path="station-network" href="#"><span class="material-symbols-outlined text-[16px] text-primary">ev_station</span><span class="">Charging Network</span></a><a class="font-label-md text-label-md px-space-md py-space-xs rounded-full text-on-surface hover:bg-surface-container-high transition-colors font-medium flex items-center gap-1" data-path="saved-trips" href="#"><span class="material-symbols-outlined text-[16px] text-secondary">bookmark</span><span class="">Saved Trips</span></a><a class="font-label-md text-label-md px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors" data-path="vehicle-telemetry" href="#">Vehicle Specs</a></nav></div><div class="pointer-events-auto flex items-center gap-space-sm"><div class="flex items-center gap-space-xs bg-surface-container-lowest/90 backdrop-blur-xl px-space-md py-space-xs rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)]"><span class="material-symbols-outlined text-primary text-[20px]">electric_car</span><span class="font-label-md text-label-md text-on-surface">82% • 274 mi</span></div><button aria-label="Navigation Mode" class="w-10 h-10 rounded-full bg-surface-container-lowest/90 backdrop-blur-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)] transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">eco</span></button><button aria-label="Notifications" class="w-10 h-10 rounded-full bg-surface-container-lowest/90 backdrop-blur-xl flex items-center justify-center text-on-surface-variant hover:text-on-surface shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)] transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-margin-desktop top-20 bottom-margin-desktop w-[400px] z-40 pointer-events-none hidden md:flex flex-col justify-start"><div class="pointer-events-auto w-full bg-surface-container-lowest/90 backdrop-blur-xl rounded-lg p-space-md shadow-[0_12px_32px_-4px_rgba(15,23,42,0.1)] flex flex-col gap-space-sm"><div class="flex items-center justify-between pb-space-xs"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Quick Navigation</span><span class="font-label-sm text-label-sm text-primary font-bold">Live Routing</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-surface-container-high text-on-surface font-semibold"><a aria-current="page" class="flex items-center justify-between px-space-md py-space-sm rounded-DEFAULT transition-colors bg-surface-container-high text-on-surface font-semibold" data-path="route-planner" href="#"><span class="font-label-lg text-label-lg">Plan New Route</span><span class="material-symbols-outlined text-[18px]">explore</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="station-network" href="#"><span class="font-label-lg text-label-lg">Browse Superchargers</span><span class="material-symbols-outlined text-[18px]">ev_station</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="saved-trips" href="#"><span class="font-label-lg text-label-lg">Trip History</span><span class="material-symbols-outlined text-[18px]">history</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-DEFAULT text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="vehicle-telemetry" href="#"><span class="font-label-lg text-label-lg">Battery &amp; Efficiency</span><span class="material-symbols-outlined text-[18px]">battery_charging_full</span></a></nav></div></aside><div class="fixed right-margin-desktop bottom-margin-desktop z-40 flex flex-col gap-space-xs pointer-events-auto"><button aria-label="Recenter Map" class="w-12 h-12 rounded-full bg-surface-container-lowest/90 backdrop-blur-xl flex items-center justify-center text-on-surface shadow-[0_4px_20px_-2px_rgba(15,23,42,0.1)] hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">my_location</span></button><div class="flex flex-col bg-surface-container-lowest/90 backdrop-blur-xl rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.1)] overflow-hidden"><button aria-label="Zoom In" class="w-12 h-12 flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">add</span></button><button aria-label="Zoom Out" class="w-12 h-12 flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">remove</span></button></div><button aria-label="Map Layers" class="w-12 h-12 rounded-full bg-surface-container-lowest/90 backdrop-blur-xl flex items-center justify-center text-on-surface shadow-[0_4px_20px_-2px_rgba(15,23,42,0.1)] hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">layers</span></button></div><div class="md:pl-[424px]"><main class="relative w-full pt-20 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="relative w-full h-[calc(100vh-5rem)] overflow-hidden flex flex-col md:flex-row">
+<!-- Vector Stylized Interactive Map Canvas Area -->
+<div class="absolute inset-0 z-0 bg-surface-container overflow-hidden">
+<!-- Geographic Stylized Map Graphic (Pakistan North-South EV Corridor) -->
+<svg class="w-full h-full object-cover select-none" fill="none" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="routeGlow" x1="0%" x2="50%" y1="100%" y2="0%">
+<stop offset="0%" stop-color="#00C2A8" stop-opacity="0.8"></stop>
+<stop offset="50%" stop-color="#41DDC2" stop-opacity="0.95"></stop>
+<stop offset="100%" stop-color="#0070EB" stop-opacity="0.85"></stop>
+</linearGradient>
+<filter height="140%" id="softGlow" width="140%" x="-20%" y="-20%">
+<feGaussianBlur result="blur" stdDeviation="6"></feGaussianBlur>
+<feComposite in="SourceGraphic" in2="blur" operator="over"></feComposite>
+</filter>
+</defs>
+<!-- Ambient Topography & River Indus Vector Shapes -->
+<path d="M-100,200 C300,180 500,420 700,480 C950,560 1200,400 1700,500 L1700,1100 L-100,1100 Z" fill="#e2ebfc" opacity="0.6"></path>
+<path d="M200,980 C380,820 540,730 620,590 C700,450 730,340 850,220 C950,120 1100,80 1300,50" opacity="0.5" stroke="#cddbf7" stroke-linecap="round" stroke-width="26"></path>
+<path d="M210,980 C390,820 550,730 630,590 C710,450 740,340 860,220 C960,120 1110,80 1310,50" opacity="0.7" stroke="#bacff5" stroke-linecap="round" stroke-width="6"></path>
+<!-- Highway Interconnect Web (M-9, M-5, M-4, M-2 corridors) -->
+<path d="M420,950 Q480,850 560,780 T710,640 T810,480 T880,310 T940,160" opacity="0.45" stroke="#bbcac4" stroke-linecap="round" stroke-width="7"></path>
+<path d="M560,780 L360,720 M710,640 L890,690 M810,480 L1020,440 M880,310 L700,260" stroke="#dee8ff" stroke-dasharray="6 8" stroke-linecap="round" stroke-width="4"></path>
+<!-- Active Journey Route Highway -->
+<!-- Shadow corridor -->
+<path d="M480,910 C510,840 560,790 610,720 C680,620 730,540 760,460 C790,380 840,290 890,210" opacity="0.15" stroke="#006b5c" stroke-linecap="round" stroke-linejoin="round" stroke-width="12"></path>
+<!-- Main glowing turquoise vector corridor -->
+<path d="M480,910 C510,840 560,790 610,720 C680,620 730,540 760,460 C790,380 840,290 890,210" filter="url(#softGlow)" id="activeHighwayRoute" stroke="url(#routeGlow)" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"></path>
+<!-- Animated pulsing vehicle transit dash line -->
+<path class="animate-pulse" d="M480,910 C510,840 560,790 610,720 C680,620 730,540 760,460 C790,380 840,290 890,210" opacity="0.95" stroke="#ffffff" stroke-dasharray="10 18" stroke-linecap="round" stroke-width="2"></path><!-- Alternative Highway Corridor (N-5 National Highway) -->
+<path id="altN5HighwayRoute" d="M480,910 C535,845 595,800 645,710 C715,605 765,510 805,430 C835,360 865,280 890,210" opacity="0.65" stroke="#6c7a76" stroke-dasharray="8 8" stroke-linecap="round" stroke-linejoin="round" stroke-width="5" class=""></path>
+<path d="M480,910 C535,845 595,800 645,710 C715,605 765,510 805,430 C835,360 865,280 890,210" opacity="0.85" stroke="#bbcac4" stroke-dasharray="4 10" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Highway Markers Text (Ambient) -->
+<text fill="#6c7a76" font-size="12" font-weight="700" letter-spacing="1" x="525" y="810">M-9 MOTORWAY</text>
+<text fill="#6c7a76" font-size="12" font-weight="700" letter-spacing="1" x="685" y="605">M-5 SUKKUR-MULTAN</text>
+<text fill="#6c7a76" font-size="12" font-weight="700" letter-spacing="1" x="825" y="380">M-2 MOTORWAY</text>
+<!-- Route Origin: Karachi (Pinpoint) -->
+<g transform="translate(480, 910)">
+<circle class="animate-ping" fill="#00C2A8" opacity="0.2" r="22"></circle>
+<circle fill="#ffffff" filter="url(#softGlow)" r="14"></circle>
+<circle fill="#006b5c" r="7"></circle>
+<rect fill="#ffffff" filter="url(#softGlow)" height="28" rx="14" width="112" x="-56" y="22"></rect>
+<text fill="#111c2d" font-size="12" font-weight="700" text-anchor="middle" x="0" y="40">Karachi (Sindh)</text>
+</g>
+<!-- Stop 1: Moro HyperCharge -->
+<g class="cursor-pointer group" transform="translate(585, 755)">
+<circle fill="#28c38a" opacity="0.25" r="18"></circle>
+<circle fill="#ffffff" r="11"></circle>
+<circle fill="#006c49" r="6"></circle>
+</g>
+<!-- Stop 2: Rahim Yar Khan Oasis -->
+<g class="cursor-pointer group" transform="translate(685, 615)">
+<circle fill="#28c38a" opacity="0.25" r="18"></circle>
+<circle fill="#ffffff" r="11"></circle>
+<circle fill="#006c49" r="6"></circle>
+</g>
+<!-- Stop 3: Multan Express Hub -->
+<g class="cursor-pointer group" transform="translate(760, 460)">
+<circle fill="#28c38a" opacity="0.25" r="18"></circle>
+<circle fill="#ffffff" r="11"></circle>
+<circle fill="#006c49" r="6"></circle>
+</g>
+<!-- Route Destination: Islamabad -->
+<g transform="translate(890, 210)">
+<circle class="animate-pulse" fill="#ba1a1a" opacity="0.2" r="24"></circle>
+<circle fill="#ffffff" filter="url(#softGlow)" r="15"></circle>
+<circle fill="#ba1a1a" r="7"></circle>
+<rect fill="#ffffff" filter="url(#softGlow)" height="28" rx="14" width="104" x="-52" y="-42"></rect>
+<text fill="#ba1a1a" font-size="12" font-weight="700" text-anchor="middle" x="0" y="-24">Islamabad</text>
+</g>
+</svg>
+<!-- Interactive Floating Map Station Cards Placed Over Coordinates -->
+<!-- Moro Station Overlay Badge -->
+<div id="station-detail-popup" class="absolute left-[46%] top-[72%] z-20 flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-full transition-all duration-300 drop-shadow-2xl"><div class="w-[350px] bg-surface-container-lowest/95 backdrop-blur-2xl rounded-2xl p-4 shadow-[0_12px_40px_-6px_rgba(15,23,42,0.18)] border border-outline-variant/30 flex flex-col gap-3 text-on-surface"><div class="flex items-start justify-between gap-2"><div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 mb-1"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-fixed/40 text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span> 4 of 6 Available</span><span class="text-label-sm font-bold text-outline">• 150 kW DC</span></div><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-tight truncate">Moro HyperCharge Hub</h3><div class="flex items-center gap-1 mt-0.5 text-label-sm text-outline"><span class="material-symbols-outlined text-[15px] text-amber-500 fill-1">star</span><strong class="text-on-surface font-semibold">4.8</strong><span class="">(142 reviews)</span><span class="mx-1">•</span><span class="">M-9 / N-5 Jct</span></div></div><button onclick="this.closest('#station-detail-popup').classList.add('hidden')" aria-label="Dismiss Popup" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors shrink-0"><span class="material-symbols-outlined text-[16px]">close</span></button></div><div class="grid grid-cols-2 gap-2 bg-surface-container-low/80 rounded-DEFAULT p-2.5"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Tariff</span><span class="font-label-md text-label-md text-on-surface font-bold">PKR 65 <span class="font-normal text-outline text-[11px]">/ kWh</span></span></div><div class="flex flex-col"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Est. Charge</span><span class="font-label-md text-label-md text-primary font-bold">30 min <span class="text-tertiary font-semibold text-[11px]">(18%→82%)</span></span></div><div class="col-span-2 pt-1 border-t border-outline-variant/30 flex items-center justify-between text-label-sm"><span class="text-outline">Connectors</span><span class="font-semibold text-on-surface-variant">CCS2 • CHAdeMO • Type 2</span></div></div><div><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block mb-1.5">Station Amenities</span><div class="flex flex-wrap items-center gap-1.5"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-tertiary">coffee</span> Tea Bar</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-primary">restaurant</span> Highway Diner</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-secondary">wc</span> Restrooms</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-outline">mosque</span> Prayer Area</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-tertiary">wifi</span> Free Wi-Fi</span></div></div><div class="flex items-center gap-2 pt-1"><button class="flex-1 py-2 px-3 rounded-full bg-primary text-on-primary hover:bg-primary/90 font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 shadow-[0_4px_16px_-2px_rgba(0,194,168,0.4)] transition-transform active:scale-[0.98]"><span class="material-symbols-outlined text-[16px]">bolt</span><span class="">Reserve Stall #4</span></button><button aria-label="Share Station Details" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shrink-0" title="Share"><span class="material-symbols-outlined text-[17px]">share</span></button><button aria-label="Direct Navigation" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shrink-0" title="Directions"><span class="material-symbols-outlined text-[17px]">turn_right</span></button></div></div><div class="w-4 h-4 bg-surface-container-lowest rotate-45 -mt-2 shadow-md border-r border-b border-outline-variant/30"></div></div>
+<!-- Rahim Yar Khan Station Overlay Badge -->
+<div id="ryk-detail-popup" class="absolute left-[66%] top-[45%] z-20 flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-full transition-all duration-300 drop-shadow-2xl"><div class="w-[350px] bg-surface-container-lowest/95 backdrop-blur-2xl rounded-2xl p-4 shadow-[0_12px_40px_-6px_rgba(15,23,42,0.18)] border border-outline-variant/30 flex flex-col gap-3 text-on-surface"><div class="flex items-start justify-between gap-2"><div class="flex-1 min-w-0"><div class="flex items-center gap-1.5 mb-1"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary-fixed/40 text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span> 6 of 8 Available</span><span class="text-label-sm font-bold text-outline">• 180 kW UltraFast</span></div><h3 class="font-headline-sm text-headline-sm text-on-surface font-bold leading-tight truncate">RYK Oasis Superhub</h3><div class="flex items-center gap-1 mt-0.5 text-label-sm text-outline"><span class="material-symbols-outlined text-[15px] text-amber-500 fill-1">star</span><strong class="text-on-surface font-semibold">4.9</strong><span class="">(218 reviews)</span><span class="mx-1">•</span><span class="">M-5 Motorway, Rahim Yar Khan</span></div></div><button onclick="this.closest('#ryk-detail-popup').classList.add('hidden')" aria-label="Dismiss Popup" class="w-7 h-7 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface transition-colors shrink-0"><span class="material-symbols-outlined text-[16px]">close</span></button></div><div class="grid grid-cols-2 gap-2 bg-surface-container-low/80 rounded-DEFAULT p-2.5"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Tariff</span><span class="font-label-md text-label-md text-on-surface font-bold">PKR 70 <span class="font-normal text-outline text-[11px]">/ kWh</span></span></div><div class="flex flex-col"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Est. Charge</span><span class="font-label-md text-label-md text-primary font-bold">45 min <span class="text-tertiary font-semibold text-[11px]">(14%→85%)</span></span></div><div class="col-span-2 pt-1 border-t border-outline-variant/30 flex items-center justify-between text-label-sm"><span class="text-outline">Connectors</span><span class="font-semibold text-on-surface-variant">CCS2 • Type 2 (180 kW DC)</span></div></div><div><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block mb-1.5">Station Amenities</span><div class="flex flex-wrap items-center gap-1.5"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-primary">lunch_dining</span> Fast Food (KFC)</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-secondary">wc</span> Clean Restrooms</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-outline">mosque</span> Prayer Area</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-tertiary">store</span> Mini Mart</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[13px] text-primary">shield</span> 24/7 Security</span></div></div><div class="flex items-center gap-2 pt-1"><button class="flex-1 py-2 px-3 rounded-full bg-primary text-on-primary hover:bg-primary/90 font-label-md text-label-md font-semibold flex items-center justify-center gap-1.5 shadow-[0_4px_16px_-2px_rgba(0,194,168,0.4)] transition-transform active:scale-[0.98]"><span class="material-symbols-outlined text-[16px]">bolt</span><span class="">Reserve Stall #2</span></button><button aria-label="Share Station Details" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shrink-0" title="Share"><span class="material-symbols-outlined text-[17px]">share</span></button><button aria-label="Direct Navigation" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shrink-0" title="Directions"><span class="material-symbols-outlined text-[17px]">turn_right</span></button></div></div><div class="w-4 h-4 bg-surface-container-lowest rotate-45 -mt-2 shadow-md border-r border-b border-outline-variant/30"></div></div>
+<!-- Multan Station Overlay Badge -->
+<div class="absolute left-[49%] top-[41%] hidden xl:flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-full hover:scale-105 transition-transform duration-200">
+<div class="bg-surface-container-lowest/95 backdrop-blur-md rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.12)] px-space-md py-1.5 flex items-center gap-space-sm mb-2">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary-container"></span>
+<span class="font-label-md text-label-md text-on-surface">Multan Metro Volt</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-on-primary-container font-label-sm text-label-sm">⚡ 80 kW</span>
+<div class="flex items-center gap-1 text-outline">
+<span class="material-symbols-outlined text-[15px]">local_mall</span>
+<span class="material-symbols-outlined text-[15px]">wc</span>
+</div>
+</div>
+<div class="w-3 h-3 bg-surface-container-lowest rotate-45 -mt-3.5 shadow-sm"></div>
+</div><div class="absolute left-[54%] top-[56%] z-20 flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer hover:scale-105 transition-all duration-200">
+  <div class="bg-surface-container-lowest/90 backdrop-blur-xl rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.14)] border border-outline-variant/60 px-3 py-1 flex items-center gap-1.5 hover:border-secondary hover:bg-surface-container-lowest transition-all">
+    <span class="material-symbols-outlined text-[15px] text-outline group-hover:text-secondary">alt_route</span>
+    <div class="flex items-center gap-1 font-label-sm text-label-sm">
+      <span class="font-bold text-on-surface">N-5 Alt</span>
+      <span class="text-error font-semibold">+1h 45m</span>
+      <span class="text-outline font-normal text-[10px] hidden sm:inline">• 1,543 km</span>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Quick Floating Top Filter Chips (InDrive/Careem Map Style) -->
+<div class="absolute top-4 left-4 md:left-[440px] z-20 pointer-events-auto overflow-x-auto pb-2 scrollbar-none flex items-center gap-space-xs">
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-full bg-primary text-on-primary shadow-[0_4px_20px_-2px_rgba(15,23,42,0.1)] hover:bg-primary/90 transition-colors shrink-0">
+<span class="w-2 h-2 rounded-full bg-primary-fixed"></span>
+<span class="font-label-md text-label-md font-semibold">Fast Chargers (50kW+)</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)] hover:bg-surface-container-high transition-colors shrink-0">
+<span class="material-symbols-outlined text-[16px] text-tertiary">bolt</span>
+<span class="font-label-md text-label-md">Open Now</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)] hover:bg-surface-container-high transition-colors shrink-0">
+<span class="material-symbols-outlined text-[16px] text-secondary">wc</span>
+<span class="font-label-md text-label-md">With Restrooms</span>
+</button>
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface shadow-[0_4px_20px_-2px_rgba(15,23,42,0.06)] hover:bg-surface-container-high transition-colors shrink-0">
+<span class="material-symbols-outlined text-[16px] text-primary">price_change</span>
+<span class="font-label-md text-label-md">Best Value</span>
+</button>
+</div>
+<!-- Floating Top-Right Mini Telemetry Pill -->
+<div class="absolute top-4 right-6 z-20 hidden lg:flex items-center gap-space-sm pointer-events-auto">
+<div class="flex items-center gap-space-sm bg-surface-container-lowest/90 backdrop-blur-xl px-space-md py-2 rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.08)]">
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
+</span>
+<span class="font-label-md text-label-md text-on-surface">Weather along route: <strong class="text-on-surface font-semibold">Clear • 28°C</strong></span>
+<span class="text-outline">|</span>
+<span class="font-label-md text-label-md text-tertiary font-semibold">Optimum Aerodynamic Wind +4%</span>
+</div>
+</div>
+<!-- MAIN FLOATING TRIP PLANNER & ROUTE CONTROLLER (Left/Bottom Sheet) -->
+<div class="relative md:absolute md:left-6 md:top-20 md:bottom-6 z-30 w-full md:w-[400px] max-h-[calc(100vh-7rem)] flex flex-col justify-end md:justify-start pointer-events-none mt-auto md:mt-0 p-3 md:p-0">
+<div class="pointer-events-auto w-full bg-surface-container-lowest/95 backdrop-blur-2xl rounded-2xl md:rounded-lg shadow-[0_12px_40px_-6px_rgba(15,23,42,0.14)] flex flex-col max-h-full overflow-hidden transition-all duration-300">
+<!-- Header: Origin / Destination (Careem/Google style input stack) -->
+<div class="p-space-lg pb-space-md flex flex-col gap-space-md bg-gradient-to-b from-surface-container-low/70 to-transparent">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">alt_route</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold tracking-tight">Express EV Routing</span>
+</div>
+<!-- Car SoC Selector Tag -->
+<button class="flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px] text-primary">directions_car</span>
+<span class="font-label-sm text-label-sm">Tesla M3 • 73%</span>
+<span class="material-symbols-outlined text-[14px] text-outline">expand_more</span>
+</button>
+</div>
+<!-- Route Segment Inputs Stack -->
+<div class="relative flex flex-col gap-2 bg-surface-container-low/90 rounded-DEFAULT p-3">
+<!-- Connecting Line between dots -->
+<div class="absolute left-6 top-6 bottom-6 w-0.5 bg-outline-variant/60 -z-0"></div>
+<!-- Origin Row -->
+<div class="flex items-center gap-3 relative z-10">
+<div class="w-6 h-6 rounded-full bg-tertiary-container/30 flex items-center justify-center shrink-0">
+<div class="w-2.5 h-2.5 rounded-full bg-tertiary"></div>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-label-sm text-label-sm text-outline block leading-none mb-0.5">STARTING POINT</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold truncate block">Karachi (Sindh)</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary bg-tertiary-fixed/30 px-2 py-0.5 rounded-full">Depart 73%</span>
+</div>
+<!-- Destination Row -->
+<div class="flex items-center gap-3 relative z-10 pt-1">
+<div class="w-6 h-6 rounded-full bg-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[15px] text-error">location_on</span>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-label-sm text-label-sm text-outline block leading-none mb-0.5">FINAL DESTINATION</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold truncate block">Islamabad (Federal Capital)</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold">24% Buffer</span>
+</div>
+</div><div class="flex flex-col gap-1.5">
+  <div class="flex items-center justify-between px-1">
+    <span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-bold">Select Route Corridor</span>
+    <span class="font-label-sm text-label-sm text-primary font-semibold flex items-center gap-0.5">
+      <span class="material-symbols-outlined text-[13px]">tune</span> Compare 2 Routes
+    </span>
+  </div>
+  <div class="grid grid-cols-2 gap-2">
+    <!-- Primary Route: M-5 Motorway (Active) -->
+    <button type="button" class="flex flex-col items-start p-2.5 rounded-DEFAULT bg-primary/10 border-2 border-primary text-left transition-all relative overflow-hidden group">
+      <div class="flex items-center justify-between w-full mb-1">
+        <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-primary text-on-primary font-label-sm text-[10px] font-bold">
+          <span class="material-symbols-outlined text-[11px]">bolt</span> FASTEST
+        </span>
+        <span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+      </div>
+      <span class="font-label-md text-label-md font-bold text-on-surface leading-tight">via M-5 Motorway</span>
+      <div class="flex items-center gap-1 font-label-sm text-label-sm mt-0.5 text-on-surface-variant">
+        <strong class="text-primary font-bold">18h 30m</strong>
+        <span class="text-outline">•</span>
+        <span class="text-outline">1,505 km</span>
+      </div>
+      <div class="flex items-center gap-1 mt-1 text-[11px] text-tertiary font-semibold">
+        <span class="material-symbols-outlined text-[13px]">ev_station</span> 3 UltraFast Hubs
+      </div>
+    </button>
+
+    <!-- Alternative Route: N-5 National Highway (Inactive / Selectable) -->
+    <button type="button" class="flex flex-col items-start p-2.5 rounded-DEFAULT bg-surface-container-low/80 hover:bg-surface-container border border-outline-variant/60 text-left transition-all group">
+      <div class="flex items-center justify-between w-full mb-1">
+        <span class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full bg-surface-container-highest text-outline font-label-sm text-[10px] font-semibold">
+          ALT CORRIDOR
+        </span>
+        <span class="font-label-sm text-[11px] font-bold text-error">+1h 45m</span>
+      </div>
+      <span class="font-label-md text-label-md font-bold text-on-surface leading-tight">via N-5 Highway</span>
+      <div class="flex items-center gap-1 font-label-sm text-label-sm mt-0.5 text-on-surface-variant">
+        <span class="text-on-surface font-semibold">20h 15m</span>
+        <span class="text-outline">•</span>
+        <span class="text-outline">1,543 km</span>
+      </div>
+      <div class="flex items-center gap-1 mt-1 text-[11px] text-outline font-medium">
+        <span class="material-symbols-outlined text-[13px] text-secondary">payments</span> Fewer Tolls • 4 Hubs
+      </div>
+    </button>
+  </div>
+</div>
+<!-- Trip Quick Metrics Grid -->
+<div class="grid grid-cols-4 gap-2 text-center pt-1">
+<div class="bg-surface-container-low rounded-DEFAULT p-2 flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Distance</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold">1,505 km</span>
+</div>
+<div class="bg-surface-container-low rounded-DEFAULT p-2 flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Drive Time</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold">18h 30m</span>
+</div>
+<div class="bg-surface-container-low rounded-DEFAULT p-2 flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Stops</span>
+<span class="font-label-lg text-label-lg text-primary font-bold">3 EV Hubs</span>
+</div>
+<div class="bg-surface-container-low rounded-DEFAULT p-2 flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Est. Energy</span>
+<span class="font-label-lg text-label-lg text-tertiary font-bold">PKR 11.0k</span>
+</div>
+</div><div class="flex flex-col gap-1.5 pt-1"><div class="flex items-center justify-between px-1"><span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px] text-tertiary">receipt_long</span> Trip Cost Breakdown</span><button type="button" onclick="const el=document.getElementById('cost-breakdown-details'); el.classList.toggle('hidden'); const ic=this.querySelector('.breakdown-toggle-icon'); ic.textContent = el.classList.contains('hidden') ? 'expand_more' : 'expand_less';" class="font-label-sm text-label-sm text-primary font-semibold flex items-center gap-0.5 hover:underline"><span class="text-[11px]">Itemized View</span><span class="material-symbols-outlined text-[16px] breakdown-toggle-icon">expand_more</span></button></div><div class="bg-surface-container-low/90 rounded-DEFAULT p-2.5 border border-outline-variant/30 flex flex-col gap-2"><div class="flex items-center justify-between"><div class="flex items-center gap-1.5"><div class="w-6 h-6 rounded-full bg-tertiary-fixed/30 text-on-tertiary-fixed-variant flex items-center justify-center"><span class="material-symbols-outlined text-[14px]">payments</span></div><div><span class="font-label-md text-label-md font-bold text-on-surface block leading-tight">Total Trip Cost</span><span class="font-label-sm text-[10px] text-outline">EV charging + Motorway tolls</span></div></div><div class="text-right"><span class="font-headline-sm text-headline-sm font-bold text-primary block leading-tight">PKR 15,870</span><span class="font-label-sm text-[10px] text-tertiary font-semibold">All inclusive</span></div></div><div id="cost-breakdown-details" class="flex flex-col gap-1.5 pt-2 border-t border-outline-variant/30"><div class="flex items-center justify-between text-label-sm"><div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[13px] text-primary">bolt</span><span class="">EV Charging (3 Hubs)</span></div><div class="text-right"><span class="font-semibold text-on-surface">PKR 11,040</span><span class="text-[10px] text-outline block">Moro + RYK + Multan</span></div></div><div class="flex items-center justify-between text-label-sm"><div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[13px] text-secondary">toll</span><span class="">M-9 / M-5 / M-2 M-Tag Tolls</span></div><span class="font-semibold text-on-surface">PKR 4,350</span></div><div class="flex items-center justify-between text-label-sm"><div class="flex items-center gap-1 text-on-surface-variant"><span class="material-symbols-outlined text-[13px] text-tertiary">device_thermostat</span><span class="">Battery Preconditioning</span></div><span class="font-semibold text-on-surface">PKR 480</span></div></div><div class="bg-tertiary-fixed/30 rounded-DEFAULT p-2 flex items-center gap-2"><span class="material-symbols-outlined text-[18px] text-tertiary shrink-0">savings</span><div class="flex-1 min-w-0"><span class="font-label-sm text-[11px] text-on-tertiary-fixed-variant font-bold block leading-tight">⚡ Saves PKR 22,400 vs Petrol/ICE</span><span class="text-[10px] text-on-surface-variant">63% cheaper than equivalent fuel run (PKR 38,270)</span></div></div></div></div>
+</div>
+<!-- Scrollable Route Milestones (Charging Stations Timeline) -->
+<div class="flex-1 overflow-y-auto px-space-lg py-space-sm space-y-space-md scrollbar-none max-h-60 md:max-h-72">
+<div class="flex items-center justify-between pb-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-bold">Optimal Charging Plan</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">shield</span> Battery Safe Zone
+            </span>
+</div>
+<!-- Milestone 1: Drive to Moro -->
+<div class="relative pl-6">
+<div class="absolute left-1.5 top-2 bottom-0 w-0.5 bg-surface-container-highest"></div>
+<div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-surface-container-highest flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-outline"></div>
+</div>
+<div class="flex items-center justify-between text-outline pb-2">
+<span class="font-label-sm text-label-sm">Drive 330 km via M-9 Motorway</span>
+<span class="font-label-sm text-label-sm">3h 40m</span>
+</div>
+<!-- Charging Stop 1 Card -->
+<div class="bg-surface-container-low hover:bg-surface-container transition-colors rounded-DEFAULT p-3 flex flex-col gap-1.5 mb-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">ev_station</span>
+</div>
+<div>
+<h2 class="font-label-lg text-label-lg text-on-surface font-semibold leading-tight">Moro HyperCharge Hub</h2>
+<span class="font-label-sm text-label-sm text-outline">Stall #4 • 120 kW CCS2</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-primary font-bold block">30 min stop</span>
+<span class="font-label-sm text-label-sm text-tertiary">18% → 82%</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1 border-t-0 text-on-surface-variant font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">coffee</span> Tea Bar
+                </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">restaurant</span> Highway Diner
+                </span>
+<span class="text-outline ml-auto">PKR 2,450</span>
+</div>
+</div>
+</div>
+<!-- Milestone 2: Drive to Rahim Yar Khan -->
+<div class="relative pl-6">
+<div class="absolute left-1.5 top-2 bottom-0 w-0.5 bg-surface-container-highest"></div>
+<div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-surface-container-highest flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-outline"></div>
+</div>
+<div class="flex items-center justify-between text-outline pb-2">
+<span class="font-label-sm text-label-sm">Drive 410 km via M-5 Motorway</span>
+<span class="font-label-sm text-label-sm">4h 35m</span>
+</div>
+<!-- Charging Stop 2 Card -->
+<div class="bg-surface-container-low hover:bg-surface-container transition-colors rounded-DEFAULT p-3 flex flex-col gap-1.5 mb-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">bolt</span>
+</div>
+<div>
+<h2 class="font-label-lg text-label-lg text-on-surface font-semibold leading-tight">RYK Oasis Superhub</h2>
+<span class="font-label-sm text-label-sm text-outline">Stall #2 • 150 kW UltraFast</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-primary font-bold block">45 min stop</span>
+<span class="font-label-sm text-label-sm text-tertiary">14% → 85%</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">lunch_dining</span> Fast Food
+                </span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">wc</span> Clean Restrooms
+                </span>
+<span class="text-outline ml-auto">PKR 4,820</span>
+</div>
+</div>
+</div>
+<!-- Milestone 3: Drive to Multan -->
+<div class="relative pl-6">
+<div class="absolute left-1.5 top-2 bottom-0 w-0.5 bg-surface-container-highest"></div>
+<div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-surface-container-highest flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-outline"></div>
+</div>
+<div class="flex items-center justify-between text-outline pb-2">
+<span class="font-label-sm text-label-sm">Drive 290 km via M-5 North</span>
+<span class="font-label-sm text-label-sm">3h 15m</span>
+</div>
+<!-- Charging Stop 3 Card -->
+<div class="bg-surface-container-low hover:bg-surface-container transition-colors rounded-DEFAULT p-3 flex flex-col gap-1.5 mb-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">ev_station</span>
+</div>
+<div>
+<h2 class="font-label-lg text-label-lg text-on-surface font-semibold leading-tight">Multan Metro Volt Hub</h2>
+<span class="font-label-sm text-label-sm text-outline">Stall #1 • 80 kW DC</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-md text-label-md text-primary font-bold block">35 min stop</span>
+<span class="font-label-sm text-label-sm text-tertiary">22% → 80%</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">local_cafe</span> Coffee Bar
+                </span>
+<span class="text-outline ml-auto">PKR 3,742</span>
+</div>
+</div>
+</div>
+<!-- Final Milestone: Reach Islamabad -->
+<div class="relative pl-6 pb-2">
+<div class="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-error flex items-center justify-center shadow-sm">
+<div class="w-1.5 h-1.5 rounded-full bg-surface-container-lowest"></div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label-md text-label-md font-bold text-on-surface block">Arrive at Islamabad</span>
+<span class="font-label-sm text-label-sm text-outline">Final 475 km leg via M-4 &amp; M-2</span>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/30 text-on-tertiary-container font-label-sm text-label-sm font-bold">24% Left in Battery</span>
+</div>
+</div>
+</div>
+<!-- Footer Action Callout: High-Vibrancy Teal CTA -->
+<div class="p-space-md pt-space-xs bg-surface-container-lowest">
+<div class="flex items-center gap-2 mb-2">
+<button class="flex-1 h-13 py-3 px-space-md rounded-full bg-primary-container hover:bg-primary-fixed-dim text-on-primary-container font-headline-sm text-headline-sm font-bold flex items-center justify-center gap-2 shadow-[0_6px_24px_-4px_rgba(0,194,168,0.4)] transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-[22px]">navigation</span>
+<span class="">Start Trip Navigation</span>
+</button>
+<button aria-label="Share Route" class="w-12 h-12 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-on-surface shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<p class="text-center font-label-sm text-label-sm text-outline">Pre-conditioning battery for Moro HyperCharge automatically</p>
+</div>
+</div>
+</div>
+<!-- Floating Map Control Widget Overlays (Bottom Right Corner) -->
+<div class="absolute bottom-6 right-6 z-20 hidden md:flex flex-col gap-2 pointer-events-auto">
+<div class="bg-surface-container-lowest/90 backdrop-blur-xl rounded-full shadow-[0_4px_20px_-2px_rgba(15,23,42,0.1)] p-1 flex flex-col items-center">
+<button aria-label="Charging Network Overlay" class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-container transition-colors" title="Toggle EV Network">
+<span class="material-symbols-outlined text-[20px]">electric_car</span>
+</button>
+<button aria-label="Live Traffic Layer" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors" title="Traffic status">
+<span class="material-symbols-outlined text-[20px]">traffic</span>
+</button>
+</div>
+</div>
+<div id="turn-by-turn-hud" class="pointer-events-none absolute inset-0 z-40 flex flex-col justify-between p-4 md:p-6"><div class="pointer-events-auto flex flex-col items-center md:items-start max-w-xl mx-auto md:mx-0 md:left-[430px] md:relative gap-2"><div class="bg-surface-container-lowest/95 backdrop-blur-2xl rounded-2xl p-4 shadow-[0_12px_40px_-6px_rgba(15,23,42,0.18)] border border-outline-variant/30 flex items-center gap-4 text-on-surface w-full md:w-[480px]"><div class="w-13 h-13 rounded-2xl bg-primary flex items-center justify-center text-on-primary shrink-0 shadow-[0_4px_16px_-2px_rgba(0,194,168,0.4)]"><span class="material-symbols-outlined text-[32px]">turn_right</span></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><span class="font-label-sm text-label-sm uppercase tracking-wider font-bold text-primary px-2 py-0.5 rounded-full bg-primary-fixed/30">In 1.4 km</span><span class="font-label-sm text-label-sm font-semibold text-outline-variant/60">•</span><span class="font-label-sm text-label-sm font-bold text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">M-5 Motorway</span></div><h2 class="font-headline-sm text-headline-sm font-bold text-on-surface leading-tight truncate">Exit towards Rahim Yar Khan</h2><p class="font-label-sm text-label-sm text-outline truncate mt-0.5">Then continue straight for 380 km towards RYK Oasis Superhub</p></div><div class="flex flex-col items-end gap-1 shrink-0"><button aria-label="Voice Guidance Toggle" class="w-9 h-9 rounded-full bg-surface-container-low hover:bg-surface-container flex items-center justify-center text-on-surface-variant transition-colors"><span class="material-symbols-outlined text-[20px]">volume_up</span></button></div></div><div class="flex items-center gap-2"><div class="bg-surface-container-lowest/90 backdrop-blur-xl rounded-full px-3 py-1 border border-outline-variant/30 shadow-sm flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></div><span class="font-label-sm text-label-sm text-on-surface font-semibold">Next Stop: <strong class="text-primary">RYK Oasis Superhub</strong> in 240 km</span><span class="font-label-sm text-label-sm text-tertiary bg-tertiary-fixed/30 px-2 py-0.2 rounded-full font-bold">38% SoC Est.</span></div></div></div><div class="pointer-events-auto w-full max-w-4xl mx-auto flex items-center justify-between gap-4 bg-surface-container-lowest/95 backdrop-blur-2xl rounded-2xl md:rounded-full px-5 py-3 shadow-[0_12px_40px_-6px_rgba(15,23,42,0.18)] border border-outline-variant/30 text-on-surface flex-wrap md:flex-nowrap"><div class="flex items-center gap-4 shrink-0"><div class="flex flex-col"><div class="flex items-baseline gap-1.5"><span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">11:45</span><span class="font-label-sm text-label-sm text-outline font-semibold uppercase">PM</span></div><span class="font-label-sm text-label-sm text-tertiary font-bold">On Schedule</span></div><div class="h-8 w-0.5 bg-outline-variant/30"></div><div class="flex items-center gap-3 font-label-md text-label-md"><span class="font-bold text-on-surface">18h 30m</span><span class="text-outline">•</span><span class="text-outline font-semibold">1,505 km remaining</span></div></div><div class="hidden lg:flex items-center gap-3"><div class="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full"><span class="material-symbols-outlined text-[18px] text-primary">bolt</span><span class="font-label-sm text-label-sm font-semibold text-on-surface">Tesla M3: 73% • 274 mi</span><span class="text-outline">|</span><span class="font-label-sm text-label-sm text-tertiary font-medium">Pre-conditioning battery</span></div><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-outline-variant/60"><span class="font-label-sm text-label-sm font-bold text-error">120</span><span class="font-label-sm text-label-sm font-bold text-on-surface">114 km/h</span></div></div><div class="flex items-center gap-2 ml-auto"><button aria-label="Re-center view" class="w-10 h-10 rounded-full bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors shadow-sm"><span class="material-symbols-outlined text-[20px]">navigation</span></button><button onclick="document.getElementById('turn-by-turn-hud').classList.toggle('hidden')" class="px-4 py-2 rounded-full bg-error-container hover:bg-error text-error hover:text-on-error font-label-md text-label-md font-bold flex items-center gap-1.5 transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">close</span><span class="">Exit Nav</span></button></div></div></div></div>
+</div>
+<script>
+  // Simple micro-interaction for route card toggling and telemetry simulation
+  document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.querySelector('button[aria-label="Start Trip Navigation"]') || document.querySelector('.bg-primary-container');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        const originalText = startBtn.innerHTML;
+        startBtn.innerHTML = `
+          <span class="material-symbols-outlined text-[22px] animate-spin">sync</span>
+          <span>Connecting to Vehicle...</span>
+        `;
+        setTimeout(() => {
+          startBtn.innerHTML = `
+            <span class="material-symbols-outlined text-[22px]">check_circle</span>
+            <span>Route Synced to Car</span>
+          `;
+        }, 1200);
+      });
+    }
+  });
+</script></main></div>
+
+</body></html>
