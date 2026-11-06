@@ -16,6 +16,7 @@ export default function VehicleSpecsTelemetryView({
     BYD_SEAL: {
       id: 'BYD_SEAL',
       name: 'BYD Seal Performance AWD',
+      image: '/vehicles/byd_seal.png',
       brand: 'BYD',
       bodyType: 'sedan_performance',
       edition: 'Cell-to-Body (CTB) Blade LFP',
@@ -35,6 +36,7 @@ export default function VehicleSpecsTelemetryView({
     TESLA_M3: {
       id: 'TESLA_M3',
       name: 'Tesla Model 3 Long Range',
+      image: '/vehicles/tesla_model_3.png',
       brand: 'Tesla',
       bodyType: 'fastback_minimal',
       edition: 'Highland Dual Motor AWD',
@@ -54,6 +56,7 @@ export default function VehicleSpecsTelemetryView({
     TESLA_MY: {
       id: 'TESLA_MY',
       name: 'Tesla Model Y Long Range',
+      image: '/vehicles/tesla_model_y.png',
       brand: 'Tesla',
       bodyType: 'suv_crossover',
       edition: 'All-Wheel Drive Premium',
@@ -73,6 +76,7 @@ export default function VehicleSpecsTelemetryView({
     MG4_TROPHY: {
       id: 'MG4_TROPHY',
       name: 'MG4 EV Trophy Long Range',
+      image: '/vehicles/mg_zs_ev.png',
       brand: 'MG',
       bodyType: 'hatch_sport',
       edition: 'Modular Scalable Platform (MSP)',
@@ -92,6 +96,7 @@ export default function VehicleSpecsTelemetryView({
     MG_ZS_EV: {
       id: 'MG_ZS_EV',
       name: 'MG ZS EV Essence Long Range',
+      image: '/vehicles/mg_zs_ev.png',
       brand: 'MG',
       bodyType: 'suv_crossover',
       edition: 'Dedicated Crossover Chassis',
@@ -111,6 +116,7 @@ export default function VehicleSpecsTelemetryView({
     DEEPAL_S07: {
       id: 'DEEPAL_S07',
       name: 'Deepal S07 Pure EV Edition',
+      image: '/vehicles/deepal_s07.png',
       brand: 'Deepal',
       bodyType: 'suv_crossover',
       edition: 'EPA1 Dedicated EV Architecture',
@@ -130,6 +136,7 @@ export default function VehicleSpecsTelemetryView({
     DEEPAL_L07: {
       id: 'DEEPAL_L07',
       name: 'Deepal L07 Pure EV Sport Sedan',
+      image: '/vehicles/deepal_l07.png',
       brand: 'Deepal',
       bodyType: 'fastback_minimal',
       edition: 'EPA1 Aerodynamic Fastback',
@@ -149,6 +156,7 @@ export default function VehicleSpecsTelemetryView({
     BYD_ATTO3: {
       id: 'BYD_ATTO3',
       name: 'BYD Atto 3 Extended Range',
+      image: '/vehicles/byd_seal.png',
       brand: 'BYD',
       bodyType: 'suv_crossover',
       edition: 'e-Platform 3.0 Blade Battery',
@@ -168,6 +176,7 @@ export default function VehicleSpecsTelemetryView({
     PORSCHE_TAYCAN: {
       id: 'PORSCHE_TAYCAN',
       name: 'Porsche Taycan Turbo S',
+      image: '/vehicles/porsche_taycan.png',
       brand: 'Porsche',
       bodyType: 'sedan_performance',
       edition: '800V Ultra-High Voltage Platform',
@@ -187,6 +196,7 @@ export default function VehicleSpecsTelemetryView({
     AUDI_ETRON: {
       id: 'AUDI_ETRON',
       name: 'Audi e-tron GT quattro',
+      image: '/vehicles/audi_etron.png',
       brand: 'Audi',
       bodyType: 'sedan_performance',
       edition: 'J1 Performance EV Architecture',
@@ -206,6 +216,7 @@ export default function VehicleSpecsTelemetryView({
     HYUNDAI_IONIQ5: {
       id: 'HYUNDAI_IONIQ5',
       name: 'Hyundai Ioniq 5 Long Range AWD',
+      image: '/vehicles/hyundai_ioniq.png',
       brand: 'Hyundai',
       bodyType: 'suv_crossover',
       edition: 'Electric-Global Modular Platform (E-GMP)',
@@ -225,6 +236,7 @@ export default function VehicleSpecsTelemetryView({
     KIA_EV6: {
       id: 'KIA_EV6',
       name: 'Kia EV6 GT-Line AWD',
+      image: '/vehicles/hyundai_ioniq.png',
       brand: 'Kia',
       bodyType: 'suv_crossover',
       edition: 'E-GMP Dedicated Platform',
@@ -244,6 +256,7 @@ export default function VehicleSpecsTelemetryView({
     BMW_I4: {
       id: 'BMW_I4',
       name: 'BMW i4 eDrive40 Gran Coupe',
+      image: '/vehicles/porsche_taycan.png',
       brand: 'BMW',
       bodyType: 'sedan_performance',
       edition: 'Gen5 eDrive Synchronous Tech',
@@ -263,6 +276,7 @@ export default function VehicleSpecsTelemetryView({
     MERCEDES_EQE: {
       id: 'MERCEDES_EQE',
       name: 'Mercedes-Benz EQE 350+ Sedan',
+      image: '/vehicles/audi_etron.png',
       brand: 'Mercedes',
       bodyType: 'sedan_performance',
       edition: 'Electric Vehicle Architecture (EVA2)',
@@ -282,6 +296,7 @@ export default function VehicleSpecsTelemetryView({
     NISSAN_LEAF: {
       id: 'NISSAN_LEAF',
       name: 'Nissan Leaf e+ Long Range',
+      image: '/vehicles/nissan_leaf.png',
       brand: 'Nissan',
       bodyType: 'hatch_sport',
       edition: 'Intelligent e-Powertrain',
@@ -389,178 +404,34 @@ export default function VehicleSpecsTelemetryView({
     setShowCustomModal(false)
   }
 
-  // Stylized SVG Car Visuals ("Saamne car bhi ajaye")
-  function renderCarGraphic(bodyType) {
+    // Real Photographic Vehicle Showcase ("Saamne car bhi ajaye")
+  function renderCarGraphic(car) {
+    const carImg = car.image || '/vehicles/byd_seal.png'
     return (
-      <div className="relative w-full max-w-lg h-44 sm:h-52 flex items-center justify-center select-none overflow-hidden">
-        {/* Ambient Neon Ground Glow */}
-        <div className="absolute bottom-3 w-3/4 h-8 bg-emerald-500/25 blur-xl rounded-full" />
-        <div className="absolute bottom-2 w-1/2 h-4 bg-[#00C2A8]/30 blur-md rounded-full" />
+      <div className="relative w-full max-w-xl h-56 sm:h-64 flex flex-col items-center justify-center select-none overflow-visible group">
+        {/* Soft Ambient Ground Spotlight */}
+        <div className="absolute bottom-5 w-4/5 h-10 bg-emerald-500/20 blur-2xl rounded-full" />
+        <div className="absolute bottom-4 w-3/5 h-5 bg-[#00C2A8]/25 blur-lg rounded-full" />
+        <div className="absolute bottom-3 w-1/2 h-3 bg-[#25201A]/20 blur-sm rounded-full" />
 
-        {/* Dynamic Aerodynamic Flow Lines */}
-        <div className="absolute inset-0 flex items-center justify-between pointer-events-none opacity-40">
-          <div className="h-[1px] w-28 bg-gradient-to-r from-transparent via-[#00C2A8] to-transparent animate-pulse" />
-          <div className="h-[1px] w-36 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-pulse" style={{ animationDelay: '0.5s' }} />
+        {/* Real Vehicle Photographic Model Render */}
+        <div className="relative z-10 w-full h-full flex items-center justify-center px-4">
+          <img
+            src={carImg}
+            alt={car.name}
+            className="max-h-48 sm:max-h-56 w-auto max-w-full object-contain filter drop-shadow-[0_16px_28px_rgba(20,90,70,0.3)] transition-all duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1"
+            onError={(e) => {
+              e.target.onerror = null
+              e.target.src = '/vehicles/byd_seal.png'
+            }}
+          />
         </div>
 
-        {/* Dynamic SVG Car Silhouette Based on Body Type */}
-        <svg
-          viewBox="0 0 540 200"
-          className="w-full h-full object-contain filter drop-shadow-[0_12px_24px_rgba(20,90,70,0.25)]"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <linearGradient id="carBodyGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#25201A" />
-              <stop offset="50%" stopColor="#145A46" />
-              <stop offset="100%" stopColor="#0B3025" />
-            </linearGradient>
-            <linearGradient id="glassGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00C2A8" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#145A46" stopOpacity="0.25" />
-            </linearGradient>
-            <radialGradient id="wheelGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#F4F0E8" />
-              <stop offset="60%" stopColor="#5E564B" />
-              <stop offset="100%" stopColor="#1C1814" />
-            </radialGradient>
-            <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3" result="glow" />
-              <feComposite in="SourceGraphic" in2="glow" operator="over" />
-            </filter>
-          </defs>
-
-          {/* Underbody Shadow */}
-          <ellipse cx="270" cy="178" rx="220" ry="8" fill="#1C1814" opacity="0.3" />
-
-          {/* Car Body Profiles */}
-          {bodyType === 'sedan_performance' ? (
-            /* Low-slung Sports Sedan (Taycan / Seal / Audi e-tron / BMW i4) */
-            <g>
-              {/* Lower Chassis & Side Skirts */}
-              <path
-                d="M50 148 C 90 148, 110 148, 125 152 C 145 154, 385 154, 405 152 C 420 148, 450 148, 495 142 C 510 138, 515 125, 490 118 C 450 110, 410 102, 380 94 C 330 68, 230 68, 175 96 C 130 114, 95 122, 50 128 C 38 132, 36 148, 50 148 Z"
-                fill="url(#carBodyGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Greenhouse / Aerodynamic Cockpit Glass */}
-              <path
-                d="M178 98 C 215 76, 275 74, 345 80 C 375 94, 395 106, 395 106 C 395 106, 220 108, 160 106 C 160 106, 168 102, 178 98 Z"
-                fill="url(#glassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1"
-              />
-              {/* Aerodynamic Shoulder Crease */}
-              <path d="M75 126 Q 260 115 480 120" stroke="#00C2A8" strokeWidth="2" strokeDasharray="6 3" />
-              {/* LED Headlight Laser Ribbon */}
-              <path d="M485 120 L 512 126" stroke="#00E5FF" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-              {/* Tail Light Ribbon (Blade Red) */}
-              <path d="M45 132 L 65 132" stroke="#EF4444" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-            </g>
-          ) : bodyType === 'suv_crossover' ? (
-            /* Athletic High-Stance Crossover / SUV (Deepal S07 / Model Y / Ioniq 5 / MG ZS) */
-            <g>
-              {/* SUV Chassis */}
-              <path
-                d="M50 152 C 90 152, 110 152, 125 154 C 145 156, 385 156, 405 154 C 420 152, 450 152, 490 144 C 508 140, 510 122, 480 112 C 445 100, 420 88, 380 72 C 340 56, 200 56, 160 76 C 120 98, 90 110, 50 122 C 36 128, 36 150, 50 152 Z"
-                fill="url(#carBodyGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Roof Rails */}
-              <line x1="180" y1="52" x2="360" y2="52" stroke="#E4DDD2" strokeWidth="3" strokeLinecap="round" />
-              {/* SUV Cockpit Windows */}
-              <path
-                d="M165 78 C 205 62, 280 60, 365 68 C 390 84, 408 98, 408 98 L 150 98 Z"
-                fill="url(#glassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1"
-              />
-              {/* Dynamic Shoulder Line */}
-              <path d="M68 118 Q 270 108 475 112" stroke="#00C2A8" strokeWidth="2" strokeDasharray="5 3" />
-              {/* Headlight */}
-              <path d="M478 114 L 505 120" stroke="#00E5FF" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-              {/* Tail Light */}
-              <path d="M45 125 L 65 125" stroke="#EF4444" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-            </g>
-          ) : bodyType === 'hatch_sport' ? (
-            /* Compact Hot Hatch (MG4 EV / Leaf) */
-            <g>
-              <path
-                d="M50 150 C 90 150, 110 150, 125 152 C 145 154, 385 154, 405 152 C 420 150, 450 150, 488 144 C 504 138, 506 124, 478 115 C 440 104, 410 94, 375 80 C 330 64, 180 64, 130 84 C 95 105, 80 114, 50 124 C 38 128, 38 148, 50 150 Z"
-                fill="url(#carBodyGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Distinctive Twin Rear Aero Wing */}
-              <path d="M125 76 L 105 70 L 95 82" stroke="#00C2A8" strokeWidth="2.5" strokeLinecap="round" />
-              {/* Glass */}
-              <path
-                d="M136 85 C 180 70, 260 68, 360 76 C 385 92, 400 102, 400 102 L 126 102 Z"
-                fill="url(#glassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1"
-              />
-              {/* Headlight */}
-              <path d="M475 116 L 498 122" stroke="#00E5FF" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-              {/* Tail Light */}
-              <path d="M45 126 L 62 126" stroke="#EF4444" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-            </g>
-          ) : (
-            /* Minimal Fastback (Tesla Model 3 / Deepal L07) */
-            <g>
-              <path
-                d="M50 148 C 90 148, 110 148, 125 150 C 145 152, 385 152, 405 150 C 420 148, 450 148, 492 142 C 508 136, 510 122, 480 114 C 440 104, 410 94, 375 78 C 330 62, 220 62, 160 84 C 120 106, 90 116, 50 126 C 38 130, 38 148, 50 148 Z"
-                fill="url(#carBodyGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Glass Dome */}
-              <path
-                d="M165 85 C 210 68, 280 66, 355 74 C 380 90, 396 102, 396 102 L 152 102 Z"
-                fill="url(#glassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1"
-              />
-              <path d="M480 118 L 504 124" stroke="#00E5FF" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-              <path d="M45 128 L 62 128" stroke="#EF4444" strokeWidth="4" filter="url(#laserGlow)" strokeLinecap="round" />
-            </g>
-          )}
-
-          {/* Front Wheel Assembly */}
-          <g transform="translate(420, 150)">
-            <circle cx="0" cy="0" r="28" fill="#1C1814" />
-            <circle cx="0" cy="0" r="22" fill="url(#wheelGrad)" stroke="#00C2A8" strokeWidth="2" />
-            <circle cx="0" cy="0" r="8" fill="#00C2A8" />
-            {/* Turbine Aero Blades */}
-            <line x1="-16" y1="0" x2="16" y2="0" stroke="#FCFAF6" strokeWidth="2" />
-            <line x1="0" y1="-16" x2="0" y2="16" stroke="#FCFAF6" strokeWidth="2" />
-            <line x1="-11" y1="-11" x2="11" y2="11" stroke="#FCFAF6" strokeWidth="2" />
-            <line x1="-11" y1="11" x2="11" y2="-11" stroke="#FCFAF6" strokeWidth="2" />
-          </g>
-
-          {/* Rear Wheel Assembly */}
-          <g transform="translate(120, 150)">
-            <circle cx="0" cy="0" r="28" fill="#1C1814" />
-            <circle cx="0" cy="0" r="22" fill="url(#wheelGrad)" stroke="#00C2A8" strokeWidth="2" />
-            <circle cx="0" cy="0" r="8" fill="#00C2A8" />
-            {/* Turbine Aero Blades */}
-            <line x1="-16" y1="0" x2="16" y2="0" stroke="#FCFAF6" strokeWidth="2" />
-            <line x1="0" y1="-16" x2="0" y2="16" stroke="#FCFAF6" strokeWidth="2" />
-            <line x1="-11" y1="-11" x2="11" y2="11" stroke="#FCFAF6" strokeWidth="2" />
-            <line x1="-11" y1="11" x2="11" y2="-11" stroke="#FCFAF6" strokeWidth="2" />
-          </g>
-
-          {/* Smart License Plate */}
-          <g transform="translate(470, 138)">
-            <rect x="0" y="0" width="34" height="12" rx="2" fill="#FAF9F5" stroke="#25201A" strokeWidth="0.8" />
-            <text x="17" y="9" fontSize="6.5" fontWeight="bold" fontFamily="monospace" fill="#145A46" textAnchor="middle">
-              PAK•EV
-            </text>
-          </g>
-        </svg>
+        {/* Authentic Asset Verification Pill */}
+        <div className="absolute top-2 right-2 bg-[#FCFAF6]/90 backdrop-blur-xs border border-[#E4DDD2] px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold text-[#145A46] shadow-xs flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+          <span>{car.brand} Authentic Asset</span>
+        </div>
       </div>
     )
   }
@@ -633,11 +504,23 @@ export default function VehicleSpecsTelemetryView({
                     className="w-full text-left p-3 hover:bg-[#F4F0E8] border-b border-[#E4DDD2]/60 last:border-b-0 flex items-center justify-between gap-3 transition-colors group"
                   >
                     <div>
-                      <div className="font-bold text-xs text-[#25201A] group-hover:text-[#145A46] transition-colors flex items-center gap-1.5">
-                        <span>{car.name}</span>
-                        <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-900 text-[10px] font-mono">
-                          {car.brand}
-                        </span>
+                      <div className="flex items-center gap-2.5">
+                        {car.image && (
+                          <img
+                            src={car.image}
+                            alt=""
+                            className="w-12 h-8 object-contain bg-[#FCFAF6] rounded border border-[#E4DDD2] p-0.5"
+                          />
+                        )}
+                        <div>
+                          <div className="font-bold text-xs text-[#25201A] group-hover:text-[#145A46] transition-colors flex items-center gap-1.5">
+                            <span>{car.name}</span>
+                            <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-900 text-[10px] font-mono">
+                              {car.brand}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-[#5E564B] mt-0.5 block">{car.edition}</span>
+                        </div>
                       </div>
                       <span className="text-[11px] text-[#5E564B] mt-0.5 block">{car.edition}</span>
                     </div>
@@ -771,7 +654,7 @@ export default function VehicleSpecsTelemetryView({
 
         {/* Right Column: Front-and-Center Stylized EV Car Illustration */}
         <div className="w-full lg:w-1/2 flex flex-col items-center justify-center">
-          {renderCarGraphic(currentCar.bodyType)}
+          {renderCarGraphic(currentCar)}
           <div className="flex items-center gap-2 text-[11px] font-mono text-[#5E564B] mt-2">
             <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
             <span>Active Vehicle Loaded into Solver State</span>
@@ -779,42 +662,46 @@ export default function VehicleSpecsTelemetryView({
         </div>
       </PixelCard>
 
-      {/* 3. BATTERY CELL HEALTH & BMS TELEMETRY GRID */}
+      {/* 3. BATTERY CELL HEALTH & BMS TELEMETRY GRID (WITH HOVER ICON SPIN) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
-            State of Health (SoH)
-          </span>
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
+          <div className="flex items-center justify-between text-[#5E564B]">
+            <span className="text-[10px] font-bold uppercase tracking-wider font-sans">State of Health (SoH)</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">favorite</span>
+          </div>
           <div className="text-2xl font-mono font-extrabold text-[#145A46] mt-1">{currentCar.health}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             Factory Degradation Cap
           </span>
         </div>
 
-        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
-            Thermal Regulation
-          </span>
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
+          <div className="flex items-center justify-between text-[#5E564B]">
+            <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Thermal Regulation</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">thermostat</span>
+          </div>
           <div className="text-2xl font-mono font-extrabold text-[#25201A] mt-1">{currentCar.temp}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             Active Liquid Loop
           </span>
         </div>
 
-        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
-            Cell Voltage Delta
-          </span>
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
+          <div className="flex items-center justify-between text-[#5E564B]">
+            <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Cell Voltage Delta</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">speed</span>
+          </div>
           <div className="text-2xl font-mono font-extrabold text-[#25201A] mt-1">{currentCar.variance}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             Balanced BMS Variance
           </span>
         </div>
 
-        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
-            Lifetime Cycles
-          </span>
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
+          <div className="flex items-center justify-between text-[#5E564B]">
+            <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Lifetime Cycles</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">sync</span>
+          </div>
           <div className="text-2xl font-mono font-extrabold text-[#25201A] mt-1">{currentCar.cycles}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             LFP / NMC Cell Endurance

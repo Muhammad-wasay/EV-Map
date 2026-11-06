@@ -84,12 +84,12 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
         </div>
       </div>
 
-      {/* 2. CORRIDOR QUICK STATS STRIP (4 CLEAN MINIMAL KPI CARDS) */}
+      {/* 2. CORRIDOR QUICK STATS STRIP (4 CLEAN MINIMAL KPI CARDS WITH HOVER LOGO SPIN) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <div className="group flex flex-col p-4 bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Electrified Span</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46]">alt_route</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">alt_route</span>
           </div>
           <div className="text-2xl font-extrabold text-[#25201A] mt-1 font-mono">
             1,505 <span className="text-xs text-[#5E564B] font-normal font-sans">km</span>
@@ -97,10 +97,10 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
           <span className="text-xs text-[#5E564B] mt-0.5">Karachi to Islamabad</span>
         </div>
 
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <div className="group flex flex-col p-4 bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Total Hubs</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46]">ev_station</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">ev_station</span>
           </div>
           <div className="flex items-baseline gap-1 mt-1 font-mono">
             <span className="text-2xl font-extrabold text-[#25201A]">{stations.length}</span>
@@ -109,10 +109,10 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
           <span className="text-xs text-[#5E564B] mt-0.5">Avg interval ~107 km</span>
         </div>
 
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <div className="group flex flex-col p-4 bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">UltraFast DC Hubs</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46]">flash_on</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">flash_on</span>
           </div>
           <div className="text-2xl font-extrabold text-[#25201A] mt-1 font-mono">
             {fastCount} <span className="text-xs text-[#5E564B] font-normal font-sans">of {stations.length}</span>
@@ -120,10 +120,10 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
           <span className="text-xs text-[#5E564B] mt-0.5">100 kW to 150 kW Ports</span>
         </div>
 
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <div className="group flex flex-col p-4 bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Weighted Tariff</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46]">payments</span>
+            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">payments</span>
           </div>
           <div className="text-2xl font-extrabold text-[#25201A] mt-1 font-mono">
             {avgTariff} <span className="text-xs text-[#5E564B] font-normal font-sans">PKR</span>
