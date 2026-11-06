@@ -433,15 +433,37 @@ export default function App() {
                   }}
                 />
               </div>
-              <span className="font-bold text-[18px] text-[#25201A] tracking-tight group-hover:text-emerald-950 transition-colors">
-                VoltPath
+              <span className="relative inline-flex overflow-hidden h-[24px] leading-[24px] font-bold text-[18px] text-[#25201A] tracking-tight group-hover:text-emerald-950 transition-colors">
+                <span className="inline-flex">
+                  {'VoltPath'.split('').map((char, i) => (
+                    <span
+                      key={`top-logo-${i}`}
+                      className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:-translate-y-full"
+                      style={{ transitionDelay: `${i * 18}ms` }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+                <span className="absolute top-full left-0 inline-flex" aria-hidden="true">
+                  {'VoltPath'.split('').map((char, i) => (
+                    <span
+                      key={`bot-logo-${i}`}
+                      className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:-translate-y-full"
+                      style={{ transitionDelay: `${i * 18}ms` }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
               </span>
             </div>
 
-            {/* Center Navigation: Clean flat links with Kinetic Rolling Text Animation (No rounded pill!) */}
+            {/* Center Navigation: Staggered Kinetic Wave Rolling Text (Ghoom Kar Wapis Aana - Exact Same Styling!) */}
             <nav className="hidden lg:flex items-center gap-7 h-full">
               {NAV_ITEMS.map((item) => {
                 const isActive = activeTab === item.id
+                const letters = item.label.split('')
                 return (
                   <button
                     key={item.id}
@@ -451,9 +473,37 @@ export default function App() {
                       isActive ? 'text-[#145A46]' : 'text-[#5E564B] hover:text-[#25201A]'
                     }`}
                   >
-                    {/* Single Same Text with smooth spring move-and-return on hover */}
-                    <span className="nav-text-spring">
-                      {item.label}
+                    {/* Staggered Wave Rolling Text Container */}
+                    <span className="relative inline-flex overflow-hidden h-[20px] leading-[20px] select-none">
+                      {/* Top characters (Roll up in a fluid wave on hover) */}
+                      <span className="inline-flex">
+                        {letters.map((char, i) => (
+                          <span
+                            key={`top-${i}`}
+                            className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:-translate-y-full"
+                            style={{
+                              transitionDelay: `${i * 16}ms`
+                            }}
+                          >
+                            {char === ' ' ? '\u00A0' : char}
+                          </span>
+                        ))}
+                      </span>
+
+                      {/* Bottom identical characters (Roll up from below in matching wave - EXACT same text and style) */}
+                      <span className="absolute top-full left-0 inline-flex" aria-hidden="true">
+                        {letters.map((char, i) => (
+                          <span
+                            key={`bot-${i}`}
+                            className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:-translate-y-full"
+                            style={{
+                              transitionDelay: `${i * 16}ms`
+                            }}
+                          >
+                            {char === ' ' ? '\u00A0' : char}
+                          </span>
+                        ))}
+                      </span>
                     </span>
 
                     {/* Clean Sharp Active Bottom Line Indicator (No rounded pill!) */}
