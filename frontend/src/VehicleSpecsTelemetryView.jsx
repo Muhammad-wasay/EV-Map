@@ -67,29 +67,29 @@ export default function VehicleSpecsTelemetryView({
   }
 
   return (
-    <div className="w-full px-4 lg:px-8 py-6 max-w-7xl mx-auto flex flex-col gap-6">
+    <div className="w-full px-4 lg:px-8 py-6 max-w-7xl mx-auto flex flex-col gap-6 text-[#25201A]">
       {/* 1. Header & Live Vehicle Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#145A46]">
               Fleet Profile &amp; CAN-Bus Telemetry
             </span>
-            <span className="text-slate-300">•</span>
-            <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+            <span className="text-[#A3998A]">•</span>
+            <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[#145A46] text-[11px] font-bold">
               OBD-II CAN-Bus Live
             </span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+          <h1 className="text-2xl lg:text-3xl font-extrabold text-[#25201A] tracking-tight mt-0.5">
             Vehicle Specs &amp; Battery Telemetry
           </h1>
-          <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-sm text-[#5E564B] mt-1 max-w-2xl leading-relaxed">
             Real-time battery degradation curves, peak DC fast-charge acceptance profiles, and motorway aero efficiency benchmarks across the Pakistan Motorway Network.
           </p>
         </div>
 
         {/* Model Switcher */}
-        <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+        <div className="flex items-center gap-1.5 bg-[#FCFAF6] p-1 rounded-xl border border-[#E4DDD2] shadow-sm">
           {Object.entries(vehicleModels).map(([key, item]) => (
             <button
               key={key}
@@ -97,8 +97,8 @@ export default function VehicleSpecsTelemetryView({
               onClick={() => handleSelectModel(key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 activeModel === key
-                  ? 'bg-slate-900 text-white shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
+                  : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
               }`}
             >
               {item.name.split(' ')[1]} {item.name.split(' ')[2] || ''}
@@ -108,76 +108,76 @@ export default function VehicleSpecsTelemetryView({
       </div>
 
       {/* 2. Primary Connected Vehicle Hero Card (Stitch Highland Design) */}
-      <div className="w-full bg-white rounded-xl p-6 shadow-sm border border-slate-200 flex flex-col xl:flex-row gap-6">
+      <div className="w-full bg-[#FCFAF6] rounded-xl p-6 shadow-sm border border-[#E4DDD2] flex flex-col xl:flex-row gap-6">
         <div className="flex-1 flex flex-col justify-between gap-5">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+              <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-[#145A46] text-xs font-semibold">
                 Primary Connected Unit
               </span>
-              <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-semibold">
+              <span className="px-2 py-0.5 rounded bg-[#F4F0E8] text-[#5E564B] text-xs font-semibold">
                 {v.edition}
               </span>
             </div>
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-2xl font-extrabold text-[#25201A] tracking-tight">
               {v.name}
             </h2>
-            <p className="text-xs text-slate-600 mt-1">
+            <p className="text-xs text-[#5E564B] mt-1">
               Optimized for trans-provincial transit on Pakistan M-5 (Sukkur—Multan) &amp; M-2 (Lahore—Islamabad) corridors with active dual-motor torque vectoring.
             </p>
           </div>
 
           {/* 6-Grid Technical Specs Matrix */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 uppercase font-bold">Battery Architecture</span>
-              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.architecture}</span>
-              <span className="text-[10px] text-slate-500">Nominal 400V Pack</span>
+            <div className="p-3 rounded-xl bg-[#F4F0E8] border border-[#E4DDD2] flex flex-col gap-0.5">
+              <span className="text-[9px] text-[#5E564B] uppercase font-bold">Battery Architecture</span>
+              <span className="text-sm font-extrabold text-[#25201A] font-mono">{v.architecture}</span>
+              <span className="text-[10px] text-[#5E564B]">Nominal 400V Pack</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 uppercase font-bold">Real Motorway Range</span>
-              <span className="text-sm font-extrabold text-emerald-700 font-mono">{v.rangeReal}</span>
-              <span className="text-[10px] text-slate-500">@ 110 km/h (Sindh 32°C)</span>
+            <div className="p-3 rounded-xl bg-[#F4F0E8] border border-[#E4DDD2] flex flex-col gap-0.5">
+              <span className="text-[9px] text-[#5E564B] uppercase font-bold">Real Motorway Range</span>
+              <span className="text-sm font-extrabold text-[#145A46] font-mono">{v.rangeReal}</span>
+              <span className="text-[10px] text-[#5E564B]">@ 110 km/h (Sindh 32°C)</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 uppercase font-bold">Peak Fast Charge</span>
-              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.acceptanceKW} kW</span>
-              <span className="text-[10px] text-slate-500">CCS2 / Supercharger V3</span>
+            <div className="p-3 rounded-xl bg-[#F4F0E8] border border-[#E4DDD2] flex flex-col gap-0.5">
+              <span className="text-[9px] text-[#5E564B] uppercase font-bold">Peak Fast Charge</span>
+              <span className="text-sm font-extrabold text-[#25201A] font-mono">{v.acceptanceKW} kW</span>
+              <span className="text-[10px] text-[#5E564B]">CCS2 / Supercharger V3</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 uppercase font-bold">Aerodynamic Drag</span>
-              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.dragCd}</span>
-              <span className="text-[10px] text-slate-500">Aero wheel covers</span>
+            <div className="p-3 rounded-xl bg-[#F4F0E8] border border-[#E4DDD2] flex flex-col gap-0.5">
+              <span className="text-[9px] text-[#5E564B] uppercase font-bold">Aerodynamic Drag</span>
+              <span className="text-sm font-extrabold text-[#25201A] font-mono">{v.dragCd}</span>
+              <span className="text-[10px] text-[#5E564B]">Aero wheel covers</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 uppercase font-bold">Cell Voltage Variance</span>
-              <span className="text-sm font-extrabold text-emerald-700 font-mono">{v.variance}</span>
-              <span className="text-[10px] text-slate-500">Nominal pack balance</span>
+            <div className="p-3 rounded-xl bg-[#F4F0E8] border border-[#E4DDD2] flex flex-col gap-0.5">
+              <span className="text-[9px] text-[#5E564B] uppercase font-bold">Cell Voltage Variance</span>
+              <span className="text-sm font-extrabold text-[#145A46] font-mono">{v.variance}</span>
+              <span className="text-[10px] text-[#5E564B]">Nominal pack balance</span>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
-              <span className="text-[9px] text-slate-500 uppercase font-bold">Battery Health (SoH)</span>
-              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.health}</span>
-              <span className="text-[10px] text-slate-500">{v.cycles} logged</span>
+            <div className="p-3 rounded-xl bg-[#F4F0E8] border border-[#E4DDD2] flex flex-col gap-0.5">
+              <span className="text-[9px] text-[#5E564B] uppercase font-bold">Battery Health (SoH)</span>
+              <span className="text-sm font-extrabold text-[#25201A] font-mono">{v.health}</span>
+              <span className="text-[10px] text-[#5E564B]">{v.cycles} logged</span>
             </div>
           </div>
 
           {/* Port and Thermal Tags */}
-          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 text-xs">
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-              <span className="material-symbols-outlined text-[15px] text-emerald-600">ev_charger</span>
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-[#E4DDD2] text-xs">
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#F4F0E8] text-[#5E564B]">
+              <span className="material-symbols-outlined text-[15px] text-[#145A46]">ev_charger</span>
               <span>Port: Combined CCS2 + Type 2 AC (11 kW)</span>
             </div>
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-              <span className="material-symbols-outlined text-[15px] text-slate-500">thermostat</span>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#F4F0E8] text-[#5E564B]">
+              <span className="material-symbols-outlined text-[15px] text-[#5E564B]">thermostat</span>
               <span>Pack Temp: {v.temp}</span>
             </div>
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-              <span className="material-symbols-outlined text-[15px] text-slate-500">tire_repair</span>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#F4F0E8] text-[#5E564B]">
+              <span className="material-symbols-outlined text-[15px] text-[#5E564B]">tire_repair</span>
               <span>Tire Pressure: 42 PSI (Cold)</span>
             </div>
           </div>
@@ -185,22 +185,22 @@ export default function VehicleSpecsTelemetryView({
       </div>
 
       {/* 3. Real-Time Battery Simulation Sliders (Engineering Controls) */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 flex flex-col gap-4">
+      <div className="bg-[#FCFAF6] rounded-xl p-6 shadow-sm border border-[#E4DDD2] flex flex-col gap-4">
         <div>
-          <span className="text-xs font-bold uppercase text-slate-500 tracking-wider">Dynamic Tuning</span>
-          <h3 className="text-base font-bold text-slate-900 mt-0.5">
+          <span className="text-xs font-bold uppercase text-[#5E564B] tracking-wider">Dynamic Tuning</span>
+          <h3 className="text-base font-bold text-[#25201A] mt-0.5">
             Real-Time Vehicle &amp; Trip Constraints (A* / DP Inputs)
           </h3>
-          <p className="text-xs text-slate-600 mt-0.5">
+          <p className="text-xs text-[#5E564B] mt-0.5">
             Changes made here directly alter the state-space in the DP charging algorithm and safety bounds.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+          <div className="bg-[#F4F0E8] rounded-xl p-3.5 border border-[#E4DDD2] flex flex-col gap-1.5">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-700">Battery Capacity (B_max)</span>
-              <span className="font-bold font-mono text-emerald-800">{batteryCap} kWh</span>
+              <span className="font-bold text-[#25201A]">Battery Capacity (B_max)</span>
+              <span className="font-bold font-mono text-[#145A46]">{batteryCap} kWh</span>
             </div>
             <input
               type="range"
@@ -208,15 +208,15 @@ export default function VehicleSpecsTelemetryView({
               max="120"
               value={batteryCap}
               onChange={(e) => setBatteryCap(Number(e.target.value))}
-              className="w-full accent-emerald-600 cursor-pointer"
+              className="w-full accent-[#145A46] cursor-pointer"
             />
-            <span className="text-[10px] text-slate-500">Standard range: 50–100 kWh</span>
+            <span className="text-[10px] text-[#5E564B]">Standard range: 50–100 kWh</span>
           </div>
 
-          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+          <div className="bg-[#F4F0E8] rounded-xl p-3.5 border border-[#E4DDD2] flex flex-col gap-1.5">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-700">Starting Charge (SoC_init)</span>
-              <span className="font-bold font-mono text-emerald-800">{initialSoc} kWh ({Math.round((initialSoc / batteryCap) * 100)}%)</span>
+              <span className="font-bold text-[#25201A]">Starting Charge (SoC_init)</span>
+              <span className="font-bold font-mono text-[#145A46]">{initialSoc} kWh ({Math.round((initialSoc / batteryCap) * 100)}%)</span>
             </div>
             <input
               type="range"
@@ -224,14 +224,14 @@ export default function VehicleSpecsTelemetryView({
               max={batteryCap}
               value={initialSoc}
               onChange={(e) => setInitialSoc(Number(e.target.value))}
-              className="w-full accent-emerald-600 cursor-pointer"
+              className="w-full accent-[#145A46] cursor-pointer"
             />
-            <span className="text-[10px] text-slate-500">Home/Depot departure charge</span>
+            <span className="text-[10px] text-[#5E564B]">Home/Depot departure charge</span>
           </div>
 
-          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+          <div className="bg-[#F4F0E8] rounded-xl p-3.5 border border-[#E4DDD2] flex flex-col gap-1.5">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-700">Safety Reserve Floor (B_min)</span>
+              <span className="font-bold text-[#25201A]">Safety Reserve Floor (B_min)</span>
               <span className="font-bold font-mono text-rose-700">{minReserve} kWh</span>
             </div>
             <input
@@ -240,15 +240,15 @@ export default function VehicleSpecsTelemetryView({
               max="25"
               value={minReserve}
               onChange={(e) => setMinReserve(Number(e.target.value))}
-              className="w-full accent-emerald-600 cursor-pointer"
+              className="w-full accent-[#145A46] cursor-pointer"
             />
-            <span className="text-[10px] text-slate-500">Strict arrival reserve (WP2 guard)</span>
+            <span className="text-[10px] text-[#5E564B]">Strict arrival reserve (WP2 guard)</span>
           </div>
 
-          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+          <div className="bg-[#F4F0E8] rounded-xl p-3.5 border border-[#E4DDD2] flex flex-col gap-1.5">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-700">Trip Time Budget (T_max)</span>
-              <span className="font-bold font-mono text-slate-900">{maxTime} hrs</span>
+              <span className="font-bold text-[#25201A]">Trip Time Budget (T_max)</span>
+              <span className="font-bold font-mono text-[#25201A]">{maxTime} hrs</span>
             </div>
             <input
               type="range"
@@ -257,9 +257,9 @@ export default function VehicleSpecsTelemetryView({
               step="0.5"
               value={maxTime}
               onChange={(e) => setMaxTime(Number(e.target.value))}
-              className="w-full accent-emerald-600 cursor-pointer"
+              className="w-full accent-[#145A46] cursor-pointer"
             />
-            <span className="text-[10px] text-slate-500">DP upper bound (drive + charge)</span>
+            <span className="text-[10px] text-[#5E564B]">DP upper bound (drive + charge)</span>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import brandLogo from './assets/logo.png'
 import ChargingNetworkView from './ChargingNetworkView.jsx'
 import SavedTripsAnalyticsView from './SavedTripsAnalyticsView.jsx'
 import VehicleSpecsTelemetryView from './VehicleSpecsTelemetryView.jsx'
@@ -445,38 +446,44 @@ export default function App() {
   const fuelSavingsPKR = Math.max(0, petrolComparisonPKR - grandTotalPKR)
 
   return (
-    <div className="bg-slate-50 text-slate-900 antialiased min-h-screen flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
-      {/* 1. TOP STITCH GLASS HEADER BAR (EXACT 4 COLUMNS, CLEAN MODERN EDGES) */}
+    <div className="bg-[#F7F5F0] text-[#25201A] antialiased min-h-screen flex flex-col font-sans selection:bg-amber-100 selection:text-amber-900">
+      {/* 1. TOP STITCH GLASS HEADER BAR (EXACT 4 COLUMNS, CLEAN MODERN EDGES, EYE-SAFETY WARM TONE) */}
       <header className="fixed top-0 left-0 w-full z-50 pointer-events-none">
         <div className="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
           <div className="pointer-events-auto flex items-center gap-4">
-            {/* Brand Logo */}
+            {/* Brand Logo with Custom User-Uploaded Logo */}
             <div
               onClick={() => setActiveTab('route-planner')}
-              className="flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-sm border border-slate-200 cursor-pointer hover:border-slate-300 transition-all"
+              className="flex items-center gap-2.5 bg-[#FCFAF6]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-[#E4DDD2] cursor-pointer hover:border-emerald-700 transition-all"
             >
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-sm">
-                <span className="material-symbols-outlined text-[19px]">bolt</span>
-              </div>
+              <img
+                src={brandLogo}
+                alt="VoltPath Logo"
+                className="w-8 h-8 rounded-lg object-contain shadow-sm"
+                onError={(e) => {
+                  e.target.onerror = null
+                  e.target.src = '/main_logo.png'
+                }}
+              />
               <div className="flex flex-col">
-                <span className="font-extrabold text-base text-slate-900 tracking-tight leading-none">
+                <span className="font-extrabold text-base text-[#25201A] tracking-tight leading-none">
                   VoltPath
                 </span>
-                <span className="text-[10px] text-slate-500 font-semibold leading-none mt-0.5">
+                <span className="text-[10px] text-[#5E564B] font-semibold leading-none mt-0.5">
                   EV Intelligence
                 </span>
               </div>
             </div>
 
             {/* Top Navigation: EXACT 4 TABS MATCHING STITCH DESIGN */}
-            <nav className="hidden md:flex items-center gap-1 bg-white/90 backdrop-blur-md p-1 rounded-xl shadow-sm border border-slate-200 text-xs">
+            <nav className="hidden md:flex items-center gap-1 bg-[#FCFAF6]/90 backdrop-blur-md p-1 rounded-xl shadow-sm border border-[#E4DDD2] text-xs">
               <button
                 type="button"
                 onClick={() => setActiveTab('route-planner')}
                 className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
                   activeTab === 'route-planner'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
+                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
                 }`}
               >
                 Route Planner
@@ -487,8 +494,8 @@ export default function App() {
                 onClick={() => setActiveTab('charging-directory')}
                 className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
                   activeTab === 'charging-directory'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
+                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
                 }`}
               >
                 Charging Network Directory
@@ -499,8 +506,8 @@ export default function App() {
                 onClick={() => setActiveTab('saved-trips')}
                 className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
                   activeTab === 'saved-trips'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
+                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
                 }`}
               >
                 Saved Trips
@@ -511,8 +518,8 @@ export default function App() {
                 onClick={() => setActiveTab('vehicle-specs')}
                 className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
                   activeTab === 'vehicle-specs'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
+                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
                 }`}
               >
                 Vehicle Specs
@@ -522,15 +529,15 @@ export default function App() {
 
           {/* Right Live Status Badges matching Screenshot */}
           <div className="pointer-events-auto flex items-center gap-2">
-            <div className="flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-slate-200 text-xs font-semibold text-slate-800">
-              <span className="material-symbols-outlined text-emerald-600 text-[18px]">electric_car</span>
+            <div className="flex items-center gap-2 bg-[#FCFAF6]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-[#E4DDD2] text-xs font-semibold text-[#25201A]">
+              <span className="material-symbols-outlined text-emerald-700 text-[18px]">electric_car</span>
               <span className="font-mono">82% • 274 mi</span>
             </div>
 
             <button
               type="button"
               title="Eco Optimization Active"
-              className="w-9 h-9 rounded-xl bg-white/95 backdrop-blur-md flex items-center justify-center text-emerald-600 hover:bg-slate-100 shadow-sm border border-slate-200 transition-colors"
+              className="w-9 h-9 rounded-xl bg-[#FCFAF6]/95 backdrop-blur-md flex items-center justify-center text-emerald-700 hover:bg-[#F4F0E8] shadow-sm border border-[#E4DDD2] transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">eco</span>
             </button>
@@ -538,14 +545,14 @@ export default function App() {
             <button
               type="button"
               title="Highway Alerts"
-              className="w-9 h-9 rounded-xl bg-white/95 backdrop-blur-md flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 shadow-sm border border-slate-200 transition-colors"
+              className="w-9 h-9 rounded-xl bg-[#FCFAF6]/95 backdrop-blur-md flex items-center justify-center text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8] shadow-sm border border-[#E4DDD2] transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">notifications</span>
             </button>
 
             <div
               title="Driver Profile"
-              className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-sm cursor-pointer hover:bg-slate-800 transition-colors"
+              className="w-9 h-9 rounded-xl bg-[#25201A] flex items-center justify-center text-[#FAF9F5] shadow-sm cursor-pointer hover:bg-slate-800 transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">person</span>
             </div>
@@ -755,21 +762,21 @@ export default function App() {
               </div>
             </div>
 
-            {/* LEFT ROUTE CONTROLLER (PROFESSIONAL CRISP CARD, CLEAN ALIGNMENT) */}
+            {/* LEFT ROUTE CONTROLLER (PROFESSIONAL CRISP CARD, EYE-SAFETY WARM COFFEE TONE) */}
             <div className="relative md:absolute md:left-6 md:top-3 md:bottom-3 z-30 w-full md:w-[390px] flex flex-col justify-end md:justify-start pointer-events-none mt-auto md:mt-0 p-2 md:p-0">
-              <div className="pointer-events-auto w-full bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_10px_35px_-4px_rgba(15,23,42,0.14)] border border-slate-200/90 flex flex-col max-h-[calc(100vh-5.5rem)] overflow-hidden">
+              <div className="pointer-events-auto w-full bg-[#FCFAF6]/95 backdrop-blur-xl rounded-2xl shadow-[0_10px_35px_-4px_rgba(37,32,26,0.12)] border border-[#E4DDD2] flex flex-col max-h-[calc(100vh-5.5rem)] overflow-hidden">
                 
                 {/* Header: Origin & Destination */}
-                <div className="p-4 pb-3 flex flex-col gap-3 bg-slate-50/70 border-b border-slate-200">
+                <div className="p-4 pb-3 flex flex-col gap-3 bg-[#F4F0E8]/70 border-b border-[#E4DDD2]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-emerald-600 text-[20px]">alt_route</span>
-                      <span className="font-extrabold text-sm text-slate-900 tracking-tight">
+                      <span className="material-symbols-outlined text-[#145A46] text-[20px]">alt_route</span>
+                      <span className="font-extrabold text-sm text-[#25201A] tracking-tight">
                         Express EV Routing
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                    <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#EAE5DA] border border-[#DDD5C7] text-[#145A46] text-xs font-semibold">
                       <span className="material-symbols-outlined text-[14px]">battery_charging_full</span>
                       <span>{Math.round((initialSoc / batteryCap) * 100)}% SoC</span>
                     </div>
@@ -777,21 +784,21 @@ export default function App() {
 
                   <form onSubmit={handleRunPlanner} className="flex flex-col gap-2.5">
                     {/* Origin / Dest Stack */}
-                    <div className="relative flex flex-col gap-2 bg-white rounded-xl p-2.5 border border-slate-200">
-                      <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-slate-200" />
+                    <div className="relative flex flex-col gap-2 bg-[#FCFAF6] rounded-xl p-2.5 border border-[#E4DDD2]">
+                      <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-[#E4DDD2]" />
 
                       <div className="flex items-center gap-2.5 relative z-10">
                         <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                          <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                          <div className="w-2 h-2 rounded-full bg-[#145A46]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[9px] text-slate-500 uppercase font-bold block leading-none mb-1">
+                          <span className="text-[9px] text-[#5E564B] uppercase font-bold block leading-none mb-1">
                             STARTING POINT
                           </span>
                           <select
                             value={originId}
                             onChange={(e) => setOriginId(e.target.value)}
-                            className="w-full bg-transparent text-xs font-bold text-slate-900 outline-none cursor-pointer"
+                            className="w-full bg-transparent text-xs font-bold text-[#25201A] outline-none cursor-pointer"
                           >
                             {network.nodes.map((n) => (
                               <option key={n.node_id} value={n.node_id}>
@@ -804,16 +811,16 @@ export default function App() {
 
                       <div className="flex items-center gap-2.5 relative z-10 pt-1">
                         <div className="w-5 h-5 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
-                          <span className="material-symbols-outlined text-[13px] text-rose-600">location_on</span>
+                          <span className="material-symbols-outlined text-[13px] text-rose-700">location_on</span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[9px] text-slate-500 uppercase font-bold block leading-none mb-1">
+                          <span className="text-[9px] text-[#5E564B] uppercase font-bold block leading-none mb-1">
                             FINAL DESTINATION
                           </span>
                           <select
                             value={destId}
                             onChange={(e) => setDestId(e.target.value)}
-                            className="w-full bg-transparent text-xs font-bold text-slate-900 outline-none cursor-pointer"
+                            className="w-full bg-transparent text-xs font-bold text-[#25201A] outline-none cursor-pointer"
                           >
                             {network.nodes.map((n) => (
                               <option key={n.node_id} value={n.node_id}>
@@ -832,20 +839,20 @@ export default function App() {
                         onClick={() => setSelectedCorridorRoute('M5')}
                         className={`p-2 rounded-xl text-left border transition-all ${
                           selectedCorridorRoute === 'M5'
-                            ? 'bg-emerald-50/80 border-emerald-600 text-slate-900'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            ? 'bg-emerald-50/80 border-[#145A46] text-[#25201A]'
+                            : 'bg-[#FCFAF6] border-[#E4DDD2] text-[#5E564B] hover:bg-[#F4F0E8]'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[9px] font-bold text-emerald-800 uppercase px-1 rounded bg-emerald-200/60">
+                          <span className="text-[9px] font-bold text-[#145A46] uppercase px-1 rounded bg-emerald-100">
                             Fastest
                           </span>
                           {selectedCorridorRoute === 'M5' && (
-                            <span className="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span>
+                            <span className="material-symbols-outlined text-[14px] text-[#145A46]">check_circle</span>
                           )}
                         </div>
                         <div className="text-xs font-bold">via M-5 Motorway</div>
-                        <div className="text-[10px] text-slate-500 font-mono mt-0.5">18h 30m • 1,505 km</div>
+                        <div className="text-[10px] text-[#5E564B] font-mono mt-0.5">18h 30m • 1,505 km</div>
                       </button>
 
                       <button
@@ -853,25 +860,25 @@ export default function App() {
                         onClick={() => setSelectedCorridorRoute('N5')}
                         className={`p-2 rounded-xl text-left border transition-all ${
                           selectedCorridorRoute === 'N5'
-                            ? 'bg-emerald-50/80 border-emerald-600 text-slate-900'
-                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            ? 'bg-emerald-50/80 border-[#145A46] text-[#25201A]'
+                            : 'bg-[#FCFAF6] border-[#E4DDD2] text-[#5E564B] hover:bg-[#F4F0E8]'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[9px] font-bold text-slate-500 uppercase px-1 rounded bg-slate-100">
+                          <span className="text-[9px] font-bold text-[#5E564B] uppercase px-1 rounded bg-[#F4F0E8]">
                             Alt Path
                           </span>
-                          <span className="text-[9px] font-bold text-rose-600">+1h 45m</span>
+                          <span className="text-[9px] font-bold text-rose-700">+1h 45m</span>
                         </div>
                         <div className="text-xs font-bold">via N-5 Highway</div>
-                        <div className="text-[10px] text-slate-500 font-mono mt-0.5">20h 15m • 1,543 km</div>
+                        <div className="text-[10px] text-[#5E564B] font-mono mt-0.5">20h 15m • 1,543 km</div>
                       </button>
                     </div>
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.99]"
+                      className="w-full py-2 px-3 rounded-xl bg-[#25201A] hover:bg-black text-[#FAF9F5] font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.99]"
                     >
                       <span className="material-symbols-outlined text-[16px] text-emerald-400">bolt</span>
                       <span>{loading ? 'Optimizing Route & Charging...' : 'Calculate Optimal Itinerary'}</span>
@@ -880,40 +887,40 @@ export default function App() {
                 </div>
 
                 {/* KPI Strip */}
-                <div className="grid grid-cols-4 gap-1.5 p-2.5 text-center border-b border-slate-200 bg-slate-50">
-                  <div className="bg-white rounded-lg p-1.5 border border-slate-200/80">
-                    <span className="text-[9px] text-slate-500 uppercase block font-bold">Distance</span>
-                    <span className="text-xs font-bold text-slate-900 font-mono">{plan.total_distance_km} km</span>
+                <div className="grid grid-cols-4 gap-1.5 p-2.5 text-center border-b border-[#E4DDD2] bg-[#F4F0E8]/70">
+                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
+                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">Distance</span>
+                    <span className="text-xs font-bold text-[#25201A] font-mono">{plan.total_distance_km} km</span>
                   </div>
-                  <div className="bg-white rounded-lg p-1.5 border border-slate-200/80">
-                    <span className="text-[9px] text-slate-500 uppercase block font-bold">Trip Time</span>
-                    <span className="text-xs font-bold text-slate-900 font-mono">{plan.total_trip_time_hours}h</span>
+                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
+                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">Trip Time</span>
+                    <span className="text-xs font-bold text-[#25201A] font-mono">{plan.total_trip_time_hours}h</span>
                   </div>
-                  <div className="bg-white rounded-lg p-1.5 border border-slate-200/80">
-                    <span className="text-[9px] text-slate-500 uppercase block font-bold">DP Stops</span>
-                    <span className="text-xs font-bold text-emerald-700">{plan.charging_stops?.length || 0} Hubs</span>
+                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
+                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">DP Stops</span>
+                    <span className="text-xs font-bold text-[#145A46]">{plan.charging_stops?.length || 0} Hubs</span>
                   </div>
-                  <div className="bg-white rounded-lg p-1.5 border border-slate-200/80">
-                    <span className="text-[9px] text-slate-500 uppercase block font-bold">Energy Cost</span>
-                    <span className="text-xs font-bold text-emerald-700 font-mono">PKR {Math.round(totalCostPKR / 1000)}k</span>
+                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
+                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">Energy Cost</span>
+                    <span className="text-xs font-bold text-[#145A46] font-mono">PKR {Math.round(totalCostPKR / 1000)}k</span>
                   </div>
                 </div>
 
                 {/* Cost Breakdown & Savings Summary */}
-                <div className="p-3 bg-white border-b border-slate-200 flex flex-col gap-2">
+                <div className="p-3 bg-[#FCFAF6] border-b border-[#E4DDD2] flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[16px] text-slate-600">receipt_long</span>
-                      <span className="text-xs font-bold text-slate-900">Total Corridor Budget</span>
+                      <span className="material-symbols-outlined text-[16px] text-[#5E564B]">receipt_long</span>
+                      <span className="text-xs font-bold text-[#25201A]">Total Corridor Budget</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-slate-900 font-mono">
+                      <span className="text-xs font-extrabold text-[#25201A] font-mono">
                         PKR {grandTotalPKR.toLocaleString()}
                       </span>
                       <button
                         type="button"
                         onClick={() => setShowItemizedCost(!showItemizedCost)}
-                        className="text-[10px] text-emerald-700 font-bold hover:underline"
+                        className="text-[10px] text-[#145A46] font-bold hover:underline"
                       >
                         {showItemizedCost ? 'Hide' : 'Details'}
                       </button>
@@ -921,26 +928,26 @@ export default function App() {
                   </div>
 
                   {showItemizedCost && (
-                    <div className="pt-2 border-t border-slate-100 flex flex-col gap-1 text-[11px]">
-                      <div className="flex justify-between text-slate-600">
+                    <div className="pt-2 border-t border-[#E4DDD2] flex flex-col gap-1 text-[11px]">
+                      <div className="flex justify-between text-[#5E564B]">
                         <span>⚡ EV Charging (3 Hubs):</span>
-                        <strong className="text-slate-900">PKR {totalCostPKR.toLocaleString()}</strong>
+                        <strong className="text-[#25201A]">PKR {totalCostPKR.toLocaleString()}</strong>
                       </div>
-                      <div className="flex justify-between text-slate-600">
+                      <div className="flex justify-between text-[#5E564B]">
                         <span>🛣️ Motorway M-Tag Tolls:</span>
-                        <strong className="text-slate-900">PKR {estTollsPKR.toLocaleString()}</strong>
+                        <strong className="text-[#25201A]">PKR {estTollsPKR.toLocaleString()}</strong>
                       </div>
-                      <div className="flex justify-between text-slate-600">
+                      <div className="flex justify-between text-[#5E564B]">
                         <span>❄️ Battery Conditioning:</span>
-                        <strong className="text-slate-900">Included</strong>
+                        <strong className="text-[#25201A]">Included</strong>
                       </div>
                     </div>
                   )}
 
-                  <div className="bg-emerald-50 rounded-lg p-2 border border-emerald-200 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px] text-emerald-600 shrink-0">savings</span>
-                    <div className="flex-1 min-w-0 text-[10px] text-slate-700">
-                      <strong className="text-emerald-900 font-bold block">
+                  <div className="bg-emerald-50/70 rounded-lg p-2 border border-emerald-200 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[18px] text-[#145A46] shrink-0">savings</span>
+                    <div className="flex-1 min-w-0 text-[10px] text-[#5E564B]">
+                      <strong className="text-[#145A46] font-bold block">
                         ⚡ Saves PKR {fuelSavingsPKR.toLocaleString()} vs Petrol ICE
                       </strong>
                       63% cheaper than equivalent petrol journey (PKR {petrolComparisonPKR.toLocaleString()})
@@ -950,30 +957,30 @@ export default function App() {
 
                 {/* Timeline Stops */}
                 <div className="flex-1 overflow-y-auto p-3 space-y-2.5 scrollbar-none">
-                  <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  <div className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider mb-1">
                     Multi-Stage Dynamic Programming Stops
                   </div>
 
                   {(plan.charging_stops || []).map((stop, i) => (
                     <div key={i} className="relative pl-5">
-                      <div className="absolute left-1.5 top-2 bottom-0 w-0.5 bg-slate-200" />
-                      <div className="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-emerald-600 flex items-center justify-center">
+                      <div className="absolute left-1.5 top-2 bottom-0 w-0.5 bg-[#E4DDD2]" />
+                      <div className="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-[#145A46] flex items-center justify-center">
                         <div className="w-1.5 h-1.5 rounded-full bg-white" />
                       </div>
 
-                      <div className="bg-slate-50 rounded-xl p-2.5 border border-slate-200 flex flex-col gap-1">
+                      <div className="bg-[#F4F0E8] rounded-xl p-2.5 border border-[#E4DDD2] flex flex-col gap-1">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-900 truncate">{stop.city_name}</span>
-                          <span className="text-[10px] font-bold text-emerald-800 px-1.5 py-0.5 rounded bg-emerald-100 font-mono">
+                          <span className="text-xs font-bold text-[#25201A] truncate">{stop.city_name}</span>
+                          <span className="text-[10px] font-bold text-[#145A46] px-1.5 py-0.5 rounded bg-emerald-100 font-mono">
                             +{stop.charged_kwh} kWh
                           </span>
                         </div>
-                        <div className="text-[11px] text-slate-500 truncate">{stop.station_name}</div>
-                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/80 font-mono">
-                          <span className="text-slate-600">
-                            {stop.arrival_soc_kwh} &rarr; <strong className="text-slate-900">{stop.departure_soc_kwh} kWh</strong>
+                        <div className="text-[11px] text-[#5E564B] truncate">{stop.station_name}</div>
+                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#E4DDD2] font-mono">
+                          <span className="text-[#5E564B]">
+                            {stop.arrival_soc_kwh} &rarr; <strong className="text-[#25201A]">{stop.departure_soc_kwh} kWh</strong>
                           </span>
-                          <strong className="text-emerald-700">
+                          <strong className="text-[#145A46]">
                             PKR {stop.charge_cost_pkr.toLocaleString()}
                           </strong>
                         </div>
