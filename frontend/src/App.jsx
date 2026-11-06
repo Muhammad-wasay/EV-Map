@@ -451,8 +451,8 @@ export default function App() {
                       isActive ? 'text-[#145A46]' : 'text-[#5E564B] hover:text-[#25201A]'
                     }`}
                   >
-                    {/* Single Clean Text with 3D 180°/360° Flip Animation on hover */}
-                    <span className="nav-flip-text">
+                    {/* Single Same Text with smooth spring move-and-return on hover */}
+                    <span className="nav-text-spring">
                       {item.label}
                     </span>
 

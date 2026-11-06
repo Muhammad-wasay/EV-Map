@@ -87,16 +87,15 @@ input[type="range"] {
   animation: glowPulse 2s infinite ease-in-out;
 }
 
-/* 3D 180°/360° Flip Text Animation on Hover */
-.nav-flip-text {
+/* Single-text smooth spring move-and-return animation */
+.nav-text-spring {
   display: inline-block;
-  transform-origin: center center;
-  transform-style: preserve-3d;
-  transition: transform 0.55s cubic-bezier(0.34, 1.4, 0.64, 1), color 0.2s ease;
-  backface-visibility: visible;
-  will-change: transform;
+  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.18s ease;
+}
+.group:hover .nav-text-spring {
+  transform: translateY(-3px);
+}
+.group:active .nav-text-spring {
+  transform: translateY(0);
 }
 
-.group:hover .nav-flip-text {
-  transform: perspective(500px) rotateX(360deg);
-}
