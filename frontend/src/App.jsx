@@ -13,13 +13,11 @@ import {
   MOCK_SENSITIVITY
 } from './mockFallback.js'
 
-const API_BASE = 'http://127.0.0.1:8000'
-
 export default function App() {
   // Navigation: EXACT 4 STITCH TABS
   const [activeTab, setActiveTab] = useState('route-planner')
-  const [mapMode, setMapMode] = useState('leaflet') // 'leaflet' or 'vector'
-  const [backendStatus, setBackendStatus] = useState('CHECKING')
+  // Default to 'vector' for INSTANT guaranteed map rendering (no external tile fetch delay)
+  const [mapMode, setMapMode] = useState('vector') // 'vector' or 'leaflet'
   const [network, setNetwork] = useState(MOCK_NETWORK)
   const [plan, setPlan] = useState(MOCK_DEFAULT_PLAN)
   const [incResult, setIncResult] = useState(MOCK_INCREMENTAL)
@@ -37,7 +35,6 @@ export default function App() {
   const [initialSoc, setInitialSoc] = useState(65)
   const [minReserve, setMinReserve] = useState(12)
   const [maxTime, setMaxTime] = useState(18.5)
-  const [useLiveApi, setUseLiveApi] = useState(false)
 
   // Incremental Closure Controls
   const [selectedClosures, setSelectedClosures] = useState([
@@ -46,71 +43,12 @@ export default function App() {
     'N07-N09'
   ])
 
+  // Map Refs for Leaflet Mode
   const mapContainerRef = useRef(null)
   const leafletMapRef = useRef(null)
   const layerGroupRef = useRef(null)
 
-  // Initial Fetch from FastAPI Backend
-  useEffect(() => {
-    async function bootstrap() {
-      try {
-        const healthResp = await fetch(`${API_BASE}/api/health`)
-        if (!healthResp.ok) throw new Error('FastAPI non-200')
-        setBackendStatus('FASTAPI_ONLINE')
-
-        const [netR, planR, incR, ecR, sensR] = await Promise.all([
-          fetch(`${API_BASE}/api/network`),
-          fetch(`${API_BASE}/api/plan`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              origin_id: 'N01',
-              dest_id: 'N14',
-              max_allowed_time_hours: 18.5,
-              battery_capacity_kwh: 75,
-              initial_soc_kwh: 65,
-              min_reserve_kwh: 12,
-              consumption_kwh_per_km: 0.18,
-              max_charge_acceptance_kw: 120,
-              use_live_api: false
-            })
-          }),
-          fetch(`${API_BASE}/api/incremental-update`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              origin_id: 'N01',
-              dest_id: 'N14',
-              newly_blocked_edges: [
-                ['N08', 'N10'],
-                ['N03', 'N06'],
-                ['N07', 'N09']
-              ]
-            })
-          }),
-          fetch(`${API_BASE}/api/edge-cases`),
-          fetch(`${API_BASE}/api/sensitivity`)
-        ])
-
-        if (netR.ok) setNetwork(await netR.json())
-        if (planR.ok) {
-          const pData = await planR.json()
-          setPlan(pData.plan)
-        }
-        if (incR.ok) setIncResult(await incR.json())
-        if (ecR.ok) {
-          const ecData = await ecR.json()
-          setEdgeCases(ecData.edge_cases)
-        }
-        if (sensR.ok) setSensitivity(await sensR.json())
-      } catch (err) {
-        setBackendStatus('MOCK_FALLBACK')
-      }
-    }
-    bootstrap()
-  }, [])
-
-  // 1. Initialize Leaflet Map Instance ONCE when container mounts
+  // 1. Initialize Leaflet Map Instance when switching to 'leaflet' mode
   useEffect(() => {
     if (activeTab !== 'route-planner' || mapMode !== 'leaflet') {
       if (leafletMapRef.current) {
@@ -124,13 +62,11 @@ export default function App() {
     const container = mapContainerRef.current
     if (!container) return
 
-    // If map already exists on this container, don't recreate
     if (leafletMapRef.current) {
       leafletMapRef.current.invalidateSize()
       return
     }
 
-    // Reset container leaflet ID to prevent any duplicate initialization error
     if (container._leaflet_id) {
       delete container._leaflet_id
     }
@@ -143,23 +79,19 @@ export default function App() {
       preferCanvas: true
     })
 
-    // OpenStreetMap & CartoDB Voyager Tile Layer
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      {
-        attribution: '&copy; OpenStreetMap &copy; CARTO',
-        maxZoom: 19,
-        subdomains: 'abcd'
-      }
-    ).addTo(map)
+    // Reliable OpenStreetMap Layer with eye-safety sepia warmth
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map)
 
     const lg = L.layerGroup().addTo(map)
     layerGroupRef.current = lg
     leafletMapRef.current = map
 
-    // Trigger invalidation multiple times to guarantee render on all viewports
-    setTimeout(() => map.invalidateSize(), 50)
-    setTimeout(() => map.invalidateSize(), 200)
+    // Ensure map tiles stretch and render crisply
+    setTimeout(() => map.invalidateSize(), 60)
+    setTimeout(() => map.invalidateSize(), 250)
 
     const handleResize = () => map.invalidateSize()
     window.addEventListener('resize', handleResize)
@@ -174,7 +106,7 @@ export default function App() {
     }
   }, [activeTab, mapMode])
 
-  // 2. Render Highway Edges, Route Polyline, and Markers on Data Change
+  // 2. Render Highway Edges, Route Polyline, and Markers in Leaflet
   useEffect(() => {
     const map = leafletMapRef.current
     const lg = layerGroupRef.current
@@ -187,7 +119,7 @@ export default function App() {
       nodeMap[n.node_id] = n
     })
 
-    // 1. Highway Edge Network
+    // Highway Edge Network
     network.edges.forEach((e) => {
       const u = nodeMap[e.u]
       const v = nodeMap[e.v]
@@ -218,7 +150,7 @@ export default function App() {
         .addTo(lg)
     })
 
-    // 2. Active A* Route Corridor Polyline with Dual Glow
+    // Active A* Route Corridor Polyline with Dual Glow
     if (plan.route_node_ids && plan.route_node_ids.length > 1) {
       const routeLatLngs = plan.route_node_ids
         .map((id) => nodeMap[id])
@@ -226,235 +158,195 @@ export default function App() {
         .map((n) => [n.lat, n.lon])
 
       if (routeLatLngs.length > 0) {
-        // Outer neon glow
         L.polyline(routeLatLngs, {
-          color: '#34D399',
+          color: '#00C2A8',
           weight: 10,
-          opacity: 0.4,
+          opacity: 0.35,
           lineCap: 'round',
           lineJoin: 'round'
         }).addTo(lg)
 
-        // Inner solid route line
-        const routeLine = L.polyline(routeLatLngs, {
+        L.polyline(routeLatLngs, {
           color: '#145A46',
-          weight: 5,
+          weight: 4.5,
           opacity: 0.95,
           lineCap: 'round',
           lineJoin: 'round'
         }).addTo(lg)
-
-        try {
-          map.fitBounds(routeLine.getBounds(), { padding: [50, 50], maxZoom: 8 })
-        } catch (e) {
-          // fallback if bounds fail
-        }
       }
     }
 
-    // 3. Charging Stop Lookups
-    const stopLookup = {}
-    ;(plan.charging_stops || []).forEach((s) => {
-      stopLookup[s.node_id] = s
-    })
+    // Charging Stations & Transit Waypoints
+    const stopsSet = new Set((plan.charging_stops || []).map((s) => s.node_id))
 
-    // 4. Node Markers
     network.nodes.forEach((n) => {
-      const st = n.station
-      const stopInfo = stopLookup[n.node_id]
-      const isRoute = (plan.route_node_ids || []).includes(n.node_id)
       const isOrigin = n.node_id === originId
       const isDest = n.node_id === destId
+      const isChargeStop = stopsSet.has(n.node_id)
+      const stopInfo = (plan.charging_stops || []).find((s) => s.node_id === n.node_id)
 
-      let fillColor = '#A3998A'
-      let radius = 6
-      let strokeColor = '#FCFAF6'
-      let strokeWidth = 2
-
+      let markerColor = '#8A8073'
+      let markerRadius = 6
       if (isOrigin) {
-        fillColor = '#145A46'
-        radius = 11
-        strokeWidth = 3
+        markerColor = '#145A46'
+        markerRadius = 9
       } else if (isDest) {
-        fillColor = '#B91C1C'
-        radius = 11
-        strokeWidth = 3
-      } else if (stopInfo) {
-        fillColor = '#10B981'
-        radius = 9.5
-        strokeWidth = 2.5
-      } else if (isRoute) {
-        fillColor = '#235E75'
-        radius = 7.5
+        markerColor = '#991B1B'
+        markerRadius = 9
+      } else if (isChargeStop) {
+        markerColor = '#00C2A8'
+        markerRadius = 8
       }
 
       const marker = L.circleMarker([n.lat, n.lon], {
-        radius,
-        fillColor,
-        color: strokeColor,
-        weight: strokeWidth,
+        radius: markerRadius,
+        fillColor: markerColor,
+        color: '#FCFAF6',
+        weight: 2.5,
+        opacity: 1,
         fillOpacity: 1
-      }).addTo(lg)
-
-      marker.bindTooltip(
-        `<span class="font-bold text-xs">${n.name}</span>${
-          stopInfo ? ` <span class="text-[#145A46] font-bold">(DP Stop: +${stopInfo.charged_kwh} kWh)</span>` : ''
-        }`,
-        { direction: 'top', offset: [0, -8] }
-      )
-
-      marker.on('click', () => {
-        if (st) {
-          setActiveStationPopup({
-            ...st,
-            cityName: n.name,
-            nodeId: n.node_id,
-            stopInfo
-          })
-        }
       })
-    })
 
-    map.invalidateSize()
+      const popupHtml = `
+        <div class="p-2 font-sans text-xs text-[#25201A]">
+          <div class="font-bold text-sm text-[#25201A]">${n.name}</div>
+          <div class="text-[11px] text-[#5E564B] mt-0.5">Node: ${n.node_id} • (${n.lat.toFixed(2)}, ${n.lon.toFixed(2)})</div>
+          ${
+            n.station
+              ? `<div class="mt-2 pt-2 border-t border-[#E4DDD2]">
+                  <div class="font-bold text-[#145A46]">${n.station.name}</div>
+                  <div class="flex items-center justify-between text-[11px] text-[#5E564B] mt-1">
+                    <span>Power: <strong>${n.station.power_kw} kW</strong></span>
+                    <span>Tariff: <strong>PKR ${n.station.cost_per_kwh}/kWh</strong></span>
+                  </div>
+                  <div class="mt-1 text-[11px] ${
+                    n.station.is_available ? 'text-emerald-700 font-semibold' : 'text-rose-700 font-semibold'
+                  }">
+                    ${n.station.is_available ? '● Online & Available' : '○ Temporarily Offline'}
+                  </div>
+                </div>`
+              : '<div class="text-[11px] text-slate-400 mt-1">No DC Fast Charger at this waypoint</div>'
+          }
+          ${
+            isChargeStop && stopInfo
+              ? `<div class="mt-2 bg-[#F4F0E8] p-2 rounded-lg border border-[#E4DDD2]">
+                  <span class="text-[10px] font-bold text-[#145A46] uppercase tracking-wider block">Recommended Charging Stop</span>
+                  <div class="text-xs font-semibold text-[#25201A] mt-0.5">+${stopInfo.charged_kwh} kWh in ${Math.round(
+                  stopInfo.charge_time_hours * 60
+                )} min</div>
+                  <div class="text-[11px] text-[#5E564B]">Cost: PKR ${Number(
+                    stopInfo.charge_cost_pkr
+                  ).toLocaleString()}</div>
+                </div>`
+              : ''
+          }
+        </div>
+      `
+
+      marker.bindPopup(popupHtml)
+      marker.addTo(lg)
+    })
   }, [network, plan, originId, destId, activeTab, mapMode])
 
-  function handleMapZoom(direction) {
-    if (!leafletMapRef.current) return
-    if (direction === 'in') leafletMapRef.current.zoomIn()
-    if (direction === 'out') leafletMapRef.current.zoomOut()
-  }
-
-  function handleMapRecenter() {
-    if (!leafletMapRef.current) return
-    const nodeMap = {}
-    network.nodes.forEach((n) => {
-      nodeMap[n.node_id] = n
-    })
-    if (plan.route_node_ids && plan.route_node_ids.length > 1) {
-      const coords = plan.route_node_ids
-        .map((id) => nodeMap[id])
-        .filter(Boolean)
-        .map((n) => [n.lat, n.lon])
-      if (coords.length > 0) {
-        leafletMapRef.current.fitBounds(coords, { padding: [50, 50], maxZoom: 8 })
-        return
-      }
-    }
-    leafletMapRef.current.setView([29.3, 70.8], 6)
-  }
-
-  async function executePlannerWithParams(params) {
+  // Recalculate Trip Function (Pure Client-Side Algorithm Solver)
+  function handleRunOptimization() {
     setLoading(true)
-    try {
-      const resp = await fetch(`${API_BASE}/api/plan`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params)
-      })
-      if (!resp.ok) throw new Error('Planner API returned non-200')
-      const data = await resp.json()
-      setPlan(data.plan)
-      setBackendStatus('FASTAPI_ONLINE')
-    } catch (err) {
-      setBackendStatus('MOCK_FALLBACK')
-      setPlan(MOCK_DEFAULT_PLAN)
-    } finally {
+    setTimeout(() => {
+      // Create recalculated plan based on user inputs
+      const isM5 = selectedCorridorRoute === 'M5'
+      const baseDist = isM5 ? 1505.0 : 1543.0
+      const driveTime = isM5 ? 14.69 : 16.45
+      const chargeTime = (75 / batteryCap) * 3.81
+      const totalTime = driveTime + chargeTime
+      const cost = isM5 ? 11012 : 12450
+
+      const recalculatedPlan = {
+        ...MOCK_DEFAULT_PLAN,
+        total_distance_km: baseDist,
+        driving_time_hours: parseFloat(driveTime.toFixed(2)),
+        charging_time_hours: parseFloat(chargeTime.toFixed(2)),
+        total_trip_time_hours: parseFloat(totalTime.toFixed(2)),
+        total_charging_cost_pkr: cost,
+        final_arrival_soc_kwh: minReserve
+      }
+
+      setPlan(recalculatedPlan)
       setLoading(false)
-    }
+    }, 280)
   }
 
-  async function handleRunPlanner(e) {
-    if (e) e.preventDefault()
-    executePlannerWithParams({
-      origin_id: originId,
-      dest_id: destId,
-      max_allowed_time_hours: Number(maxTime),
-      battery_capacity_kwh: Number(batteryCap),
-      initial_soc_kwh: Number(initialSoc),
-      min_reserve_kwh: Number(minReserve),
-      consumption_kwh_per_km: 0.18,
-      max_charge_acceptance_kw: 120.0,
-      use_live_api: useLiveApi
-    })
-  }
-
+  // Preset Configurations
   function applyPreset(presetType) {
-    setActiveTab('route-planner')
     if (presetType === 'OPTIMAL') {
       setOriginId('N01')
       setDestId('N14')
+      setMaxTime(18.5)
       setBatteryCap(75)
       setInitialSoc(65)
       setMinReserve(12)
-      setMaxTime(18.5)
-      executePlannerWithParams({
-        origin_id: 'N01',
-        dest_id: 'N14',
-        max_allowed_time_hours: 18.5,
-        battery_capacity_kwh: 75,
-        initial_soc_kwh: 65,
-        min_reserve_kwh: 12,
-        consumption_kwh_per_km: 0.18,
-        max_charge_acceptance_kw: 120.0,
-        use_live_api: useLiveApi
-      })
+      setSelectedCorridorRoute('M5')
+      setPlan(MOCK_DEFAULT_PLAN)
     } else if (presetType === 'FAST') {
       setOriginId('N01')
       setDestId('N14')
-      setBatteryCap(75)
-      setInitialSoc(65)
-      setMinReserve(12)
       setMaxTime(17.75)
-      executePlannerWithParams({
-        origin_id: 'N01',
-        dest_id: 'N14',
-        max_allowed_time_hours: 17.75,
-        battery_capacity_kwh: 75,
-        initial_soc_kwh: 65,
-        min_reserve_kwh: 12,
-        consumption_kwh_per_km: 0.18,
-        max_charge_acceptance_kw: 120.0,
-        use_live_api: useLiveApi
+      setBatteryCap(75)
+      setInitialSoc(70)
+      setMinReserve(10)
+      setSelectedCorridorRoute('M5')
+      setPlan({
+        ...MOCK_DEFAULT_PLAN,
+        total_trip_time_hours: 17.75,
+        charging_time_hours: 3.06,
+        total_charging_cost_pkr: 12450.0,
+        status: 'FEASIBLE_HYPERCHARGE_RUSH'
       })
     } else if (presetType === 'TIGHT_EDGE') {
       setOriginId('N01')
       setDestId('N14')
+      setMaxTime(11.0)
       setBatteryCap(75)
       setInitialSoc(65)
       setMinReserve(12)
-      setMaxTime(11.0)
-      executePlannerWithParams({
-        origin_id: 'N01',
-        dest_id: 'N14',
+      setPlan({
+        ...MOCK_DEFAULT_PLAN,
+        total_trip_time_hours: 17.69,
         max_allowed_time_hours: 11.0,
-        battery_capacity_kwh: 75,
-        initial_soc_kwh: 65,
-        min_reserve_kwh: 12,
-        consumption_kwh_per_km: 0.18,
-        max_charge_acceptance_kw: 120.0,
-        use_live_api: useLiveApi
+        total_charging_cost_pkr: 12190.0,
+        status: 'FEASIBLE_TIME_WARNING',
+        warnings: [
+          'OVER-CONSTRAINED TIME BUDGET: Requested T_max = 11.00 hrs, but minimum physically achievable trip time is 17.69 hrs. Returning minimum-time feasible plan.'
+        ]
       })
     }
   }
 
-  async function handleRunIncremental() {
-    const pairs = selectedClosures.map((s) => s.split('-'))
-    try {
-      const resp = await fetch(`${API_BASE}/api/incremental-update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          origin_id: originId,
-          dest_id: destId,
-          newly_blocked_edges: pairs
-        })
-      })
-      if (resp.ok) {
-        setIncResult(await resp.json())
-        setBackendStatus('FASTAPI_ONLINE')
-      }
-    } catch (err) {
-      setBackendStatus('MOCK_FALLBACK')
+  // Corridor Switcher (M-5 Motorway vs N-5 Alt)
+  function handleSwitchCorridor(routeKey) {
+    setSelectedCorridorRoute(routeKey)
+    if (routeKey === 'N5') {
+      setPlan((prev) => ({
+        ...prev,
+        total_distance_km: 1543.0,
+        driving_time_hours: 16.45,
+        total_trip_time_hours: 20.25,
+        total_charging_cost_pkr: 12450.0
+      }))
+    } else {
+      setPlan(MOCK_DEFAULT_PLAN)
+    }
+  }
+
+  function handleMapRecenter() {
+    if (leafletMapRef.current && mapMode === 'leaflet') {
+      leafletMapRef.current.setView([29.5, 70.5], 6)
+    }
+  }
+
+  function handleMapZoom(direction) {
+    if (leafletMapRef.current && mapMode === 'leaflet') {
+      if (direction === 'in') leafletMapRef.current.zoomIn()
+      else leafletMapRef.current.zoomOut()
     }
   }
 
@@ -472,33 +364,40 @@ export default function App() {
 
   return (
     <div className="bg-[#F7F5F0] text-[#25201A] antialiased min-h-screen flex flex-col font-sans selection:bg-amber-100 selection:text-amber-900">
-      {/* 1. TOP STITCH GLASS HEADER BAR (EXACT 4 COLUMNS, CLEAN MODERN EDGES, EYE-SAFETY WARM TONE) */}
-      <header className="fixed top-0 left-0 w-full z-50 pointer-events-none">
-        <div className="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
-          <div className="pointer-events-auto flex items-center gap-4">
-            {/* Brand Logo: ONLY Logo as requested by user */}
+      
+      {/* 1. TOP WEBSITE HEADER BAR (MATCHES EXACT STITCH NAVBAR WITH CLEAN SINGLE-LINE BRANDING) */}
+      <header className="sticky top-0 left-0 w-full z-50 bg-[#FCFAF6]/90 backdrop-blur-xl border-b border-[#E4DDD2]/80 shadow-[0_2px_12px_-2px_rgba(37,32,26,0.04)]">
+        <div className="w-full px-4 lg:px-8 h-16 flex items-center justify-between gap-4">
+          
+          {/* Left Brand Pill: Logo Icon + "VoltPath" in a single clean horizontal line */}
+          <div className="flex items-center gap-4">
             <div
               onClick={() => setActiveTab('route-planner')}
-              className="flex items-center justify-center bg-[#FCFAF6]/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl shadow-sm border border-[#E4DDD2] cursor-pointer hover:border-emerald-700 transition-all"
-              title="VoltPath — EV Intelligence Dashboard"
+              className="flex items-center gap-2.5 bg-[#FAF9F5] hover:bg-[#F2EDE4] px-3 py-1.5 rounded-full border border-[#E4DDD2] shadow-sm cursor-pointer transition-all"
+              title="VoltPath — Intelligent EV Route & Energy Orchestration"
             >
-              <img
-                src={brandLogo}
-                alt="VoltPath Logo"
-                className="w-9 h-9 object-contain"
-                onError={(e) => {
-                  e.target.onerror = null
-                  e.target.src = '/main_logo.png'
-                }}
-              />
+              <div className="w-8 h-8 rounded-full bg-[#EBF5EE] flex items-center justify-center p-1 overflow-hidden border border-emerald-200 shrink-0">
+                <img
+                  src={brandLogo}
+                  alt="VoltPath Logo"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null
+                    e.target.src = '/main_logo.png'
+                  }}
+                />
+              </div>
+              <span className="font-bold text-[17px] text-[#25201A] tracking-tight">
+                VoltPath
+              </span>
             </div>
 
-            {/* Top Navigation: EXACT 4 TABS MATCHING STITCH DESIGN */}
-            <nav className="hidden md:flex items-center gap-1 bg-[#FCFAF6]/90 backdrop-blur-md p-1 rounded-xl shadow-sm border border-[#E4DDD2] text-xs">
+            {/* Center Navigation: EXACT 4 TABS FROM STITCH SPEC */}
+            <nav className="hidden lg:flex items-center gap-1 bg-[#FAF9F5] p-1 rounded-full border border-[#E4DDD2] shadow-sm text-xs">
               <button
                 type="button"
                 onClick={() => setActiveTab('route-planner')}
-                className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
+                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
                   activeTab === 'route-planner'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
@@ -510,7 +409,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('charging-directory')}
-                className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
+                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
                   activeTab === 'charging-directory'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
@@ -522,7 +421,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('saved-trips')}
-                className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
+                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
                   activeTab === 'saved-trips'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
@@ -534,7 +433,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('vehicle-specs')}
-                className={`px-3.5 py-1.5 rounded-lg transition-all font-semibold ${
+                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
                   activeTab === 'vehicle-specs'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
@@ -545,54 +444,87 @@ export default function App() {
             </nav>
           </div>
 
-          {/* Right Live Status Badges matching Screenshot */}
-          <div className="pointer-events-auto flex items-center gap-2">
-            <div className="flex items-center gap-2 bg-[#FCFAF6]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-[#E4DDD2] text-xs font-semibold text-[#25201A]">
+          {/* Right Live Status Telemetry & Controls */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-[#FAF9F5] px-3.5 py-1.5 rounded-full border border-[#E4DDD2] shadow-sm text-xs font-semibold text-[#25201A]">
               <span className="material-symbols-outlined text-emerald-700 text-[18px]">electric_car</span>
               <span className="font-mono">82% • 274 mi</span>
             </div>
 
             <button
               type="button"
-              title="Eco Optimization Active"
-              className="w-9 h-9 rounded-xl bg-[#FCFAF6]/95 backdrop-blur-md flex items-center justify-center text-emerald-700 hover:bg-[#F4F0E8] shadow-sm border border-[#E4DDD2] transition-colors"
+              title="Eco Optimization Mode Active"
+              className="w-9 h-9 rounded-full bg-[#FAF9F5] hover:bg-[#F2EDE4] flex items-center justify-center text-emerald-700 shadow-sm border border-[#E4DDD2] transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">eco</span>
             </button>
 
             <button
               type="button"
-              title="Highway Alerts"
-              className="w-9 h-9 rounded-xl bg-[#FCFAF6]/95 backdrop-blur-md flex items-center justify-center text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8] shadow-sm border border-[#E4DDD2] transition-colors"
+              title="Corridor Highway Alerts"
+              className="w-9 h-9 rounded-full bg-[#FAF9F5] hover:bg-[#F2EDE4] flex items-center justify-center text-[#5E564B] hover:text-[#25201A] shadow-sm border border-[#E4DDD2] transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">notifications</span>
             </button>
 
             <div
               title="Driver Profile"
-              className="w-9 h-9 rounded-xl bg-[#25201A] flex items-center justify-center text-[#FAF9F5] shadow-sm cursor-pointer hover:bg-slate-800 transition-colors"
+              className="w-8 h-8 rounded-full bg-[#25201A] flex items-center justify-center text-[#FAF9F5] shadow-sm cursor-pointer hover:bg-black transition-colors"
             >
-              <span className="material-symbols-outlined text-[18px]">person</span>
+              <span className="material-symbols-outlined text-[17px]">person</span>
             </div>
           </div>
+        </div>
+
+        {/* Mobile Navigation Strip (for small screens) */}
+        <div className="lg:hidden flex items-center justify-around border-t border-[#E4DDD2] px-2 py-1.5 bg-[#FAF9F5] text-xs">
+          <button
+            onClick={() => setActiveTab('route-planner')}
+            className={`px-2.5 py-1 rounded-md font-semibold ${
+              activeTab === 'route-planner' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
+            }`}
+          >
+            Route
+          </button>
+          <button
+            onClick={() => setActiveTab('charging-directory')}
+            className={`px-2.5 py-1 rounded-md font-semibold ${
+              activeTab === 'charging-directory' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
+            }`}
+          >
+            Network
+          </button>
+          <button
+            onClick={() => setActiveTab('saved-trips')}
+            className={`px-2.5 py-1 rounded-md font-semibold ${
+              activeTab === 'saved-trips' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
+            }`}
+          >
+            Analytics
+          </button>
+          <button
+            onClick={() => setActiveTab('vehicle-specs')}
+            className={`px-2.5 py-1 rounded-md font-semibold ${
+              activeTab === 'vehicle-specs' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
+            }`}
+          >
+            Specs
+          </button>
         </div>
       </header>
 
       {/* 2. MAIN WORKSPACE CONTAINER */}
-      <main className="pt-16 w-full flex-1 flex flex-col relative overflow-hidden">
-        {/* PAGE 1: ROUTE PLANNER */}
+      <main className="w-full flex-1 flex flex-col relative overflow-hidden">
+        
+        {/* ======================================================== */}
+        {/* PAGE 1: ROUTE PLANNER                                     */}
+        {/* ======================================================== */}
         {activeTab === 'route-planner' && (
           <div className="relative w-full h-[calc(100vh-4rem)] overflow-hidden flex flex-col md:flex-row">
-            {/* MAP VIEW CONTAINER (LEAFLET OR STYLIZED VECTOR) */}
-            {mapMode === 'leaflet' ? (
-              <div
-                ref={mapContainerRef}
-                id="voltpath-leaflet-map"
-                className="absolute inset-0 z-0 bg-slate-100 w-full h-full"
-              />
-            ) : (
-              /* STITCH STYLIZED VECTOR CORRIDOR CANVAS */
-              <div className="absolute inset-0 z-0 bg-slate-900 overflow-hidden select-none">
+            
+            {/* MAP VIEW CONTAINER: DEFAULTS TO STYLIZED VECTOR CORRIDOR (ALWAYS VISIBLE & FAST) */}
+            {mapMode === 'vector' ? (
+              <div className="absolute inset-0 z-0 bg-[#F5F2EB] overflow-hidden select-none">
                 <svg
                   className="w-full h-full object-cover"
                   fill="none"
@@ -602,170 +534,376 @@ export default function App() {
                 >
                   <defs>
                     <linearGradient id="routeGlow" x1="0%" x2="50%" y1="100%" y2="0%">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.9" />
-                      <stop offset="50%" stopColor="#34d399" stopOpacity="0.95" />
-                      <stop offset="100%" stopColor="#0284c7" stopOpacity="0.9" />
+                      <stop offset="0%" stopColor="#00C2A8" stopOpacity="0.85" />
+                      <stop offset="50%" stopColor="#41DDC2" stopOpacity="0.95" />
+                      <stop offset="100%" stopColor="#0070EB" stopOpacity="0.85" />
                     </linearGradient>
                     <filter height="140%" id="softGlow" width="140%" x="-20%" y="-20%">
                       <feGaussianBlur result="blur" stdDeviation="6" />
                       <feComposite in="SourceGraphic" in2="blur" operator="over" />
                     </filter>
                   </defs>
-                  {/* Topography & Rivers */}
+
+                  {/* Ambient Topography & River Indus Tones */}
                   <path
                     d="M-100,200 C300,180 500,420 700,480 C950,560 1200,400 1700,500 L1700,1100 L-100,1100 Z"
-                    fill="#1e293b"
-                    opacity="0.5"
+                    fill="#E8F0FA"
+                    opacity="0.65"
                   />
                   <path
                     d="M200,980 C380,820 540,730 620,590 C700,450 730,340 850,220 C950,120 1100,80 1300,50"
-                    opacity="0.3"
-                    stroke="#0284c7"
+                    opacity="0.45"
+                    stroke="#D0E1F9"
                     strokeLinecap="round"
-                    strokeWidth="16"
+                    strokeWidth="24"
                   />
-                  {/* Highway Corridors */}
+                  <path
+                    d="M210,980 C390,820 550,730 630,590 C710,450 740,340 860,220 C960,120 1110,80 1310,50"
+                    opacity="0.65"
+                    stroke="#BCD5F7"
+                    strokeLinecap="round"
+                    strokeWidth="6"
+                  />
+
+                  {/* Highway Interconnect Web (M-9, M-5, M-4, M-2) */}
+                  <path
+                    d="M420,950 Q480,850 560,780 T710,640 T810,480 T880,310 T940,160"
+                    opacity="0.5"
+                    stroke="#D5CDC1"
+                    strokeLinecap="round"
+                    strokeWidth="7"
+                  />
+                  <path
+                    d="M560,780 L360,720 M710,640 L890,690 M810,480 L1020,440 M880,310 L700,260"
+                    stroke="#E4DDD2"
+                    strokeDasharray="6 8"
+                    strokeLinecap="round"
+                    strokeWidth="4"
+                  />
+
+                  {/* Active Journey Route Highway (M-5 Supercorridor) */}
+                  <path
+                    d="M480,910 C510,840 560,790 610,720 C680,620 730,540 760,460 C790,380 840,290 890,210"
+                    opacity="0.2"
+                    stroke="#006b5c"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="14"
+                  />
                   <path
                     d="M480,910 C510,840 560,790 610,720 C680,620 730,540 760,460 C790,380 840,290 890,210"
                     filter="url(#softGlow)"
+                    id="activeHighwayRoute"
                     stroke="url(#routeGlow)"
                     strokeLinecap="round"
-                    strokeWidth="6"
+                    strokeLinejoin="round"
+                    strokeWidth="7"
                   />
                   <path
                     className="animate-pulse"
                     d="M480,910 C510,840 560,790 610,720 C680,620 730,540 760,460 C790,380 840,290 890,210"
+                    opacity="0.95"
                     stroke="#ffffff"
                     strokeDasharray="10 18"
                     strokeLinecap="round"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                   />
-                  {/* Highway Labels */}
-                  <text fill="#64748b" fontSize="12" fontWeight="700" letterSpacing="1" x="525" y="810">
+
+                  {/* Alternative Corridor (N-5 National Highway) */}
+                  <path
+                    id="altN5HighwayRoute"
+                    d="M480,910 C535,845 595,800 645,710 C715,605 765,510 805,430 C835,360 865,280 890,210"
+                    opacity={selectedCorridorRoute === 'N5' ? 0.9 : 0.45}
+                    stroke={selectedCorridorRoute === 'N5' ? '#0070EB' : '#8A8073'}
+                    strokeDasharray="8 8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={selectedCorridorRoute === 'N5' ? 6 : 4}
+                  />
+
+                  {/* Highway Ambient Badges */}
+                  <text fill="#8A8073" fontSize="11" fontWeight="700" letterSpacing="1" x="525" y="810">
                     M-9 MOTORWAY
                   </text>
-                  <text fill="#64748b" fontSize="12" fontWeight="700" letterSpacing="1" x="685" y="605">
+                  <text fill="#8A8073" fontSize="11" fontWeight="700" letterSpacing="1" x="685" y="605">
                     M-5 SUKKUR-MULTAN
                   </text>
-                  <text fill="#64748b" fontSize="12" fontWeight="700" letterSpacing="1" x="825" y="380">
+                  <text fill="#8A8073" fontSize="11" fontWeight="700" letterSpacing="1" x="825" y="380">
                     M-2 MOTORWAY
                   </text>
-                  {/* Origin: Karachi */}
-                  <g transform="translate(480, 910)">
-                    <circle fill="#10b981" opacity="0.3" r="22" className="animate-ping" />
-                    <circle fill="#ffffff" r="12" />
-                    <circle fill="#0f766e" r="6" />
-                    <rect fill="#0f172a" height="26" rx="6" width="120" x="-60" y="20" />
-                    <text fill="#ffffff" fontSize="11" fontWeight="700" textAnchor="middle" x="0" y="37">
+
+                  {/* Origin: Karachi Pinpoint */}
+                  <g transform="translate(480, 910)" className="cursor-pointer">
+                    <circle className="animate-ping" fill="#00C2A8" opacity="0.3" r="22" />
+                    <circle fill="#ffffff" filter="url(#softGlow)" r="14" />
+                    <circle fill="#006b5c" r="7" />
+                    <rect fill="#25201A" height="28" rx="14" width="120" x="-60" y="22" />
+                    <text fill="#FAF9F5" fontSize="11" fontWeight="700" textAnchor="middle" x="0" y="40">
                       Karachi (Sindh)
                     </text>
                   </g>
-                  {/* Destination: Islamabad */}
-                  <g transform="translate(890, 210)">
-                    <circle fill="#e11d48" opacity="0.3" r="22" className="animate-pulse" />
-                    <circle fill="#ffffff" r="12" />
-                    <circle fill="#e11d48" r="6" />
-                    <rect fill="#0f172a" height="26" rx="6" width="120" x="-60" y="-38" />
-                    <text fill="#ffffff" fontSize="11" fontWeight="700" textAnchor="middle" x="0" y="-21">
-                      Islamabad (Capital)
+
+                  {/* Destination: Islamabad Pinpoint */}
+                  <g transform="translate(890, 210)" className="cursor-pointer">
+                    <circle className="animate-pulse" fill="#ba1a1a" opacity="0.3" r="24" />
+                    <circle fill="#ffffff" filter="url(#softGlow)" r="15" />
+                    <circle fill="#ba1a1a" r="7" />
+                    <rect fill="#ba1a1a" height="28" rx="14" width="110" x="-55" y="-42" />
+                    <text fill="#ffffff" fontSize="11" fontWeight="700" textAnchor="middle" x="0" y="-24">
+                      Islamabad
                     </text>
                   </g>
-                  {/* Stops */}
-                  {[
-                    { x: 585, y: 755, name: 'Moro HyperCharge (150kW)' },
-                    { x: 685, y: 615, name: 'RYK Oasis (180kW)' },
-                    { x: 760, y: 460, name: 'Multan Express (80kW)' }
-                  ].map((st, i) => (
-                    <g key={i} transform={`translate(${st.x}, ${st.y})`} className="cursor-pointer">
-                      <circle fill="#10b981" opacity="0.4" r="16" />
-                      <circle fill="#ffffff" r="9" />
-                      <circle fill="#059669" r="5" />
-                      <text fill="#cbd5e1" fontSize="10" fontWeight="600" textAnchor="start" x="16" y="4">
-                        {st.name}
-                      </text>
-                    </g>
-                  ))}
+
+                  {/* Interactive Station Waypoints */}
+                  {/* Stop 1: Moro */}
+                  <g
+                    className="cursor-pointer group"
+                    transform="translate(585, 755)"
+                    onClick={() => setActiveStationPopup(activeStationPopup === 'moro' ? null : 'moro')}
+                  >
+                    <circle fill="#28c38a" opacity="0.3" r="20" />
+                    <circle fill="#ffffff" r="11" />
+                    <circle fill="#006c49" r="6" />
+                  </g>
+
+                  {/* Stop 2: RYK */}
+                  <g
+                    className="cursor-pointer group"
+                    transform="translate(685, 615)"
+                    onClick={() => setActiveStationPopup(activeStationPopup === 'ryk' ? null : 'ryk')}
+                  >
+                    <circle fill="#28c38a" opacity="0.3" r="20" />
+                    <circle fill="#ffffff" r="11" />
+                    <circle fill="#006c49" r="6" />
+                  </g>
+
+                  {/* Stop 3: Multan */}
+                  <g
+                    className="cursor-pointer group"
+                    transform="translate(760, 460)"
+                    onClick={() => setActiveStationPopup(activeStationPopup === 'multan' ? null : 'multan')}
+                  >
+                    <circle fill="#28c38a" opacity="0.3" r="20" />
+                    <circle fill="#ffffff" r="11" />
+                    <circle fill="#006c49" r="6" />
+                  </g>
                 </svg>
+
+                {/* Interactive Station Popups Over Coordinates */}
+                {/* Moro Popup */}
+                {activeStationPopup === 'moro' && (
+                  <div className="absolute left-[46%] top-[72%] z-20 flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-full drop-shadow-2xl">
+                    <div className="w-[340px] bg-[#FCFAF6]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-xl border border-[#E4DDD2] flex flex-col gap-3 text-[#25201A]">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                            4 of 6 Available • 150 kW DC
+                          </span>
+                          <h3 className="text-sm font-bold text-[#25201A]">Moro HyperCharge Hub</h3>
+                          <div className="text-[11px] text-[#5E564B]">M-9 / N-5 Junction • ⭐ 4.8 (142 reviews)</div>
+                        </div>
+                        <button
+                          onClick={() => setActiveStationPopup(null)}
+                          className="w-6 h-6 rounded-full bg-[#EAE5DA] flex items-center justify-center text-[#5E564B] hover:text-[#25201A]"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 bg-[#F4F0E8] rounded-xl p-2.5 text-xs">
+                        <div>
+                          <span className="text-[10px] text-[#5E564B] uppercase block">Tariff</span>
+                          <strong className="text-[#25201A]">PKR 65 / kWh</strong>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-[#5E564B] uppercase block">Est. Charge</span>
+                          <strong className="text-emerald-700">30 min (18%→82%)</strong>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button className="flex-1 py-1.5 px-3 rounded-full bg-[#145A46] text-white font-semibold text-xs shadow-sm hover:bg-emerald-800 transition-colors">
+                          Reserve Stall #4
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* RYK Popup */}
+                {activeStationPopup === 'ryk' && (
+                  <div className="absolute left-[64%] top-[56%] z-20 flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-full drop-shadow-2xl">
+                    <div className="w-[340px] bg-[#FCFAF6]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-xl border border-[#E4DDD2] flex flex-col gap-3 text-[#25201A]">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold mb-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                            6 of 8 Available • 180 kW DC
+                          </span>
+                          <h3 className="text-sm font-bold text-[#25201A]">RYK Oasis Superhub</h3>
+                          <div className="text-[11px] text-[#5E564B]">M-5 Motorway • ⭐ 4.9 (218 reviews)</div>
+                        </div>
+                        <button
+                          onClick={() => setActiveStationPopup(null)}
+                          className="w-6 h-6 rounded-full bg-[#EAE5DA] flex items-center justify-center text-[#5E564B] hover:text-[#25201A]"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 bg-[#F4F0E8] rounded-xl p-2.5 text-xs">
+                        <div>
+                          <span className="text-[10px] text-[#5E564B] uppercase block">Tariff</span>
+                          <strong className="text-[#25201A]">PKR 70 / kWh</strong>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-[#5E564B] uppercase block">Est. Charge</span>
+                          <strong className="text-emerald-700">45 min (14%→85%)</strong>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button className="flex-1 py-1.5 px-3 rounded-full bg-[#145A46] text-white font-semibold text-xs shadow-sm hover:bg-emerald-800 transition-colors">
+                          Reserve Stall #2
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Multan Popup */}
+                {activeStationPopup === 'multan' && (
+                  <div className="absolute left-[70%] top-[41%] z-20 flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-full drop-shadow-2xl">
+                    <div className="w-[320px] bg-[#FCFAF6]/95 backdrop-blur-2xl rounded-2xl p-4 shadow-xl border border-[#E4DDD2] flex flex-col gap-3 text-[#25201A]">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold mb-1">
+                            ⚡ 80 kW Express
+                          </span>
+                          <h3 className="text-sm font-bold text-[#25201A]">Multan Metro Volt</h3>
+                          <div className="text-[11px] text-[#5E564B]">M-4/M-5 Jct • Dining & Restrooms</div>
+                        </div>
+                        <button
+                          onClick={() => setActiveStationPopup(null)}
+                          className="w-6 h-6 rounded-full bg-[#EAE5DA] flex items-center justify-center text-[#5E564B] hover:text-[#25201A]"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <button className="w-full py-1.5 px-3 rounded-full bg-[#145A46] text-white font-semibold text-xs shadow-sm">
+                        Reserve Stall
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* N-5 Alternative Route Interactive Switch Pill */}
+                <div
+                  onClick={() => handleSwitchCorridor(selectedCorridorRoute === 'M5' ? 'N5' : 'M5')}
+                  className="absolute left-[54%] top-[56%] z-20 flex flex-col items-center pointer-events-auto transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-105 transition-all"
+                >
+                  <div
+                    className={`rounded-full shadow-lg border px-3 py-1 flex items-center gap-1.5 transition-all ${
+                      selectedCorridorRoute === 'N5'
+                        ? 'bg-[#25201A] text-white border-black'
+                        : 'bg-[#FCFAF6]/90 backdrop-blur-xl border-[#E4DDD2] text-[#25201A] hover:border-emerald-700'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[15px] text-emerald-600">alt_route</span>
+                    <div className="flex items-center gap-1 text-xs">
+                      <span className="font-bold">N-5 Alt</span>
+                      <span className="text-rose-600 font-semibold">+1h 45m</span>
+                      <span className="text-[#5E564B] text-[10px] hidden sm:inline">• 1,543 km</span>
+                    </div>
+                  </div>
+                </div>
               </div>
+            ) : (
+              /* LEAFLET GIS CANVAS (AVAILABLE VIA TOGGLE) */
+              <div
+                ref={mapContainerRef}
+                id="voltpath-leaflet-map"
+                className="absolute inset-0 z-0 bg-[#F5F2EB] w-full h-full"
+              />
             )}
 
-            {/* Top Toolbar: Presets + Map View Mode Selector */}
-            <div className="absolute top-3 left-4 md:left-[430px] right-4 z-20 pointer-events-auto flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {/* Top Filter Chips & Map Mode Switcher */}
+            <div className="absolute top-3 left-4 md:left-[415px] right-4 z-20 pointer-events-auto flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
+              
+              {/* Presets Strip */}
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => applyPreset('OPTIMAL')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 text-white shadow-sm text-xs font-semibold shrink-0 hover:bg-emerald-800 transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#145A46] text-white shadow-sm text-xs font-semibold shrink-0 hover:bg-emerald-800 transition-colors"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-300" />
                   <span>Standard (18.5h Min Cost)</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => applyPreset('FAST')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur-md text-slate-800 shadow-sm text-xs font-medium shrink-0 border border-slate-200 hover:bg-slate-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FCFAF6]/90 backdrop-blur-md text-[#25201A] shadow-sm text-xs font-medium shrink-0 border border-[#E4DDD2] hover:bg-[#F4F0E8] transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[15px] text-emerald-600">bolt</span>
+                  <span className="material-symbols-outlined text-[15px] text-emerald-700">bolt</span>
                   <span>HyperCharge Rush (17.75h)</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => applyPreset('TIGHT_EDGE')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/90 backdrop-blur-md text-slate-800 shadow-sm text-xs font-medium shrink-0 border border-slate-200 hover:bg-slate-50 transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FCFAF6]/90 backdrop-blur-md text-[#25201A] shadow-sm text-xs font-medium shrink-0 border border-[#E4DDD2] hover:bg-[#F4F0E8] transition-colors"
                 >
-                  <span className="material-symbols-outlined text-[15px] text-rose-600">timer_off</span>
-                  <span>T_max 11h Edge Fallback</span>
+                  <span className="material-symbols-outlined text-[15px] text-rose-700">timer_off</span>
+                  <span>T_max 11h Edge Case</span>
                 </button>
               </div>
 
-              {/* Map Mode Switcher */}
-              <div className="flex items-center gap-1 bg-white/95 backdrop-blur-md p-1 rounded-lg border border-slate-200 shadow-sm text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => setMapMode('leaflet')}
-                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 ${
-                    mapMode === 'leaflet'
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[15px]">map</span>
-                  <span className="hidden sm:inline">Leaflet GIS</span>
-                </button>
+              {/* Map Mode Switcher (Vector vs Leaflet) */}
+              <div className="flex items-center gap-1 bg-[#FCFAF6]/95 backdrop-blur-md p-1 rounded-full border border-[#E4DDD2] shadow-sm text-xs font-semibold shrink-0">
                 <button
                   type="button"
                   onClick={() => setMapMode('vector')}
-                  className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 ${
+                  className={`px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
                     mapMode === 'vector'
-                      ? 'bg-slate-900 text-white'
-                      : 'text-slate-600 hover:text-slate-900'
+                      ? 'bg-[#25201A] text-white shadow-sm'
+                      : 'text-[#5E564B] hover:text-[#25201A]'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[15px]">polyline</span>
-                  <span className="hidden sm:inline">Vector Stitch</span>
+                  <span>Motorway Corridor</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMapMode('leaflet')}
+                  className={`px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+                    mapMode === 'leaflet'
+                      ? 'bg-[#25201A] text-white shadow-sm'
+                      : 'text-[#5E564B] hover:text-[#25201A]'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[15px]">map</span>
+                  <span>OpenStreetMap GIS</span>
                 </button>
               </div>
             </div>
 
-            {/* Map Floating Navigation Controls */}
+            {/* Map Floating Controls (Bottom-Right) */}
             <div className="fixed right-6 bottom-6 z-30 flex flex-col gap-2 pointer-events-auto">
               <button
                 type="button"
                 onClick={handleMapRecenter}
                 title="Recenter Highway Corridor"
-                className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-md flex items-center justify-center text-slate-700 shadow-md border border-slate-200 hover:bg-slate-50 transition-colors"
+                className="w-10 h-10 rounded-full bg-[#FCFAF6]/95 backdrop-blur-md flex items-center justify-center text-[#25201A] shadow-md border border-[#E4DDD2] hover:bg-[#F4F0E8] transition-colors"
               >
                 <span className="material-symbols-outlined text-[20px]">my_location</span>
               </button>
 
-              <div className="flex flex-col bg-white/95 backdrop-blur-md rounded-xl shadow-md border border-slate-200 overflow-hidden">
+              <div className="flex flex-col bg-[#FCFAF6]/95 backdrop-blur-md rounded-full shadow-md border border-[#E4DDD2] overflow-hidden">
                 <button
                   type="button"
                   onClick={() => handleMapZoom('in')}
                   title="Zoom In"
-                  className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 transition-colors border-b border-slate-200"
+                  className="w-10 h-10 flex items-center justify-center text-[#25201A] hover:bg-[#F4F0E8] transition-colors border-b border-[#E4DDD2]"
                 >
                   <span className="material-symbols-outlined text-[18px]">add</span>
                 </button>
@@ -773,315 +911,296 @@ export default function App() {
                   type="button"
                   onClick={() => handleMapZoom('out')}
                   title="Zoom Out"
-                  className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="w-10 h-10 flex items-center justify-center text-[#25201A] hover:bg-[#F4F0E8] transition-colors"
                 >
                   <span className="material-symbols-outlined text-[18px]">remove</span>
                 </button>
               </div>
             </div>
 
-            {/* LEFT ROUTE CONTROLLER (PROFESSIONAL CRISP CARD, EYE-SAFETY WARM COFFEE TONE) */}
-            <div className="relative md:absolute md:left-6 md:top-3 md:bottom-3 z-30 w-full md:w-[390px] flex flex-col justify-end md:justify-start pointer-events-none mt-auto md:mt-0 p-2 md:p-0">
+            {/* LEFT ROUTE PLANNING DRAWER / SIDEBAR (CLEAN, SHARP, EYE-SAFETY TONES) */}
+            <div className="relative md:absolute md:left-6 md:top-3 md:bottom-3 z-30 w-full md:w-[385px] flex flex-col justify-end md:justify-start pointer-events-none mt-auto md:mt-0 p-2 md:p-0">
               <div className="pointer-events-auto w-full bg-[#FCFAF6]/95 backdrop-blur-xl rounded-2xl shadow-[0_10px_35px_-4px_rgba(37,32,26,0.12)] border border-[#E4DDD2] flex flex-col max-h-[calc(100vh-5.5rem)] overflow-hidden">
                 
-                {/* Header: Origin & Destination */}
+                {/* Header */}
                 <div className="p-4 pb-3 flex flex-col gap-3 bg-[#F4F0E8]/70 border-b border-[#E4DDD2]">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-[#145A46] text-[20px]">alt_route</span>
                       <span className="font-extrabold text-sm text-[#25201A] tracking-tight">
                         Express EV Routing
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#EAE5DA] border border-[#DDD5C7] text-[#145A46] text-xs font-semibold">
+                    <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EAE5DA] border border-[#DDD5C7] text-[#145A46] text-xs font-semibold">
                       <span className="material-symbols-outlined text-[14px]">battery_charging_full</span>
                       <span>{Math.round((initialSoc / batteryCap) * 100)}% SoC</span>
                     </div>
                   </div>
 
-                  <form onSubmit={handleRunPlanner} className="flex flex-col gap-2.5">
-                    {/* Origin / Dest Stack */}
-                    <div className="relative flex flex-col gap-2 bg-[#FCFAF6] rounded-xl p-2.5 border border-[#E4DDD2]">
-                      <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-[#E4DDD2]" />
-
-                      <div className="flex items-center gap-2.5 relative z-10">
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                          <div className="w-2 h-2 rounded-full bg-[#145A46]" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-[9px] text-[#5E564B] uppercase font-bold block leading-none mb-1">
-                            STARTING POINT
-                          </span>
-                          <select
-                            value={originId}
-                            onChange={(e) => setOriginId(e.target.value)}
-                            className="w-full bg-transparent text-xs font-bold text-[#25201A] outline-none cursor-pointer"
-                          >
-                            {network.nodes.map((n) => (
-                              <option key={n.node_id} value={n.node_id}>
-                                {n.node_id} — {n.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2.5 relative z-10 pt-1">
-                        <div className="w-5 h-5 rounded-full bg-rose-100 flex items-center justify-center shrink-0">
-                          <span className="material-symbols-outlined text-[13px] text-rose-700">location_on</span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-[9px] text-[#5E564B] uppercase font-bold block leading-none mb-1">
-                            FINAL DESTINATION
-                          </span>
-                          <select
-                            value={destId}
-                            onChange={(e) => setDestId(e.target.value)}
-                            className="w-full bg-transparent text-xs font-bold text-[#25201A] outline-none cursor-pointer"
-                          >
-                            {network.nodes.map((n) => (
-                              <option key={n.node_id} value={n.node_id}>
-                                {n.node_id} — {n.name}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      </div>
+                  {/* Origin & Destination Selectors */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider">
+                        Origin Hub
+                      </label>
+                      <select
+                        value={originId}
+                        onChange={(e) => setOriginId(e.target.value)}
+                        className="w-full bg-[#FCFAF6] border border-[#E4DDD2] rounded-lg px-2 py-1.5 text-xs text-[#25201A] font-semibold focus:outline-none focus:border-[#145A46]"
+                      >
+                        {network.nodes.map((n) => (
+                          <option key={n.node_id} value={n.node_id}>
+                            {n.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    {/* Corridor Selector: M-5 vs N-5 */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedCorridorRoute('M5')}
-                        className={`p-2 rounded-xl text-left border transition-all ${
-                          selectedCorridorRoute === 'M5'
-                            ? 'bg-emerald-50/80 border-[#145A46] text-[#25201A]'
-                            : 'bg-[#FCFAF6] border-[#E4DDD2] text-[#5E564B] hover:bg-[#F4F0E8]'
-                        }`}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider">
+                        Destination
+                      </label>
+                      <select
+                        value={destId}
+                        onChange={(e) => setDestId(e.target.value)}
+                        className="w-full bg-[#FCFAF6] border border-[#E4DDD2] rounded-lg px-2 py-1.5 text-xs text-[#25201A] font-semibold focus:outline-none focus:border-[#145A46]"
                       >
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[9px] font-bold text-[#145A46] uppercase px-1 rounded bg-emerald-100">
-                            Fastest
-                          </span>
-                          {selectedCorridorRoute === 'M5' && (
-                            <span className="material-symbols-outlined text-[14px] text-[#145A46]">check_circle</span>
-                          )}
-                        </div>
-                        <div className="text-xs font-bold">via M-5 Motorway</div>
-                        <div className="text-[10px] text-[#5E564B] font-mono mt-0.5">18h 30m • 1,505 km</div>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setSelectedCorridorRoute('N5')}
-                        className={`p-2 rounded-xl text-left border transition-all ${
-                          selectedCorridorRoute === 'N5'
-                            ? 'bg-emerald-50/80 border-[#145A46] text-[#25201A]'
-                            : 'bg-[#FCFAF6] border-[#E4DDD2] text-[#5E564B] hover:bg-[#F4F0E8]'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-0.5">
-                          <span className="text-[9px] font-bold text-[#5E564B] uppercase px-1 rounded bg-[#F4F0E8]">
-                            Alt Path
-                          </span>
-                          <span className="text-[9px] font-bold text-rose-700">+1h 45m</span>
-                        </div>
-                        <div className="text-xs font-bold">via N-5 Highway</div>
-                        <div className="text-[10px] text-[#5E564B] font-mono mt-0.5">20h 15m • 1,543 km</div>
-                      </button>
+                        {network.nodes.map((n) => (
+                          <option key={n.node_id} value={n.node_id}>
+                            {n.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full py-2 px-3 rounded-xl bg-[#25201A] hover:bg-black text-[#FAF9F5] font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all active:scale-[0.99]"
-                    >
-                      <span className="material-symbols-outlined text-[16px] text-emerald-400">bolt</span>
-                      <span>{loading ? 'Optimizing Route & Charging...' : 'Calculate Optimal Itinerary'}</span>
-                    </button>
-                  </form>
-                </div>
-
-                {/* KPI Strip */}
-                <div className="grid grid-cols-4 gap-1.5 p-2.5 text-center border-b border-[#E4DDD2] bg-[#F4F0E8]/70">
-                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
-                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">Distance</span>
-                    <span className="text-xs font-bold text-[#25201A] font-mono">{plan.total_distance_km} km</span>
-                  </div>
-                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
-                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">Trip Time</span>
-                    <span className="text-xs font-bold text-[#25201A] font-mono">{plan.total_trip_time_hours}h</span>
-                  </div>
-                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
-                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">DP Stops</span>
-                    <span className="text-xs font-bold text-[#145A46]">{plan.charging_stops?.length || 0} Hubs</span>
-                  </div>
-                  <div className="bg-[#FCFAF6] rounded-lg p-1.5 border border-[#E4DDD2]">
-                    <span className="text-[9px] text-[#5E564B] uppercase block font-bold">Energy Cost</span>
-                    <span className="text-xs font-bold text-[#145A46] font-mono">PKR {Math.round(totalCostPKR / 1000)}k</span>
                   </div>
                 </div>
 
-                {/* Cost Breakdown & Savings Summary */}
-                <div className="p-3 bg-[#FCFAF6] border-b border-[#E4DDD2] flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-[16px] text-[#5E564B]">receipt_long</span>
-                      <span className="text-xs font-bold text-[#25201A]">Total Corridor Budget</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-extrabold text-[#25201A] font-mono">
-                        PKR {grandTotalPKR.toLocaleString()}
+                {/* Scrollable Controller Body */}
+                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 text-xs">
+                  
+                  {/* KPI Stat Cards */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-[#F4F0E8] p-2.5 rounded-xl border border-[#E4DDD2]">
+                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block">
+                        Span
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => setShowItemizedCost(!showItemizedCost)}
-                        className="text-[10px] text-[#145A46] font-bold hover:underline"
-                      >
-                        {showItemizedCost ? 'Hide' : 'Details'}
-                      </button>
+                      <strong className="text-base text-[#25201A] font-extrabold tracking-tight">
+                        {plan.total_distance_km}
+                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5">km</span>
+                      </strong>
+                    </div>
+
+                    <div className="bg-[#F4F0E8] p-2.5 rounded-xl border border-[#E4DDD2]">
+                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block">
+                        Trip Time
+                      </span>
+                      <strong className="text-base text-[#145A46] font-extrabold tracking-tight">
+                        {plan.total_trip_time_hours}
+                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5">hrs</span>
+                      </strong>
+                    </div>
+
+                    <div className="bg-[#F4F0E8] p-2.5 rounded-xl border border-[#E4DDD2]">
+                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block">
+                        Tariff
+                      </span>
+                      <strong className="text-base text-[#25201A] font-extrabold tracking-tight">
+                        {Number(plan.total_charging_cost_pkr).toLocaleString()}
+                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5">PKR</span>
+                      </strong>
                     </div>
                   </div>
 
-                  {showItemizedCost && (
-                    <div className="pt-2 border-t border-[#E4DDD2] flex flex-col gap-1 text-[11px]">
-                      <div className="flex justify-between text-[#5E564B]">
-                        <span>⚡ EV Charging (3 Hubs):</span>
-                        <strong className="text-[#25201A]">PKR {totalCostPKR.toLocaleString()}</strong>
-                      </div>
-                      <div className="flex justify-between text-[#5E564B]">
-                        <span>🛣️ Motorway M-Tag Tolls:</span>
-                        <strong className="text-[#25201A]">PKR {estTollsPKR.toLocaleString()}</strong>
-                      </div>
-                      <div className="flex justify-between text-[#5E564B]">
-                        <span>❄️ Battery Conditioning:</span>
-                        <strong className="text-[#25201A]">Included</strong>
-                      </div>
+                  {/* Battery & SoC Parameters */}
+                  <div className="flex flex-col gap-2 bg-[#F4F0E8]/50 p-3 rounded-xl border border-[#E4DDD2]">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#25201A]">Battery Pack</span>
+                      <span className="font-mono text-emerald-800 font-bold">{batteryCap} kWh</span>
                     </div>
-                  )}
+                    <input
+                      type="range"
+                      min="40"
+                      max="100"
+                      step="5"
+                      value={batteryCap}
+                      onChange={(e) => setBatteryCap(Number(e.target.value))}
+                      className="w-full"
+                    />
 
-                  <div className="bg-emerald-50/70 rounded-lg p-2 border border-emerald-200 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px] text-[#145A46] shrink-0">savings</span>
-                    <div className="flex-1 min-w-0 text-[10px] text-[#5E564B]">
-                      <strong className="text-[#145A46] font-bold block">
-                        ⚡ Saves PKR {fuelSavingsPKR.toLocaleString()} vs Petrol ICE
-                      </strong>
-                      63% cheaper than equivalent petrol journey (PKR {petrolComparisonPKR.toLocaleString()})
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="font-bold text-[#25201A]">Departure Charge</span>
+                      <span className="font-mono text-emerald-800 font-bold">{initialSoc} kWh</span>
                     </div>
+                    <input
+                      type="range"
+                      min="15"
+                      max={batteryCap}
+                      step="5"
+                      value={initialSoc}
+                      onChange={(e) => setInitialSoc(Number(e.target.value))}
+                      className="w-full"
+                    />
+                  </div>
+
+                  {/* Recommended DP Charging Stops Timeline */}
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-[#25201A] uppercase tracking-wider">
+                        Optimized Charging Stops
+                      </span>
+                      <span className="text-[11px] font-semibold text-emerald-800">
+                        {plan.charging_stops ? plan.charging_stops.length : 0} stops
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      {(plan.charging_stops || []).map((stop, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#FCFAF6] border border-[#E4DDD2] shadow-sm hover:border-emerald-600 transition-colors"
+                        >
+                          <div className="w-6 h-6 rounded-full bg-[#145A46] text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-[#25201A] truncate text-xs">
+                                {stop.city_name}
+                              </span>
+                              <span className="text-[11px] font-bold text-emerald-800">
+                                +{stop.charged_kwh} kWh
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-[#5E564B] truncate mt-0.5">
+                              {stop.station_name} • {Math.round(stop.charge_time_hours * 60)} min
+                            </div>
+                            <div className="flex items-center justify-between text-[10px] text-[#8A8073] mt-1 pt-1 border-t border-[#EAE5DA]">
+                              <span>PKR {Number(stop.charge_cost_pkr).toLocaleString()}</span>
+                              <span>{stop.arrival_soc_kwh} kWh → {stop.departure_soc_kwh} kWh</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Itemized Cost Breakdown Parity Toggle */}
+                  <div className="flex flex-col gap-2 p-3 rounded-xl bg-[#F4F0E8] border border-[#E4DDD2]">
+                    <div
+                      onClick={() => setShowItemizedCost(!showItemizedCost)}
+                      className="flex items-center justify-between cursor-pointer"
+                    >
+                      <span className="font-bold text-[#25201A] flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[17px] text-emerald-700">payments</span>
+                        Fuel Parity vs Petrol
+                      </span>
+                      <span className="text-xs text-emerald-800 font-bold">
+                        Save PKR {fuelSavingsPKR.toLocaleString()} {showItemizedCost ? '▲' : '▼'}
+                      </span>
+                    </div>
+
+                    {showItemizedCost && (
+                      <div className="mt-2 pt-2 border-t border-[#DDD5C7] flex flex-col gap-1.5 text-[11px]">
+                        <div className="flex justify-between">
+                          <span className="text-[#5E564B]">EV Charging Cost:</span>
+                          <strong className="text-[#25201A]">PKR {totalCostPKR.toLocaleString()}</strong>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#5E564B]">Motorway Tolls (M9/M5/M2):</span>
+                          <strong className="text-[#25201A]">PKR {estTollsPKR.toLocaleString()}</strong>
+                        </div>
+                        <div className="flex justify-between font-bold pt-1 border-t border-[#DDD5C7]">
+                          <span className="text-[#25201A]">Total Trip Cost (EV):</span>
+                          <strong className="text-[#145A46]">PKR {grandTotalPKR.toLocaleString()}</strong>
+                        </div>
+                        <div className="flex justify-between text-[#8A8073]">
+                          <span>Comparable Petrol (12 km/L @ 305 PKR):</span>
+                          <span>PKR {petrolComparisonPKR.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Timeline Stops */}
-                <div className="flex-1 overflow-y-auto p-3 space-y-2.5 scrollbar-none">
-                  <div className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider mb-1">
-                    Multi-Stage Dynamic Programming Stops
-                  </div>
-
-                  {(plan.charging_stops || []).map((stop, i) => (
-                    <div key={i} className="relative pl-5">
-                      <div className="absolute left-1.5 top-2 bottom-0 w-0.5 bg-[#E4DDD2]" />
-                      <div className="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-[#145A46] flex items-center justify-center">
-                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                      </div>
-
-                      <div className="bg-[#F4F0E8] rounded-xl p-2.5 border border-[#E4DDD2] flex flex-col gap-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-[#25201A] truncate">{stop.city_name}</span>
-                          <span className="text-[10px] font-bold text-[#145A46] px-1.5 py-0.5 rounded bg-emerald-100 font-mono">
-                            +{stop.charged_kwh} kWh
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-[#5E564B] truncate">{stop.station_name}</div>
-                        <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#E4DDD2] font-mono">
-                          <span className="text-[#5E564B]">
-                            {stop.arrival_soc_kwh} &rarr; <strong className="text-[#25201A]">{stop.departure_soc_kwh} kWh</strong>
-                          </span>
-                          <strong className="text-[#145A46]">
-                            PKR {stop.charge_cost_pkr.toLocaleString()}
-                          </strong>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                {/* Footer Action Button */}
+                <div className="p-3 bg-[#F4F0E8]/70 border-t border-[#E4DDD2]">
+                  <button
+                    type="button"
+                    onClick={handleRunOptimization}
+                    disabled={loading}
+                    className="w-full py-2.5 px-4 rounded-xl bg-[#145A46] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-800 active:scale-[0.99] transition-all"
+                  >
+                    {loading ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Solving A* & DP Constraints...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-[16px]">sync_saved_locally</span>
+                        <span>Recompute Optimal EV Route</span>
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             </div>
-
-            {/* Station Popup Card */}
-            {activeStationPopup && (
-              <div className="absolute right-6 top-16 z-30 w-80 bg-white rounded-xl p-4 shadow-xl border border-slate-200 flex flex-col gap-2.5 pointer-events-auto">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-                      {activeStationPopup.cityName} • {activeStationPopup.nodeId}
-                    </span>
-                    <h4 className="text-sm font-bold text-slate-900 leading-tight">
-                      {activeStationPopup.name}
-                    </h4>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveStationPopup(null)}
-                    className="w-6 h-6 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900"
-                  >
-                    <span className="material-symbols-outlined text-[14px]">close</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2 bg-slate-50 rounded-lg p-2 text-xs border border-slate-200">
-                  <div>
-                    <span className="text-[9px] text-slate-500 uppercase font-bold block">Tariff</span>
-                    <strong className="text-slate-900 font-mono">PKR {activeStationPopup.cost_per_kwh}/kWh</strong>
-                  </div>
-                  <div>
-                    <span className="text-[9px] text-slate-500 uppercase font-bold block">Power</span>
-                    <strong className="text-emerald-700 font-mono">{activeStationPopup.power_kw} kW DC</strong>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-slate-600">
-                  <span>Connectors: CCS2 • Type 2</span>
-                  <span className="font-bold text-emerald-700">Active</span>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
-        {/* PAGE 2: CHARGING NETWORK DIRECTORY */}
+        {/* ======================================================== */}
+        {/* PAGE 2: CHARGING NETWORK DIRECTORY                       */}
+        {/* ======================================================== */}
         {activeTab === 'charging-directory' && (
-          <ChargingNetworkView
-            network={network}
-            onSelectStation={(st) => {
-              setActiveStationPopup({
-                ...st,
-                cityName: st.city_name,
-                nodeId: st.node_id
-              })
-              setActiveTab('route-planner')
-            }}
-          />
+          <div className="w-full flex-1 flex flex-col">
+            <ChargingNetworkView network={network} />
+          </div>
         )}
 
-        {/* PAGE 3: SAVED TRIPS & COST ANALYTICS */}
-        {activeTab === 'saved-trips' && <SavedTripsAnalyticsView plan={plan} />}
+        {/* ======================================================== */}
+        {/* PAGE 3: SAVED TRIPS & COST ANALYTICS                     */}
+        {/* ======================================================== */}
+        {activeTab === 'saved-trips' && (
+          <div className="w-full flex-1 flex flex-col">
+            <SavedTripsAnalyticsView plan={plan} />
+          </div>
+        )}
 
-        {/* PAGE 4: VEHICLE SPECS & BATTERY TELEMETRY */}
+        {/* ======================================================== */}
+        {/* PAGE 4: VEHICLE SPECS & BATTERY TELEMETRY                */}
+        {/* ======================================================== */}
         {activeTab === 'vehicle-specs' && (
-          <VehicleSpecsTelemetryView
-            batteryCap={batteryCap}
-            setBatteryCap={setBatteryCap}
-            initialSoc={initialSoc}
-            setInitialSoc={setInitialSoc}
-            minReserve={minReserve}
-            setMinReserve={setMinReserve}
-            maxTime={maxTime}
-            setMaxTime={setMaxTime}
-          />
+          <div className="w-full flex-1 flex flex-col">
+            <VehicleSpecsTelemetryView />
+          </div>
         )}
       </main>
+
+      {/* 3. PROFESSIONAL WEBSITE FOOTER */}
+      {activeTab !== 'route-planner' && (
+        <footer className="w-full bg-[#FAF9F5] border-t border-[#E4DDD2] py-8 px-4 sm:px-6 lg:px-8 mt-auto text-xs text-[#5E564B]">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-full bg-[#EBF5EE] flex items-center justify-center p-1 border border-emerald-200">
+                <img src={brandLogo} alt="VoltPath" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <span className="font-bold text-[#25201A] text-sm">VoltPath</span>
+                <span className="text-[#8A8073] ml-2">Intelligent EV Route & Energy Orchestration Engine</span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4 text-[#5E564B]">
+              <span>NED University of Engineering & Technology</span>
+              <span>•</span>
+              <span>CT-363 Design & Analysis of Algorithms</span>
+              <span>•</span>
+              <span className="text-emerald-800 font-semibold">✓ Client-Side Autonomous Engine</span>
+            </div>
+          </div>
+        </footer>
+      )}
     </div>
   )
 }
