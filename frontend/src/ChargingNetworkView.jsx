@@ -84,14 +84,9 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
         </div>
       </div>
 
-      {/* 2. CORRIDOR QUICK STATS STRIP (4 CLEAN MINIMAL KPI CARDS WITH PIXELCARD SWARM EFFECT) */}
+      {/* 2. CORRIDOR QUICK STATS STRIP (4 CLEAN MINIMAL KPI CARDS) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <PixelCard
-          variant="emerald"
-          theme="light"
-          radius={14}
-          className="p-4"
-        >
+        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Electrified Span</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">alt_route</span>
@@ -100,14 +95,9 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             1,505 <span className="text-xs text-[#5E564B] font-normal font-sans">km</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">Karachi to Islamabad</span>
-        </PixelCard>
+        </div>
 
-        <PixelCard
-          variant="emerald"
-          theme="light"
-          radius={14}
-          className="p-4"
-        >
+        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Total Hubs</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">ev_station</span>
@@ -117,14 +107,9 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             <span className="text-xs text-emerald-800 font-bold font-sans">• 14 Verified</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">Avg interval ~107 km</span>
-        </PixelCard>
+        </div>
 
-        <PixelCard
-          variant="emerald"
-          theme="light"
-          radius={14}
-          className="p-4"
-        >
+        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">UltraFast DC Hubs</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">flash_on</span>
@@ -133,14 +118,9 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             {fastCount} <span className="text-xs text-[#5E564B] font-normal font-sans">of {stations.length}</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">100 kW to 150 kW Ports</span>
-        </PixelCard>
+        </div>
 
-        <PixelCard
-          variant="emerald"
-          theme="light"
-          radius={14}
-          className="p-4"
-        >
+        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Weighted Tariff</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">payments</span>
@@ -149,7 +129,7 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             {avgTariff} <span className="text-xs text-[#5E564B] font-normal font-sans">PKR</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">Average PKR/kWh rate</span>
-        </PixelCard>
+        </div>
       </div>
 
       {/* 3. SEARCH & FILTER CONTROLS */}
@@ -260,6 +240,8 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
               variant="emerald"
               theme="light"
               radius={16}
+              gap={9}
+              intro={false}
               className="p-5 flex flex-col justify-between gap-4 group"
             >
               <div>

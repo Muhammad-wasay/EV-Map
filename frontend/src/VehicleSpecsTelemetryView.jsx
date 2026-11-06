@@ -724,6 +724,8 @@ export default function VehicleSpecsTelemetryView({
         variant="emerald"
         theme="light"
         radius={20}
+        gap={10}
+        intro={false}
         className="p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-8 border border-[#E4DDD2]"
       >
         {/* Left Column: Model Badges, Title & Aero Telemetry */}
@@ -777,9 +779,9 @@ export default function VehicleSpecsTelemetryView({
         </div>
       </PixelCard>
 
-      {/* 3. BATTERY CELL HEALTH & BMS TELEMETRY GRID (4 PIXELCARD CARDS) */}
+      {/* 3. BATTERY CELL HEALTH & BMS TELEMETRY GRID */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <PixelCard variant="emerald" theme="light" radius={14} className="p-4 flex flex-col justify-between">
+        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
             State of Health (SoH)
           </span>
@@ -787,9 +789,9 @@ export default function VehicleSpecsTelemetryView({
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             Factory Degradation Cap
           </span>
-        </PixelCard>
+        </div>
 
-        <PixelCard variant="emerald" theme="light" radius={14} className="p-4 flex flex-col justify-between">
+        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
             Thermal Regulation
           </span>
@@ -797,9 +799,9 @@ export default function VehicleSpecsTelemetryView({
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             Active Liquid Loop
           </span>
-        </PixelCard>
+        </div>
 
-        <PixelCard variant="emerald" theme="light" radius={14} className="p-4 flex flex-col justify-between">
+        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
             Cell Voltage Delta
           </span>
@@ -807,9 +809,9 @@ export default function VehicleSpecsTelemetryView({
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             Balanced BMS Variance
           </span>
-        </PixelCard>
+        </div>
 
-        <PixelCard variant="emerald" theme="light" radius={14} className="p-4 flex flex-col justify-between">
+        <div className="bg-[#FCFAF6] p-4 rounded-xl border border-[#E4DDD2] shadow-sm flex flex-col justify-between">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] font-sans">
             Lifetime Cycles
           </span>
@@ -817,7 +819,7 @@ export default function VehicleSpecsTelemetryView({
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
             LFP / NMC Cell Endurance
           </span>
-        </PixelCard>
+        </div>
       </div>
 
       {/* 4. REAL-TIME ALGORITHMIC SLIDERS & PARAMETER CONTROLS */}

@@ -6,7 +6,7 @@ import './PixelCard.css';
 
 const VARIANTS = {
   default: {
-    gap: 5,
+    gap: 8,
     speed: 35,
     colors: {
       dark: ['#f8fafc', '#f1f5f9', '#cbd5e1'],
@@ -16,7 +16,7 @@ const VARIANTS = {
     noFocus: false
   },
   emerald: {
-    gap: 5,
+    gap: 8,
     speed: 35,
     colors: {
       dark: ['#145A46', '#00C2A8', '#6EE7B7'],
@@ -96,7 +96,7 @@ export default function PixelCard({
   speed,
   pixelSize = 2,
   shape = 'square',
-  origin = 'center',
+  origin = 'pointer',
   revealDuration = 600,
   spotlight = 0.5,
   glow = 0.5,
@@ -105,7 +105,7 @@ export default function PixelCard({
   fade = 0,
   trigger = 'hover',
   clickPulse = true,
-  intro = true,
+  intro = false,
   introDelay = 0,
   noFocus,
   theme = 'dark',
@@ -552,7 +552,7 @@ export default function PixelCard({
         build();
         state.introAt = state.time + s.introDelay / 1000;
       }
-      if (state.visible) wake();
+      if (state.visible && (state.active || state.hovering)) wake();
     });
     visibility.observe(container);
 
@@ -583,8 +583,10 @@ export default function PixelCard({
 
   useEffect(() => {
     engineRef.current?.sync();
-    engineRef.current?.wake();
-  });
+    if (active) {
+      engineRef.current?.wake();
+    }
+  }, [active]);
 
   return (
     <div
