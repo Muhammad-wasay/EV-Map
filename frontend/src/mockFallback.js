@@ -15,9 +15,6 @@ export const MOCK_NETWORK = {
     max_charge_acceptance_kw: 120
   },
   nodes: [
-    { node_id: "N00A", name: "Karachi (Gulshan-e-Iqbal)", lat: 24.9207, lon: 67.0982, station: { station_id: "CS-GUL", name: "K-Electric FastCharge Gulshan", power_kw: 60, cost_per_kwh: 50.0, is_available: true, queue_wait_hours: 0.05 } },
-    { node_id: "N00B", name: "Karachi (Malir Cantt / Airport)", lat: 24.8988, lon: 67.1950, station: { station_id: "CS-MAL", name: "Malir GreenVolt Hub", power_kw: 40, cost_per_kwh: 48.0, is_available: true, queue_wait_hours: 0.05 } },
-    { node_id: "N00C", name: "Karachi (Clifton / Marina)", lat: 24.8138, lon: 67.0299, station: { station_id: "CS-CLI", name: "Clifton Marina Supercharge", power_kw: 120, cost_per_kwh: 55.0, is_available: true, queue_wait_hours: 0.10 } },
     { node_id: "N01", name: "Karachi (Start Hub)", lat: 24.8607, lon: 67.0011, station: { station_id: "CS-KHI", name: "K-Electric SuperHub Karachi", power_kw: 120, cost_per_kwh: 55.0, is_available: true, queue_wait_hours: 0.10 } },
     { node_id: "N02", name: "Hyderabad (M-9 Interchange)", lat: 25.3960, lon: 68.3578, station: { station_id: "CS-HYD", name: "PSO ElectroCharge Hyderabad", power_kw: 60, cost_per_kwh: 48.0, is_available: true, queue_wait_hours: 0.15 } },
     { node_id: "N03", name: "Nawabshah (N-5 Corridor)", lat: 26.2442, lon: 68.4100, station: { station_id: "CS-NWB", name: "Nawabshah AC Fast Point", power_kw: 40, cost_per_kwh: 42.0, is_available: true, queue_wait_hours: 0.10 } },
@@ -34,11 +31,6 @@ export const MOCK_NETWORK = {
     { node_id: "N14", name: "Islamabad (Zero Point Destination)", lat: 33.6844, lon: 73.0479, station: { station_id: "CS-ISB", name: "Islamabad BlueArea EV Plaza", power_kw: 120, cost_per_kwh: 55.0, is_available: true, queue_wait_hours: 0.05 } }
   ],
   edges: [
-    { u: "N00C", v: "N01", distance_km: 8, speed_kmh: 50, is_blocked: false, road_name: "Clifton Urban Link" },
-    { u: "N01", v: "N00A", distance_km: 12, speed_kmh: 60, is_blocked: false, road_name: "University Road / Lyari Express" },
-    { u: "N00A", v: "N00B", distance_km: 14, speed_kmh: 65, is_blocked: false, road_name: "Malir Link Road" },
-    { u: "N00B", v: "N01", distance_km: 18, speed_kmh: 60, is_blocked: false, road_name: "Shahrah-e-Faisal Expressway" },
-    { u: "N00B", v: "N02", distance_km: 150, speed_kmh: 110, is_blocked: false, road_name: "M-9 Malir Bypass Link" },
     { u: "N01", v: "N02", distance_km: 160, speed_kmh: 100, is_blocked: false, road_name: "M-9 Motorway" },
     { u: "N01", v: "N04", distance_km: 290, speed_kmh: 80, is_blocked: true, road_name: "N-55 Lower Indus (Submerged/Closed)" },
     { u: "N02", v: "N03", distance_km: 125, speed_kmh: 95, is_blocked: false, road_name: "N-5 Highway South" },
