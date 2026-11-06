@@ -649,21 +649,11 @@ export default function App() {
 
           {/* Right Live Status Telemetry & Controls (Clean sharp rounded-lg) */}
           <div className="flex items-center gap-2.5">
-            {/* Backend Connection Status Badge */}
-            {backendStatus === 'connected' ? (
+            {backendStatus === 'connected' && (
               <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-900 border border-emerald-300 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
                 <span className="hidden sm:inline">FastAPI Backend (:8000)</span>
                 <span className="sm:hidden">FastAPI</span>
-              </div>
-            ) : (
-              <div
-                className="flex items-center gap-1.5 bg-[#FAF9F5] text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm"
-                title="Running Autonomous Client-Side A* Solver (Zero Backend Required)"
-              >
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="hidden sm:inline">Autonomous A* Engine</span>
-                <span className="sm:hidden">Autonomous</span>
               </div>
             )}
 
@@ -1459,7 +1449,7 @@ export default function App() {
               <span>•</span>
               <span>CT-363 Design & Analysis of Algorithms</span>
               <span>•</span>
-              <span className="text-emerald-800 font-semibold">✓ Client-Side Autonomous Engine</span>
+              <span className="text-emerald-800 font-semibold">Active CEP Solver</span>
             </div>
           </div>
         </footer>

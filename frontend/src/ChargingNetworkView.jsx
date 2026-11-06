@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PixelCard from './components/PixelCard'
 
 export default function ChargingNetworkView({ network, onSelectStation }) {
   const [searchQuery, setSearchQuery] = useState('')
@@ -83,9 +84,14 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
         </div>
       </div>
 
-      {/* 2. CORRIDOR QUICK STATS STRIP (4 CLEAN MINIMAL KPI CARDS) */}
+      {/* 2. CORRIDOR QUICK STATS STRIP (4 CLEAN MINIMAL KPI CARDS WITH PIXELCARD SWARM EFFECT) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <PixelCard
+          variant="emerald"
+          theme="light"
+          radius={14}
+          className="p-4"
+        >
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Electrified Span</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">alt_route</span>
@@ -94,9 +100,14 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             1,505 <span className="text-xs text-[#5E564B] font-normal font-sans">km</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">Karachi to Islamabad</span>
-        </div>
+        </PixelCard>
 
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <PixelCard
+          variant="emerald"
+          theme="light"
+          radius={14}
+          className="p-4"
+        >
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Total Hubs</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">ev_station</span>
@@ -106,9 +117,14 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             <span className="text-xs text-emerald-800 font-bold font-sans">• 14 Verified</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">Avg interval ~107 km</span>
-        </div>
+        </PixelCard>
 
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <PixelCard
+          variant="emerald"
+          theme="light"
+          radius={14}
+          className="p-4"
+        >
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">UltraFast DC Hubs</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">flash_on</span>
@@ -117,9 +133,14 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             {fastCount} <span className="text-xs text-[#5E564B] font-normal font-sans">of {stations.length}</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">100 kW to 150 kW Ports</span>
-        </div>
+        </PixelCard>
 
-        <div className="flex flex-col p-4 bg-[#FCFAF6] rounded-xl border border-[#E4DDD2] shadow-sm">
+        <PixelCard
+          variant="emerald"
+          theme="light"
+          radius={14}
+          className="p-4"
+        >
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Weighted Tariff</span>
             <span className="material-symbols-outlined text-[18px] text-[#145A46]">payments</span>
@@ -128,7 +149,7 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             {avgTariff} <span className="text-xs text-[#5E564B] font-normal font-sans">PKR</span>
           </div>
           <span className="text-xs text-[#5E564B] mt-0.5">Average PKR/kWh rate</span>
-        </div>
+        </PixelCard>
       </div>
 
       {/* 3. SEARCH & FILTER CONTROLS */}
@@ -234,9 +255,12 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
       {viewMode === 'grid' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredStations.map((st) => (
-            <div
+            <PixelCard
               key={st.station_id}
-              className="bg-[#FCFAF6] rounded-xl p-5 border border-[#E4DDD2] shadow-sm hover:border-[#145A46] transition-all flex flex-col justify-between gap-4 group"
+              variant="emerald"
+              theme="light"
+              radius={16}
+              className="p-5 flex flex-col justify-between gap-4 group"
             >
               <div>
                 {/* Card Header: Node ID & Power Pill */}
@@ -312,7 +336,7 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
                   <span>Reserve</span>
                 </button>
               </div>
-            </div>
+            </PixelCard>
           ))}
         </div>
       )}
