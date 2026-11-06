@@ -451,16 +451,9 @@ export default function App() {
                       isActive ? 'text-[#145A46]' : 'text-[#5E564B] hover:text-[#25201A]'
                     }`}
                   >
-                    {/* Rolling Text Hover Animation */}
-                    <span className="relative inline-flex flex-col h-[20px] overflow-hidden leading-[20px]">
-                      {/* Top Text (Moves up on hover) */}
-                      <span className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full">
-                        {item.label}
-                      </span>
-                      {/* Bottom Text (Rolls up from bottom into place on hover) */}
-                      <span className="absolute top-full left-0 inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full text-[#145A46] font-bold">
-                        {item.label}
-                      </span>
+                    {/* Single Clean Text with 3D 180°/360° Flip Animation on hover */}
+                    <span className="nav-flip-text">
+                      {item.label}
                     </span>
 
                     {/* Clean Sharp Active Bottom Line Indicator (No rounded pill!) */}
