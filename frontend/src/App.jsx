@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import brandLogo from './assets/logo.png'
-import HomeOverviewView from './HomeOverviewView.jsx'
 import ChargingNetworkView from './ChargingNetworkView.jsx'
 import SavedTripsAnalyticsView from './SavedTripsAnalyticsView.jsx'
 import VehicleSpecsTelemetryView from './VehicleSpecsTelemetryView.jsx'
@@ -14,9 +13,16 @@ import {
   MOCK_SENSITIVITY
 } from './mockFallback.js'
 
+const NAV_ITEMS = [
+  { id: 'route-planner', label: 'Route Planner', shortLabel: 'Planner' },
+  { id: 'charging-directory', label: 'Charging Network Directory', shortLabel: 'Network' },
+  { id: 'saved-trips', label: 'Saved Trips', shortLabel: 'Trips' },
+  { id: 'vehicle-specs', label: 'Vehicle Specs', shortLabel: 'Specs' }
+]
+
 export default function App() {
-  // Navigation: Homepage Overview by default for proper website experience
-  const [activeTab, setActiveTab] = useState('home')
+  // Navigation: EXACT 4 STITCH TABS
+  const [activeTab, setActiveTab] = useState('route-planner')
   // Default map mode: 'leaflet' (Live Interactive GIS) or 'vector' (Stitch Vector Schematic)
   const [mapMode, setMapMode] = useState('leaflet')
   const [network, setNetwork] = useState(MOCK_NETWORK)
@@ -407,16 +413,16 @@ export default function App() {
       
       {/* 1. TOP WEBSITE HEADER BAR (MATCHES EXACT STITCH NAVBAR WITH CLEAN SINGLE-LINE BRANDING) */}
       <header className="sticky top-0 left-0 w-full z-50 bg-[#FCFAF6]/90 backdrop-blur-xl border-b border-[#E4DDD2]/80 shadow-[0_2px_12px_-2px_rgba(37,32,26,0.04)]">
-        <div className="w-full px-4 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <div className="w-full px-4 lg:px-8 h-16 flex items-center justify-between gap-6">
           
-          {/* Left Brand Pill: Logo Icon + "VoltPath" in a single clean horizontal line */}
-          <div className="flex items-center gap-4">
+          {/* Left Brand Lockup (Clean, professional, flat - no rounded pill capsule) */}
+          <div className="flex items-center gap-8">
             <div
-              onClick={() => setActiveTab('home')}
-              className="flex items-center gap-2.5 bg-[#FAF9F5] hover:bg-[#F2EDE4] px-3 py-1.5 rounded-full border border-[#E4DDD2] shadow-sm cursor-pointer transition-all"
+              onClick={() => setActiveTab('route-planner')}
+              className="flex items-center gap-3 cursor-pointer py-1 group select-none shrink-0"
               title="VoltPath — Intelligent EV Route & Energy Orchestration"
             >
-              <div className="w-8 h-8 rounded-full bg-[#EBF5EE] flex items-center justify-center p-1 overflow-hidden border border-emerald-200 shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#EBF5EE] flex items-center justify-center p-1 border border-emerald-200 shrink-0 group-hover:border-emerald-600 transition-colors">
                 <img
                   src={brandLogo}
                   alt="VoltPath Logo"
@@ -427,90 +433,49 @@ export default function App() {
                   }}
                 />
               </div>
-              <span className="font-bold text-[17px] text-[#25201A] tracking-tight">
+              <span className="font-bold text-[18px] text-[#25201A] tracking-tight group-hover:text-emerald-950 transition-colors">
                 VoltPath
               </span>
             </div>
 
-            {/* Center Navigation: Overview + 4 Stitch Core Modules */}
-            <nav className="hidden lg:flex items-center gap-1 bg-[#FAF9F5] p-1 rounded-full border border-[#E4DDD2] shadow-sm text-xs">
-              <button
-                type="button"
-                onClick={() => setActiveTab('home')}
-                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
-                  activeTab === 'home'
-                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
-                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
-                }`}
-              >
-                Overview
-              </button>
+            {/* Center Navigation: Clean flat links with Kinetic Rolling Text Animation (No rounded pill!) */}
+            <nav className="hidden lg:flex items-center gap-7 h-full">
+              {NAV_ITEMS.map((item) => {
+                const isActive = activeTab === item.id
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setActiveTab(item.id)}
+                    className={`group relative h-16 flex items-center px-1 text-[13px] tracking-tight font-semibold transition-colors ${
+                      isActive ? 'text-[#145A46]' : 'text-[#5E564B] hover:text-[#25201A]'
+                    }`}
+                  >
+                    {/* Rolling Text Hover Animation */}
+                    <span className="relative inline-flex flex-col h-[20px] overflow-hidden leading-[20px]">
+                      {/* Top Text (Moves up on hover) */}
+                      <span className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full">
+                        {item.label}
+                      </span>
+                      {/* Bottom Text (Rolls up from bottom into place on hover) */}
+                      <span className="absolute top-full left-0 inline-block transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-full text-[#145A46] font-bold">
+                        {item.label}
+                      </span>
+                    </span>
 
-              <button
-                type="button"
-                onClick={() => setActiveTab('route-planner')}
-                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold flex items-center gap-1 ${
-                  activeTab === 'route-planner'
-                    ? 'bg-[#145A46] text-[#FAF9F5] shadow-sm'
-                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[15px]">explore</span>
-                <span>Route Planner</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('charging-directory')}
-                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
-                  activeTab === 'charging-directory'
-                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
-                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
-                }`}
-              >
-                Charging Network Directory
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('saved-trips')}
-                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
-                  activeTab === 'saved-trips'
-                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
-                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
-                }`}
-              >
-                Saved Trips
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab('vehicle-specs')}
-                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
-                  activeTab === 'vehicle-specs'
-                    ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
-                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
-                }`}
-              >
-                Vehicle Specs
-              </button>
+                    {/* Clean Sharp Active Bottom Line Indicator (No rounded pill!) */}
+                    {isActive && (
+                      <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#145A46]" />
+                    )}
+                  </button>
+                )
+              })}
             </nav>
           </div>
 
-          {/* Right Live Status Telemetry & Controls */}
-          <div className="flex items-center gap-2">
-            {activeTab === 'home' && (
-              <button
-                type="button"
-                onClick={() => setActiveTab('route-planner')}
-                className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#145A46] text-white font-bold text-xs shadow-sm hover:bg-emerald-800 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">explore</span>
-                <span>Launch Planner</span>
-              </button>
-            )}
-
-            <div className="flex items-center gap-2 bg-[#FAF9F5] px-3.5 py-1.5 rounded-full border border-[#E4DDD2] shadow-sm text-xs font-semibold text-[#25201A]">
+          {/* Right Live Status Telemetry & Controls (Clean sharp rounded-lg) */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 bg-[#FAF9F5] px-3 py-1.5 rounded-lg border border-[#E4DDD2] shadow-sm text-xs font-semibold text-[#25201A]">
               <span className="material-symbols-outlined text-emerald-700 text-[18px]">electric_car</span>
               <span className="font-mono">82% • 274 mi</span>
             </div>
@@ -518,7 +483,7 @@ export default function App() {
             <button
               type="button"
               title="Eco Optimization Mode Active"
-              className="w-9 h-9 rounded-full bg-[#FAF9F5] hover:bg-[#F2EDE4] flex items-center justify-center text-emerald-700 shadow-sm border border-[#E4DDD2] transition-colors"
+              className="w-9 h-9 rounded-lg bg-[#FAF9F5] hover:bg-[#F2EDE4] flex items-center justify-center text-emerald-700 shadow-sm border border-[#E4DDD2] transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">eco</span>
             </button>
@@ -526,14 +491,14 @@ export default function App() {
             <button
               type="button"
               title="Corridor Highway Alerts"
-              className="w-9 h-9 rounded-full bg-[#FAF9F5] hover:bg-[#F2EDE4] flex items-center justify-center text-[#5E564B] hover:text-[#25201A] shadow-sm border border-[#E4DDD2] transition-colors"
+              className="w-9 h-9 rounded-lg bg-[#FAF9F5] hover:bg-[#F2EDE4] flex items-center justify-center text-[#5E564B] hover:text-[#25201A] shadow-sm border border-[#E4DDD2] transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">notifications</span>
             </button>
 
             <div
               title="Driver Profile"
-              className="w-8 h-8 rounded-full bg-[#25201A] flex items-center justify-center text-[#FAF9F5] shadow-sm cursor-pointer hover:bg-black transition-colors"
+              className="w-8 h-8 rounded-lg bg-[#25201A] flex items-center justify-center text-[#FAF9F5] shadow-sm cursor-pointer hover:bg-black transition-colors"
             >
               <span className="material-symbols-outlined text-[17px]">person</span>
             </div>
@@ -541,61 +506,29 @@ export default function App() {
         </div>
 
         {/* Mobile Navigation Strip (for small screens) */}
-        <div className="lg:hidden flex items-center justify-around border-t border-[#E4DDD2] px-2 py-1.5 bg-[#FAF9F5] text-xs">
-          <button
-            onClick={() => setActiveTab('home')}
-            className={`px-2.5 py-1 rounded-md font-semibold ${
-              activeTab === 'home' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
-            }`}
-          >
-            Overview
-          </button>
-          <button
-            onClick={() => setActiveTab('route-planner')}
-            className={`px-2.5 py-1 rounded-md font-semibold ${
-              activeTab === 'route-planner' ? 'bg-[#145A46] text-white' : 'text-[#5E564B]'
-            }`}
-          >
-            Route
-          </button>
-          <button
-            onClick={() => setActiveTab('charging-directory')}
-            className={`px-2.5 py-1 rounded-md font-semibold ${
-              activeTab === 'charging-directory' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
-            }`}
-          >
-            Network
-          </button>
-          <button
-            onClick={() => setActiveTab('saved-trips')}
-            className={`px-2.5 py-1 rounded-md font-semibold ${
-              activeTab === 'saved-trips' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
-            }`}
-          >
-            Analytics
-          </button>
-          <button
-            onClick={() => setActiveTab('vehicle-specs')}
-            className={`px-2.5 py-1 rounded-md font-semibold ${
-              activeTab === 'vehicle-specs' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
-            }`}
-          >
-            Specs
-          </button>
+        <div className="lg:hidden flex items-center justify-around border-t border-[#E4DDD2] px-2 bg-[#FAF9F5] text-xs">
+          {NAV_ITEMS.map((item) => {
+            const isActive = activeTab === item.id
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`py-2 px-1 relative font-medium transition-colors ${
+                  isActive ? 'text-[#145A46] font-bold' : 'text-[#5E564B]'
+                }`}
+              >
+                {item.shortLabel}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#145A46]" />
+                )}
+              </button>
+            )
+          })}
         </div>
       </header>
 
       {/* 2. MAIN WORKSPACE CONTAINER */}
       <main className="w-full flex-1 flex flex-col relative overflow-hidden">
-        
-        {/* ======================================================== */}
-        {/* PAGE 0: WEBSITE HOMEPAGE / OVERVIEW                      */}
-        {/* ======================================================== */}
-        {activeTab === 'home' && (
-          <div className="w-full flex-1 flex flex-col">
-            <HomeOverviewView onNavigate={setActiveTab} plan={plan} />
-          </div>
-        )}
         
         {/* ======================================================== */}
         {/* PAGE 1: ROUTE PLANNER                                     */}
@@ -909,7 +842,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => applyPreset('OPTIMAL')}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#145A46] text-white shadow-sm text-xs font-semibold shrink-0 hover:bg-emerald-800 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#145A46] text-white shadow-sm text-xs font-semibold shrink-0 hover:bg-emerald-800 transition-colors"
                 >
                   <span className="w-2 h-2 rounded-full bg-emerald-300" />
                   <span>Standard (18.5h Min Cost)</span>
@@ -918,7 +851,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => applyPreset('FAST')}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FCFAF6]/90 backdrop-blur-md text-[#25201A] shadow-sm text-xs font-medium shrink-0 border border-[#E4DDD2] hover:bg-[#F4F0E8] transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FCFAF6]/90 backdrop-blur-md text-[#25201A] shadow-sm text-xs font-medium shrink-0 border border-[#E4DDD2] hover:bg-[#F4F0E8] transition-colors"
                 >
                   <span className="material-symbols-outlined text-[15px] text-emerald-700">bolt</span>
                   <span>HyperCharge Rush (17.75h)</span>
@@ -927,7 +860,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => applyPreset('TIGHT_EDGE')}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FCFAF6]/90 backdrop-blur-md text-[#25201A] shadow-sm text-xs font-medium shrink-0 border border-[#E4DDD2] hover:bg-[#F4F0E8] transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FCFAF6]/90 backdrop-blur-md text-[#25201A] shadow-sm text-xs font-medium shrink-0 border border-[#E4DDD2] hover:bg-[#F4F0E8] transition-colors"
                 >
                   <span className="material-symbols-outlined text-[15px] text-rose-700">timer_off</span>
                   <span>T_max 11h Edge Case</span>
@@ -935,11 +868,11 @@ export default function App() {
               </div>
 
               {/* Map Mode Switcher (Leaflet GIS vs Vector Schematic) */}
-              <div className="flex items-center gap-1 bg-[#FCFAF6]/95 backdrop-blur-md p-1 rounded-full border border-[#E4DDD2] shadow-sm text-xs font-semibold shrink-0">
+              <div className="flex items-center gap-1 bg-[#FCFAF6]/95 backdrop-blur-md p-1 rounded-lg border border-[#E4DDD2] shadow-sm text-xs font-semibold shrink-0">
                 <button
                   type="button"
                   onClick={() => setMapMode('leaflet')}
-                  className={`px-3 py-1 rounded-full transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-1 rounded-md transition-all flex items-center gap-1.5 ${
                     mapMode === 'leaflet'
                       ? 'bg-[#145A46] text-white shadow-sm'
                       : 'text-[#5E564B] hover:text-[#25201A]'
@@ -952,7 +885,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setMapMode('vector')}
-                  className={`px-3 py-1 rounded-full transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-1 rounded-md transition-all flex items-center gap-1.5 ${
                     mapMode === 'vector'
                       ? 'bg-[#145A46] text-white shadow-sm'
                       : 'text-[#5E564B] hover:text-[#25201A]'
