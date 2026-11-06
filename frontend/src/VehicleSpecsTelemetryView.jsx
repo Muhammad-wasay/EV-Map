@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react'
-import PixelCard from './components/PixelCard'
 
 export default function VehicleSpecsTelemetryView({
   batteryCap = 75,
@@ -76,7 +75,7 @@ export default function VehicleSpecsTelemetryView({
     MG4_TROPHY: {
       id: 'MG4_TROPHY',
       name: 'MG4 EV Trophy Long Range',
-      image: '/vehicles/mg_zs_ev.png',
+      image: '/vehicles/mg4.png',
       brand: 'MG',
       bodyType: 'hatch_sport',
       edition: 'Modular Scalable Platform (MSP)',
@@ -156,7 +155,7 @@ export default function VehicleSpecsTelemetryView({
     BYD_ATTO3: {
       id: 'BYD_ATTO3',
       name: 'BYD Atto 3 Extended Range',
-      image: '/vehicles/byd_seal.png',
+      image: '/vehicles/byd_atto_3.png',
       brand: 'BYD',
       bodyType: 'suv_crossover',
       edition: 'e-Platform 3.0 Blade Battery',
@@ -404,399 +403,43 @@ export default function VehicleSpecsTelemetryView({
     setShowCustomModal(false)
   }
 
-    // Enhanced Procedural Vector EV Model Generator with Authentic Company Branding & Distinct Proportions
+    // Authentic Transparent EV Showcase Asset Renderer (Pakistan Official Fleet)
   function renderCarGraphic(car) {
     const brand = (car.brand || 'EV').toUpperCase()
-    const bodyType = car.bodyType || 'sedan_performance'
     const name = car.name || 'Electric Vehicle'
-
-    // Brand metadata: emblems, badges, accents
-    const brandStyles = {
-      BYD: {
-        plate: 'PAK • BYD',
-        sideText: 'BYD SEAL • CTB BLADE',
-        accent: '#00E5FF',
-        badge: 'BYD',
-        badgeType: 'text_pill'
-      },
-      TESLA: {
-        plate: 'PAK • TSLA',
-        sideText: 'TESLA • DUAL MOTOR AWD',
-        accent: '#38BDF8',
-        badge: 'T',
-        badgeType: 'tesla_t'
-      },
-      DEEPAL: {
-        plate: 'PAK • DPL',
-        sideText: `${car.name.toUpperCase()} • EPA1`,
-        accent: '#F59E0B',
-        badge: 'DEEPAL',
-        badgeType: 'diamond'
-      },
-      PORSCHE: {
-        plate: 'PAK • PRSCH',
-        sideText: 'PORSCHE • TAYCAN TURBO S',
-        accent: '#FBBF24',
-        badge: 'PORSCHE',
-        badgeType: 'crest'
-      },
-      AUDI: {
-        plate: 'PAK • AUDI',
-        sideText: 'AUDI • e-tron GT quattro',
-        accent: '#EF4444',
-        badge: 'AUDI',
-        badgeType: 'rings'
-      },
-      MG: {
-        plate: 'PAK • MG',
-        sideText: `${car.name.toUpperCase()} • EV`,
-        accent: '#00C2A8',
-        badge: 'MG',
-        badgeType: 'hexagon'
-      },
-      HYUNDAI: {
-        plate: 'PAK • HYUN',
-        sideText: 'HYUNDAI • IONIQ 5 E-GMP',
-        accent: '#00E5FF',
-        badge: 'H',
-        badgeType: 'hyundai_h'
-      },
-      KIA: {
-        plate: 'PAK • KIA',
-        sideText: 'KIA • EV6 GT-LINE',
-        accent: '#10B981',
-        badge: 'KIA',
-        badgeType: 'text_pill'
-      },
-      BMW: {
-        plate: 'PAK • BMW',
-        sideText: 'BMW • i4 eDrive40',
-        accent: '#3B82F6',
-        badge: 'BMW',
-        badgeType: 'bmw_roundel'
-      },
-      MERCEDES: {
-        plate: 'PAK • MB',
-        sideText: 'MERCEDES-BENZ • EQE 350+',
-        accent: '#06B6D4',
-        badge: 'MB',
-        badgeType: 'three_star'
-      },
-      NISSAN: {
-        plate: 'PAK • NIS',
-        sideText: 'NISSAN • ZERO EMISSION',
-        accent: '#38BDF8',
-        badge: 'NISSAN',
-        badgeType: 'text_pill'
-      }
-    }
-
-    const b = brandStyles[brand] || {
-      plate: 'PAK • EV',
-      sideText: `${name.toUpperCase()} • PURE EV`,
-      accent: '#00C2A8',
-      badge: brand.slice(0, 6),
-      badgeType: 'text_pill'
-    }
-
-    const isSUV = bodyType === 'suv_crossover'
-    const isHatch = bodyType === 'hatch_sport'
-    const isFastback = bodyType === 'fastback_minimal'
-    const isSlimSedan = bodyType === 'sedan_performance'
+    const imageSrc = car.image || '/vehicles/byd_seal.png'
 
     return (
-      <div className="relative w-full max-w-xl h-60 sm:h-72 flex flex-col items-center justify-center select-none overflow-visible group">
-        {/* Soft Ambient Ground Neon Spotlight */}
-        <div className="absolute bottom-6 w-4/5 h-12 bg-emerald-500/20 blur-2xl rounded-full" />
-        <div className="absolute bottom-5 w-3/5 h-6 bg-[#00C2A8]/30 blur-lg rounded-full" />
-        <div className="absolute bottom-4 w-2/3 h-4 bg-[#25201A]/25 blur-sm rounded-full" />
+      <div className="relative w-full flex flex-col items-center justify-center py-4 group select-none">
+        {/* Ambient Radial Spotlight Glow */}
+        <div 
+          className="absolute inset-0 pointer-events-none rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+          style={{
+            background: 'radial-gradient(ellipse 75% 55% at 50% 62%, rgba(20, 90, 70, 0.09), transparent 72%)'
+          }}
+        />
 
-        {/* Ambient Aerodynamic Flow Streaks */}
-        <div className="absolute inset-0 flex flex-col justify-around pointer-events-none opacity-40 px-2">
-          <div className="h-[1px] w-28 self-start bg-gradient-to-r from-transparent via-[#00C2A8] to-transparent animate-pulse" />
-          <div className="h-[1px] w-36 self-end bg-gradient-to-r from-transparent via-amber-300 to-transparent animate-pulse" style={{ animationDelay: '0.6s' }} />
+        {/* Authentic Transparent Vehicle Image Showcase */}
+        <div className="relative z-10 w-full max-w-md sm:max-w-lg lg:max-w-xl h-52 sm:h-64 flex items-center justify-center p-2">
+          <img
+            key={car.id}
+            src={imageSrc}
+            alt={name}
+            className="max-h-full max-w-full object-contain filter drop-shadow-[0_14px_28px_rgba(20,90,70,0.12)] transition-all duration-500 ease-out group-hover:scale-105 group-hover:-translate-y-1.5"
+            onError={(e) => {
+              // Graceful fallback if image path missing
+              e.currentTarget.src = '/vehicles/byd_seal.png'
+            }}
+          />
         </div>
 
-        {/* Scalable High-Detail Vector EV Vehicle Graphics */}
-        <svg
-          viewBox="0 0 640 230"
-          className="w-full h-full object-contain filter drop-shadow-[0_18px_32px_rgba(20,90,70,0.32)] transition-transform duration-500 ease-out group-hover:scale-[1.03] group-hover:-translate-y-1"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            {/* Deep Metallic British Racing Green Body Paint */}
-            <linearGradient id="bodyPaintGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#1E2822" />
-              <stop offset="35%" stopColor="#145A46" />
-              <stop offset="70%" stopColor="#1F7A5E" />
-              <stop offset="100%" stopColor="#0B3025" />
-            </linearGradient>
+        {/* Ambient Studio Ground Shadow */}
+        <div className="w-3/5 h-3.5 bg-[#15120E]/12 rounded-full blur-md -mt-2 transition-all duration-500 group-hover:scale-95 group-hover:opacity-70" />
 
-            {/* Glossy Aerodynamic Canopy Glass */}
-            <linearGradient id="canopyGlassGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00E5FF" stopOpacity="0.75" />
-              <stop offset="40%" stopColor="#00C2A8" stopOpacity="0.5" />
-              <stop offset="100%" stopColor="#0D3B2E" stopOpacity="0.2" />
-            </linearGradient>
-
-            {/* Brushed Aluminum Side Blade Trim */}
-            <linearGradient id="brushedAlloyGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#FCFAF6" />
-              <stop offset="50%" stopColor="#C4B9A7" />
-              <stop offset="100%" stopColor="#FAF9F5" />
-            </linearGradient>
-
-            {/* Turbine Machined Alloy Wheels */}
-            <radialGradient id="alloyWheelGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#FCFAF6" />
-              <stop offset="45%" stopColor="#8A8073" />
-              <stop offset="85%" stopColor="#2E2820" />
-              <stop offset="100%" stopColor="#15120E" />
-            </radialGradient>
-
-            {/* Laser Headlight & Tail Light Glow Filters */}
-            <filter id="laserBeamGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3.5" result="glow" />
-              <feComposite in="SourceGraphic" in2="glow" operator="over" />
-            </filter>
-            <filter id="underglowFilter" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="5" result="blur" />
-            </filter>
-          </defs>
-
-          {/* 1. Ground Shadow & Battery Pack Floor Illumination */}
-          <ellipse cx="320" cy="196" rx="265" ry="10" fill="#15120E" opacity="0.45" />
-          <ellipse cx="320" cy="193" rx="210" ry="4" fill="#00C2A8" opacity="0.4" filter="url(#underglowFilter)" />
-
-          {/* 2. BODY GEOMETRY BASED ON PROPORTION TYPE */}
-          {isSUV ? (
-            /* =================== A. TALL, MUSCULAR SUV / JEEP PROPORTION =================== */
-            <g id="suv_body">
-              {/* Rugged Black Wheel Arch & Lower Body Cladding */}
-              <path
-                d="M50 174 C 75 174, 95 174, 115 178 C 145 182, 455 182, 485 178 C 505 174, 550 174, 590 162 C 606 156, 610 136, 575 124 C 540 110, 500 96, 440 68 C 390 48, 220 48, 170 70 C 120 94, 85 110, 45 128 C 30 135, 32 172, 50 174 Z"
-                fill="#15120E"
-              />
-              {/* Main SUV High-Stance Body */}
-              <path
-                d="M54 168 C 80 168, 100 168, 120 172 C 145 175, 450 175, 475 172 C 495 168, 540 168, 582 156 C 598 150, 602 134, 570 122 C 532 108, 492 94, 435 66 C 388 46, 225 46, 175 68 C 128 90, 92 106, 50 124 C 36 130, 38 166, 54 168 Z"
-                fill="url(#bodyPaintGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Matte Aluminum Roof Rails */}
-              <line x1="205" y1="42" x2="430" y2="42" stroke="url(#brushedAlloyGrad)" strokeWidth="4" strokeLinecap="round" />
-              <line x1="230" y1="46" x2="230" y2="42" stroke="#8A8073" strokeWidth="2.5" />
-              <line x1="405" y1="46" x2="405" y2="42" stroke="#8A8073" strokeWidth="2.5" />
-
-              {/* High SUV Panoramic Window Cockpit */}
-              <path
-                d="M182 70 C 230 52, 315 50, 420 60 C 452 78, 480 96, 480 96 L 160 96 C 160 96, 170 80, 182 70 Z"
-                fill="url(#canopyGlassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1.2"
-              />
-              {/* Window Pillar Dividers (B-Pillar & C-Pillar) */}
-              <line x1="280" y1="52" x2="280" y2="96" stroke="#15120E" strokeWidth="4" />
-              <line x1="380" y1="56" x2="380" y2="96" stroke="#15120E" strokeWidth="4" />
-
-              {/* Muscular Shoulder Character Line */}
-              <path d="M75 126 Q 310 114 565 118" stroke="#00C2A8" strokeWidth="2.5" strokeDasharray="6 3" />
-              <path d="M120 148 L 470 148" stroke="url(#brushedAlloyGrad)" strokeWidth="2" />
-
-              {/* Headlight: Tall Command Projector Towers */}
-              <path d="M570 120 L 602 128" stroke="#00E5FF" strokeWidth="5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-              <circle cx="585" cy="124" r="3" fill="#FFFFFF" />
-
-              {/* Tail Light: Heavy-Duty Blade Ribbon */}
-              <path d="M42 130 L 68 130" stroke="#EF4444" strokeWidth="5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-            </g>
-          ) : isHatch ? (
-            /* =================== B. AGILITY HOT HATCH PROPORTION =================== */
-            <g id="hatch_body">
-              {/* Hot Hatch Body */}
-              <path
-                d="M52 168 C 80 168, 100 168, 120 172 C 145 174, 445 174, 470 172 C 490 168, 530 168, 572 158 C 588 152, 592 136, 564 125 C 524 112, 484 100, 435 84 C 385 66, 215 66, 150 90 C 110 110, 85 120, 50 132 C 38 136, 38 166, 52 168 Z"
-                fill="url(#bodyPaintGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Twin-Blade Aerodynamic Floating Rear Wing */}
-              <path d="M145 80 L 115 72 L 102 86" stroke="#00C2A8" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-              {/* Hatch Cockpit Glass */}
-              <path
-                d="M156 92 C 210 74, 290 72, 420 82 C 448 98, 465 110, 465 110 L 140 110 Z"
-                fill="url(#canopyGlassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1.2"
-              />
-              <line x1="270" y1="74" x2="270" y2="110" stroke="#15120E" strokeWidth="3" />
-              {/* Dynamic Fangs & Lights */}
-              <path d="M555 124 L 585 132" stroke="#00E5FF" strokeWidth="4.5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-              <path d="M42 136 L 64 136" stroke="#EF4444" strokeWidth="4.5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-            </g>
-          ) : isFastback ? (
-            /* =================== C. MINIMALIST AERO FASTBACK PROPORTION =================== */
-            <g id="fastback_body">
-              {/* Clean Teardrop Fastback Body */}
-              <path
-                d="M50 166 C 80 166, 100 166, 120 170 C 145 172, 450 172, 475 170 C 495 166, 535 166, 582 156 C 600 150, 602 134, 570 124 C 530 112, 490 100, 442 80 C 388 60, 240 60, 180 84 C 132 108, 95 120, 50 130 C 36 134, 36 164, 50 166 Z"
-                fill="url(#bodyPaintGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Panoramic Glass Canopy */}
-              <path
-                d="M185 86 C 240 66, 320 64, 425 74 C 458 92, 478 106, 478 106 L 165 106 Z"
-                fill="url(#canopyGlassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1.2"
-              />
-              <path d="M565 124 L 595 130" stroke="#00E5FF" strokeWidth="4.5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-              <path d="M40 134 L 64 134" stroke="#EF4444" strokeWidth="4.5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-            </g>
-          ) : (
-            /* =================== D. SLIM LOW-SLUNG PERFORMANCE SPORTS SEDAN =================== */
-            <g id="slim_sedan_body">
-              {/* Low-slung Sports Chassis with Front Splitter & Rear Diffuser */}
-              <path
-                d="M48 164 C 80 164, 100 164, 120 168 C 145 170, 455 170, 480 168 C 500 164, 545 164, 592 154 C 608 148, 610 132, 580 122 C 535 110, 490 98, 445 78 C 388 56, 250 56, 185 82 C 132 106, 95 118, 48 126 C 34 130, 34 162, 48 164 Z"
-                fill="url(#bodyPaintGrad)"
-                stroke="#00C2A8"
-                strokeWidth="1.5"
-              />
-              {/* Front Aero Lip & Low Ground Skirts */}
-              <path d="M545 158 L 598 152" stroke="url(#brushedAlloyGrad)" strokeWidth="2.5" strokeLinecap="round" />
-              {/* Low Coupe Cockpit Glass */}
-              <path
-                d="M190 84 C 245 62, 330 60, 428 72 C 460 90, 480 104, 480 104 L 170 104 Z"
-                fill="url(#canopyGlassGrad)"
-                stroke="#FCFAF6"
-                strokeWidth="1.2"
-              />
-              {/* Laser Matrix Light Bar */}
-              <path d="M570 122 L 602 128" stroke="#00E5FF" strokeWidth="5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-              <circle cx="586" cy="125" r="2.5" fill="#FFFFFF" />
-              {/* Full-width Tail Blade Light */}
-              <path d="M38 132 L 64 132" stroke="#EF4444" strokeWidth="5" filter="url(#laserBeamGlow)" strokeLinecap="round" />
-            </g>
-          )}
-
-          {/* 3. AUTHENTIC COMPANY BRANDING & MODEL BADGING */}
-          {/* A. Lower Door / Side Skirt Brushed Blade with Model Name */}
-          <g transform={`translate(${isSUV ? 180 : 190}, ${isSUV ? 146 : 142})`}>
-            <rect x="0" y="0" width="220" height="15" rx="3" fill="#15120E" stroke="url(#brushedAlloyGrad)" strokeWidth="1" />
-            <text x="110" y="11" fontSize="8" fontWeight="bold" fontFamily="monospace" fill={b.accent} textAnchor="middle" letterSpacing="1.2">
-              {b.sideText}
-            </text>
-          </g>
-
-          {/* B. Front Nose Company Emblem Logo */}
-          <g transform={`translate(${isSUV ? 565 : 570}, ${isSUV ? 134 : 132})`}>
-            {b.badgeType === 'tesla_t' ? (
-              <g>
-                <circle cx="0" cy="0" r="9" fill="#15120E" stroke="#E4DDD2" strokeWidth="1" />
-                <path d="M-5 -4 L5 -4 M0 -4 L0 4 M-3 -1 Q0 2 3 -1" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-              </g>
-            ) : b.badgeType === 'rings' ? (
-              <g>
-                <rect x="-14" y="-6" width="28" height="12" rx="3" fill="#15120E" stroke="#E4DDD2" strokeWidth="0.8" />
-                <circle cx="-7" cy="0" r="4" stroke="#FCFAF6" strokeWidth="1.2" fill="none" />
-                <circle cx="-2" cy="0" r="4" stroke="#FCFAF6" strokeWidth="1.2" fill="none" />
-                <circle cx="3" cy="0" r="4" stroke="#FCFAF6" strokeWidth="1.2" fill="none" />
-                <circle cx="8" cy="0" r="4" stroke="#FCFAF6" strokeWidth="1.2" fill="none" />
-              </g>
-            ) : b.badgeType === 'diamond' ? (
-              <g>
-                <circle cx="0" cy="0" r="9" fill="#15120E" stroke="#F59E0B" strokeWidth="1" />
-                <polygon points="0,-6 6,0 0,6 -6,0" fill="#F59E0B" />
-              </g>
-            ) : b.badgeType === 'crest' ? (
-              <g>
-                <rect x="-8" y="-7" width="16" height="14" rx="2" fill="#15120E" stroke="#FBBF24" strokeWidth="1" />
-                <polygon points="0,-5 6,-1 4,5 0,7 -4,5 -6,-1" fill="#FBBF24" />
-                <text x="0" y="2" fontSize="5" fontWeight="bold" fill="#15120E" textAnchor="middle">P</text>
-              </g>
-            ) : b.badgeType === 'hexagon' ? (
-              <g>
-                <polygon points="0,-8 7,-4 7,4 0,8 -7,4 -7,-4" fill="#15120E" stroke="#00C2A8" strokeWidth="1.2" />
-                <text x="0" y="3" fontSize="6" fontWeight="bold" fontFamily="sans-serif" fill="#FCFAF6" textAnchor="middle">MG</text>
-              </g>
-            ) : b.badgeType === 'hyundai_h' ? (
-              <g>
-                <ellipse cx="0" cy="0" rx="9" ry="7" fill="#15120E" stroke="#00E5FF" strokeWidth="1" />
-                <text x="0" y="3" fontSize="8" fontWeight="bold" fontStyle="italic" fill="#00E5FF" textAnchor="middle">H</text>
-              </g>
-            ) : b.badgeType === 'bmw_roundel' ? (
-              <g>
-                <circle cx="0" cy="0" r="8" fill="#15120E" stroke="#E4DDD2" strokeWidth="1" />
-                <path d="M-6 0 A6 6 0 0 1 0 -6 L0 0 Z" fill="#2563EB" />
-                <path d="M6 0 A6 6 0 0 1 0 6 L0 0 Z" fill="#2563EB" />
-                <path d="M0 -6 A6 6 0 0 1 6 0 L0 0 Z" fill="#FCFAF6" />
-                <path d="M0 6 A6 6 0 0 1 -6 0 L0 0 Z" fill="#FCFAF6" />
-              </g>
-            ) : b.badgeType === 'three_star' ? (
-              <g>
-                <circle cx="0" cy="0" r="8" fill="#15120E" stroke="#E4DDD2" strokeWidth="1" />
-                <line x1="0" y1="0" x2="0" y2="-6" stroke="#FCFAF6" strokeWidth="1.5" />
-                <line x1="0" y1="0" x2="-5" y2="4" stroke="#FCFAF6" strokeWidth="1.5" />
-                <line x1="0" y1="0" x2="5" y2="4" stroke="#FCFAF6" strokeWidth="1.5" />
-              </g>
-            ) : (
-              <g>
-                <rect x="-14" y="-6" width="28" height="12" rx="3" fill="#15120E" stroke={b.accent} strokeWidth="1" />
-                <text x="0" y="3" fontSize="7" fontWeight="bold" fontFamily="sans-serif" fill="#FCFAF6" textAnchor="middle">
-                  {b.badge}
-                </text>
-              </g>
-            )}
-          </g>
-
-          {/* 4. HIGH-PERFORMANCE TURBINE ALLOY WHEEL ASSEMBLIES */}
-          {/* Front Wheel */}
-          <g transform={`translate(${isSUV ? 495 : 495}, ${isSUV ? 172 : 166})`}>
-            {/* Outer Tire */}
-            <circle cx="0" cy="0" r={isSUV ? 34 : 30} fill="#15120E" />
-            <circle cx="0" cy="0" r={isSUV ? 28 : 25} fill="url(#alloyWheelGrad)" stroke="#00C2A8" strokeWidth="2.5" />
-            {/* Red / Gold Performance Caliper */}
-            <path d="M-14 -12 A18 18 0 0 1 -6 -18" stroke="#EF4444" strokeWidth="5" strokeLinecap="round" />
-            {/* Center Cap Hub */}
-            <circle cx="0" cy="0" r="9" fill="#15120E" stroke="#00C2A8" strokeWidth="1.5" />
-            <text x="0" y="2.5" fontSize="5" fontWeight="bold" fill="#00E5FF" textAnchor="middle">EV</text>
-            {/* Turbine Spoke Blades */}
-            <line x1="-18" y1="0" x2="18" y2="0" stroke="#FCFAF6" strokeWidth="2.2" />
-            <line x1="0" y1="-18" x2="0" y2="18" stroke="#FCFAF6" strokeWidth="2.2" />
-            <line x1="-13" y1="-13" x2="13" y2="13" stroke="#FCFAF6" strokeWidth="2.2" />
-            <line x1="-13" y1="13" x2="13" y2="-13" stroke="#FCFAF6" strokeWidth="2.2" />
-          </g>
-
-          {/* Rear Wheel */}
-          <g transform={`translate(${isSUV ? 135 : 135}, ${isSUV ? 172 : 166})`}>
-            <circle cx="0" cy="0" r={isSUV ? 34 : 30} fill="#15120E" />
-            <circle cx="0" cy="0" r={isSUV ? 28 : 25} fill="url(#alloyWheelGrad)" stroke="#00C2A8" strokeWidth="2.5" />
-            <path d="M-14 -12 A18 18 0 0 1 -6 -18" stroke="#EF4444" strokeWidth="5" strokeLinecap="round" />
-            <circle cx="0" cy="0" r="9" fill="#15120E" stroke="#00C2A8" strokeWidth="1.5" />
-            <text x="0" y="2.5" fontSize="5" fontWeight="bold" fill="#00E5FF" textAnchor="middle">EV</text>
-            <line x1="-18" y1="0" x2="18" y2="0" stroke="#FCFAF6" strokeWidth="2.2" />
-            <line x1="0" y1="-18" x2="0" y2="18" stroke="#FCFAF6" strokeWidth="2.2" />
-            <line x1="-13" y1="-13" x2="13" y2="13" stroke="#FCFAF6" strokeWidth="2.2" />
-            <line x1="-13" y1="13" x2="13" y2="-13" stroke="#FCFAF6" strokeWidth="2.2" />
-          </g>
-
-          {/* 5. BRAND-SPECIFIC REGIONAL SMART LICENSE PLATE */}
-          <g transform={`translate(${isSUV ? 555 : 558}, ${isSUV ? 152 : 148})`}>
-            <rect x="0" y="0" width="40" height="13" rx="2.5" fill="#FAF9F5" stroke="#15120E" strokeWidth="1" />
-            <text x="20" y="9.5" fontSize="6.5" fontWeight="900" fontFamily="monospace" fill="#145A46" textAnchor="middle">
-              {b.plate}
-            </text>
-          </g>
-        </svg>
-
-        {/* Ambient Real-time Model Verification Badge */}
+        {/* Studio Verified Telemetry Badge */}
         <div className="absolute top-2 right-2 bg-[#FCFAF6]/95 backdrop-blur-xs border border-[#E4DDD2] px-3 py-1 rounded-xl text-[10px] font-mono font-bold text-[#145A46] shadow-xs flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-          <span>{brand} • {isSUV ? 'Full SUV / Crossover' : isHatch ? 'Sport Hatch' : isFastback ? 'Aero Fastback' : 'Low-Slung Performance'}</span>
+          <span>Pakistan Fleet • {brand} Official Cutout</span>
         </div>
       </div>
     )
@@ -929,7 +572,7 @@ export default function VehicleSpecsTelemetryView({
         <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A8073] whitespace-nowrap">
           Quick Switch:
         </span>
-        {['BYD_SEAL', 'TESLA_M3', 'MG4_TROPHY', 'DEEPAL_S07', 'PORSCHE_TAYCAN', 'AUDI_ETRON', 'HYUNDAI_IONIQ5'].map((key) => {
+        {['BYD_SEAL', 'DEEPAL_S07', 'DEEPAL_L07', 'BYD_ATTO3', 'MG4_TROPHY', 'MG_ZS_EV', 'TESLA_M3', 'AUDI_ETRON', 'PORSCHE_TAYCAN', 'HYUNDAI_IONIQ5'].map((key) => {
           const item = vehicleCatalog[key]
           if (!item) return null
           const isSelected = activeModelKey === key
@@ -1019,7 +662,7 @@ export default function VehicleSpecsTelemetryView({
         <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">State of Health (SoH)</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">favorite</span>
+            <div className="kpi-icon-badge"><span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">favorite</span></div>
           </div>
           <div className="text-2xl font-mono font-extrabold text-[#145A46] mt-1">{currentCar.health}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
@@ -1030,7 +673,7 @@ export default function VehicleSpecsTelemetryView({
         <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Thermal Regulation</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">thermostat</span>
+            <div className="kpi-icon-badge"><span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">thermostat</span></div>
           </div>
           <div className="text-2xl font-mono font-extrabold text-[#25201A] mt-1">{currentCar.temp}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
@@ -1041,7 +684,7 @@ export default function VehicleSpecsTelemetryView({
         <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Cell Voltage Delta</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">speed</span>
+            <div className="kpi-icon-badge"><span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">speed</span></div>
           </div>
           <div className="text-2xl font-mono font-extrabold text-[#25201A] mt-1">{currentCar.variance}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">

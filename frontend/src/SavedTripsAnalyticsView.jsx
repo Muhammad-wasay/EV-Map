@@ -5,7 +5,8 @@ export default function SavedTripsAnalyticsView({ plan, onLoadTrip }) {
   const chargingCostPKR = Number(plan?.total_charging_cost_pkr || 11012)
   const tollFastTagPKR = 4350
   const totalEVCostPKR = chargingCostPKR + tollFastTagPKR
-  const equivalentPetrolPKR = Math.round(tripDistance * 0.08 * 275) // 8L/100km @ PKR 275/L
+  const PETROL_BENCHMARK_PKR = 352.59
+  const equivalentPetrolPKR = Math.round(tripDistance * 0.08 * PETROL_BENCHMARK_PKR) // 8.0L/100km @ PKR 352.59/L
   const netSavingsPKR = Math.max(0, equivalentPetrolPKR - totalEVCostPKR)
   const co2OffsetMT = (tripDistance * 0.00018).toFixed(2)
 
@@ -88,48 +89,63 @@ export default function SavedTripsAnalyticsView({ plan, onLoadTrip }) {
 
         <div className="flex items-center gap-2 bg-[#FCFAF6] px-3.5 py-2 rounded-xl border border-[#E4DDD2] text-xs font-mono text-[#5E564B] shadow-xs">
           <span>Benchmarked vs Petrol:</span>
-          <strong className="text-[#25201A]">PKR 275 / Liter</strong>
+          <strong className="text-[#25201A]">PKR 352.59 / Liter</strong>
         </div>
       </div>
 
-      {/* 2. TOP 4 KPI CARDS */}
+      {/* 2. TOP 4 KPI CARDS (WITH HOVER ICON SPRING SPIN) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#FCFAF6] rounded-xl p-5 shadow-sm border border-[#E4DDD2] flex flex-col justify-between">
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl p-5 shadow-sm border border-[#E4DDD2] hover:border-[#145A46] transition-all cursor-default flex flex-col justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] block font-sans">
-              Net Fuel Savings
-            </span>
+            <div className="flex items-center justify-between text-[#5E564B]">
+              <span className="text-[10px] font-bold uppercase tracking-wider font-sans">
+                Net Fuel Savings
+              </span>
+              <div className="kpi-icon-badge">
+                <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">savings</span>
+              </div>
+            </div>
             <div className="text-2xl font-extrabold text-[#145A46] tracking-tight mt-1 font-mono">
               PKR {netSavingsPKR.toLocaleString()}
             </div>
           </div>
           <div className="mt-3 pt-2 border-t border-[#E4DDD2] flex items-center justify-between text-xs">
             <span className="text-[#5E564B]">vs Equivalent Petrol</span>
-            <span className="text-[#145A46] font-bold font-mono">60% Cheaper</span>
+            <span className="text-[#145A46] font-bold font-mono">64% Cheaper</span>
           </div>
         </div>
 
-        <div className="bg-[#FCFAF6] rounded-xl p-5 shadow-sm border border-[#E4DDD2] flex flex-col justify-between">
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl p-5 shadow-sm border border-[#E4DDD2] hover:border-[#145A46] transition-all cursor-default flex flex-col justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] block font-sans">
-              Running Cost per KM
-            </span>
+            <div className="flex items-center justify-between text-[#5E564B]">
+              <span className="text-[10px] font-bold uppercase tracking-wider font-sans">
+                Running Cost per KM
+              </span>
+              <div className="kpi-icon-badge">
+                <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">speed</span>
+              </div>
+            </div>
             <div className="text-2xl font-extrabold text-[#25201A] tracking-tight mt-1 font-mono">
               PKR {(chargingCostPKR / tripDistance).toFixed(2)}{' '}
               <span className="text-xs font-normal text-[#5E564B] font-sans">/ km</span>
             </div>
           </div>
           <div className="mt-3 pt-2 border-t border-[#E4DDD2] flex items-center justify-between text-xs">
-            <span className="text-[#5E564B]">ICE Sedan: PKR 24.5/km</span>
-            <span className="text-[#145A46] font-bold font-mono">PKR 17.2 saved/km</span>
+            <span className="text-[#5E564B]">ICE Sedan: PKR 28.2/km</span>
+            <span className="text-[#145A46] font-bold font-mono">PKR 20.9 saved/km</span>
           </div>
         </div>
 
-        <div className="bg-[#FCFAF6] rounded-xl p-5 shadow-sm border border-[#E4DDD2] flex flex-col justify-between">
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl p-5 shadow-sm border border-[#E4DDD2] hover:border-[#145A46] transition-all cursor-default flex flex-col justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] block font-sans">
-              CO₂ Emissions Offset
-            </span>
+            <div className="flex items-center justify-between text-[#5E564B]">
+              <span className="text-[10px] font-bold uppercase tracking-wider font-sans">
+                CO₂ Emissions Offset
+              </span>
+              <div className="kpi-icon-badge">
+                <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">eco</span>
+              </div>
+            </div>
             <div className="text-2xl font-extrabold text-[#145A46] tracking-tight mt-1 font-mono">
               {co2OffsetMT} <span className="text-xs font-normal text-[#5E564B] font-sans">Metric Tons</span>
             </div>
@@ -140,11 +156,16 @@ export default function SavedTripsAnalyticsView({ plan, onLoadTrip }) {
           </div>
         </div>
 
-        <div className="bg-[#FCFAF6] rounded-xl p-5 shadow-sm border border-[#E4DDD2] flex flex-col justify-between">
+        <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] rounded-xl p-5 shadow-sm border border-[#E4DDD2] hover:border-[#145A46] transition-all cursor-default flex flex-col justify-between">
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#5E564B] block font-sans">
-              M-Tag Highway Tolls
-            </span>
+            <div className="flex items-center justify-between text-[#5E564B]">
+              <span className="text-[10px] font-bold uppercase tracking-wider font-sans">
+                M-Tag Highway Tolls
+              </span>
+              <div className="kpi-icon-badge">
+                <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">toll</span>
+              </div>
+            </div>
             <div className="text-2xl font-extrabold text-[#25201A] tracking-tight mt-1 font-mono">
               PKR {tollFastTagPKR.toLocaleString()}
             </div>
@@ -177,7 +198,7 @@ export default function SavedTripsAnalyticsView({ plan, onLoadTrip }) {
           {/* Petrol Vehicle */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="font-semibold text-[#5E564B]">Traditional Petrol Sedan (8.0L / 100km @ PKR 275/L)</span>
+              <span className="font-semibold text-[#5E564B]">Traditional Petrol Sedan (8.0L / 100km @ PKR 352.59/L)</span>
               <strong className="font-mono text-[#25201A]">PKR {equivalentPetrolPKR.toLocaleString()}</strong>
             </div>
             <div className="w-full bg-[#EAE5DA] h-3 rounded-full overflow-hidden">

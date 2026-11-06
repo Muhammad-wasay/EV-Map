@@ -509,7 +509,8 @@ export default function App() {
   const totalCostPKR = Number(plan.total_charging_cost_pkr || 11012)
   const estTollsPKR = 4350
   const grandTotalPKR = totalCostPKR + estTollsPKR
-  const petrolComparisonPKR = 38270
+  const petrolBenchmarkPKR = 352.59
+  const petrolComparisonPKR = Math.round((1505 / 12) * petrolBenchmarkPKR) // 12 km/L @ 352.59 PKR = 44,220 PKR
   const fuelSavingsPKR = Math.max(0, petrolComparisonPKR - grandTotalPKR)
 
   return (
@@ -1327,7 +1328,7 @@ export default function App() {
                           <strong className="text-[#145A46]">PKR {grandTotalPKR.toLocaleString()}</strong>
                         </div>
                         <div className="flex justify-between text-[#8A8073]">
-                          <span>Comparable Petrol (12 km/L @ 305 PKR):</span>
+                          <span>Comparable Petrol (12 km/L @ 352.59 PKR):</span>
                           <span>PKR {petrolComparisonPKR.toLocaleString()}</span>
                         </div>
                       </div>
