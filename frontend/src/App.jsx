@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import brandLogo from './assets/logo.png'
+import HomeOverviewView from './HomeOverviewView.jsx'
 import ChargingNetworkView from './ChargingNetworkView.jsx'
 import SavedTripsAnalyticsView from './SavedTripsAnalyticsView.jsx'
 import VehicleSpecsTelemetryView from './VehicleSpecsTelemetryView.jsx'
@@ -14,8 +15,8 @@ import {
 } from './mockFallback.js'
 
 export default function App() {
-  // Navigation: EXACT 4 STITCH TABS
-  const [activeTab, setActiveTab] = useState('route-planner')
+  // Navigation: Homepage Overview by default for proper website experience
+  const [activeTab, setActiveTab] = useState('home')
   // Default map mode: 'leaflet' (Live Interactive GIS) or 'vector' (Stitch Vector Schematic)
   const [mapMode, setMapMode] = useState('leaflet')
   const [network, setNetwork] = useState(MOCK_NETWORK)
@@ -411,7 +412,7 @@ export default function App() {
           {/* Left Brand Pill: Logo Icon + "VoltPath" in a single clean horizontal line */}
           <div className="flex items-center gap-4">
             <div
-              onClick={() => setActiveTab('route-planner')}
+              onClick={() => setActiveTab('home')}
               className="flex items-center gap-2.5 bg-[#FAF9F5] hover:bg-[#F2EDE4] px-3 py-1.5 rounded-full border border-[#E4DDD2] shadow-sm cursor-pointer transition-all"
               title="VoltPath — Intelligent EV Route & Energy Orchestration"
             >
@@ -431,24 +432,37 @@ export default function App() {
               </span>
             </div>
 
-            {/* Center Navigation: EXACT 4 TABS FROM STITCH SPEC */}
+            {/* Center Navigation: Overview + 4 Stitch Core Modules */}
             <nav className="hidden lg:flex items-center gap-1 bg-[#FAF9F5] p-1 rounded-full border border-[#E4DDD2] shadow-sm text-xs">
               <button
                 type="button"
-                onClick={() => setActiveTab('route-planner')}
-                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
-                  activeTab === 'route-planner'
+                onClick={() => setActiveTab('home')}
+                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
+                  activeTab === 'home'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
                 }`}
               >
-                Route Planner
+                Overview
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('route-planner')}
+                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold flex items-center gap-1 ${
+                  activeTab === 'route-planner'
+                    ? 'bg-[#145A46] text-[#FAF9F5] shadow-sm'
+                    : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[15px]">explore</span>
+                <span>Route Planner</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab('charging-directory')}
-                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
+                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
                   activeTab === 'charging-directory'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
@@ -460,7 +474,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('saved-trips')}
-                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
+                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
                   activeTab === 'saved-trips'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
@@ -472,7 +486,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setActiveTab('vehicle-specs')}
-                className={`px-4 py-1.5 rounded-full transition-all font-semibold ${
+                className={`px-3.5 py-1.5 rounded-full transition-all font-semibold ${
                   activeTab === 'vehicle-specs'
                     ? 'bg-[#25201A] text-[#FAF9F5] shadow-sm'
                     : 'text-[#5E564B] hover:text-[#25201A] hover:bg-[#F4F0E8]'
@@ -485,6 +499,17 @@ export default function App() {
 
           {/* Right Live Status Telemetry & Controls */}
           <div className="flex items-center gap-2">
+            {activeTab === 'home' && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('route-planner')}
+                className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#145A46] text-white font-bold text-xs shadow-sm hover:bg-emerald-800 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[16px]">explore</span>
+                <span>Launch Planner</span>
+              </button>
+            )}
+
             <div className="flex items-center gap-2 bg-[#FAF9F5] px-3.5 py-1.5 rounded-full border border-[#E4DDD2] shadow-sm text-xs font-semibold text-[#25201A]">
               <span className="material-symbols-outlined text-emerald-700 text-[18px]">electric_car</span>
               <span className="font-mono">82% • 274 mi</span>
@@ -518,9 +543,17 @@ export default function App() {
         {/* Mobile Navigation Strip (for small screens) */}
         <div className="lg:hidden flex items-center justify-around border-t border-[#E4DDD2] px-2 py-1.5 bg-[#FAF9F5] text-xs">
           <button
+            onClick={() => setActiveTab('home')}
+            className={`px-2.5 py-1 rounded-md font-semibold ${
+              activeTab === 'home' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
+            }`}
+          >
+            Overview
+          </button>
+          <button
             onClick={() => setActiveTab('route-planner')}
             className={`px-2.5 py-1 rounded-md font-semibold ${
-              activeTab === 'route-planner' ? 'bg-[#25201A] text-white' : 'text-[#5E564B]'
+              activeTab === 'route-planner' ? 'bg-[#145A46] text-white' : 'text-[#5E564B]'
             }`}
           >
             Route
@@ -554,6 +587,15 @@ export default function App() {
 
       {/* 2. MAIN WORKSPACE CONTAINER */}
       <main className="w-full flex-1 flex flex-col relative overflow-hidden">
+        
+        {/* ======================================================== */}
+        {/* PAGE 0: WEBSITE HOMEPAGE / OVERVIEW                      */}
+        {/* ======================================================== */}
+        {activeTab === 'home' && (
+          <div className="w-full flex-1 flex flex-col">
+            <HomeOverviewView onNavigate={setActiveTab} plan={plan} />
+          </div>
+        )}
         
         {/* ======================================================== */}
         {/* PAGE 1: ROUTE PLANNER                                     */}
