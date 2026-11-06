@@ -1376,7 +1376,14 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'charging-directory' && (
           <div className="w-full flex-1 flex flex-col">
-            <ChargingNetworkView network={network} />
+            <ChargingNetworkView
+              network={network}
+              onSelectStation={(nodeId) => {
+                setOriginId(nodeId)
+                setActiveTab('route-planner')
+                handleRunOptimization(nodeId, destId)
+              }}
+            />
           </div>
         )}
 
@@ -1385,7 +1392,15 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'saved-trips' && (
           <div className="w-full flex-1 flex flex-col">
-            <SavedTripsAnalyticsView plan={plan} />
+            <SavedTripsAnalyticsView
+              plan={plan}
+              onLoadTrip={(origin, dest) => {
+                setOriginId(origin)
+                setDestId(dest)
+                setActiveTab('route-planner')
+                handleRunOptimization(origin, dest)
+              }}
+            />
           </div>
         )}
 
@@ -1394,7 +1409,28 @@ export default function App() {
         {/* ======================================================== */}
         {activeTab === 'vehicle-specs' && (
           <div className="w-full flex-1 flex flex-col">
-            <VehicleSpecsTelemetryView />
+            <VehicleSpecsTelemetryView
+              batteryCap={batteryCap}
+              setBatteryCap={(val) => {
+                setBatteryCap(val)
+                handleRunOptimization(originId, destId, val)
+              }}
+              initialSoc={initialSoc}
+              setInitialSoc={(val) => {
+                setInitialSoc(val)
+                handleRunOptimization(originId, destId, batteryCap, val)
+              }}
+              minReserve={minReserve}
+              setMinReserve={(val) => {
+                setMinReserve(val)
+                handleRunOptimization(originId, destId, batteryCap, initialSoc, val)
+              }}
+              maxTime={maxTime}
+              setMaxTime={(val) => {
+                setMaxTime(val)
+                handleRunOptimization(originId, destId, batteryCap, initialSoc, minReserve, val)
+              }}
+            />
           </div>
         )}
       </main>
