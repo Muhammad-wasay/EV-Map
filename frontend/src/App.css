@@ -37,11 +37,33 @@
 }
 
 .leaflet-container {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif !important;
   background: #F7F5F0 !important;
   width: 100% !important;
   height: 100% !important;
   z-index: 0 !important;
+}
+
+/* Strategic Multi-Font Utility Classes */
+.font-display {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+}
+
+.font-nav {
+  font-family: 'Outfit', sans-serif !important;
+}
+
+.font-mono {
+  font-family: 'Geist Mono', 'JetBrains Mono', monospace !important;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+.font-heading {
+  font-family: 'Outfit', 'Saira', sans-serif !important;
+}
+
+.font-sans {
+  font-family: 'Hanken Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif !important;
 }
 
 /* Eye-safety gentle warm filter for map tiles (eliminates harsh fluorescent glare) */

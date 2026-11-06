@@ -534,7 +534,7 @@ export default function App() {
                     key={item.id}
                     type="button"
                     onClick={() => setActiveTab(item.id)}
-                    className={`group relative h-16 flex items-center px-1 text-[13px] tracking-tight font-semibold transition-colors ${
+                    className={`group relative h-16 flex items-center px-1 font-nav text-[13.5px] tracking-normal font-semibold transition-colors ${
                       isActive ? 'text-[#145A46]' : 'text-[#5E564B] hover:text-[#25201A]'
                     }`}
                   >
@@ -1045,12 +1045,12 @@ export default function App() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-[#145A46] text-[20px]">alt_route</span>
-                      <span className="font-extrabold text-sm text-[#25201A] tracking-tight">
+                      <span className="font-display font-bold text-sm text-[#25201A] tracking-tight">
                         Express EV Routing
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EAE5DA] border border-[#DDD5C7] text-[#145A46] text-xs font-semibold">
+                    <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EAE5DA] border border-[#DDD5C7] text-[#145A46] text-xs font-semibold font-mono">
                       <span className="material-symbols-outlined text-[14px]">battery_charging_full</span>
                       <span>{Math.round((initialSoc / batteryCap) * 100)}% SoC</span>
                     </div>
@@ -1059,7 +1059,7 @@ export default function App() {
                   {/* Origin & Destination Selectors */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider">
+                      <label className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider font-sans">
                         Origin Hub
                       </label>
                       <select
@@ -1076,7 +1076,7 @@ export default function App() {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider">
+                      <label className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider font-sans">
                         Destination
                       </label>
                       <select
@@ -1095,37 +1095,37 @@ export default function App() {
                 </div>
 
                 {/* Scrollable Controller Body */}
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 text-xs">
+                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 text-xs font-sans">
                   
                   {/* KPI Stat Cards */}
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-[#F4F0E8] p-2.5 rounded-xl border border-[#E4DDD2]">
-                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block">
+                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block font-sans">
                         Span
                       </span>
-                      <strong className="text-base text-[#25201A] font-extrabold tracking-tight">
+                      <strong className="text-base text-[#25201A] font-mono font-bold tracking-tight">
                         {plan.total_distance_km}
-                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5">km</span>
+                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5 font-sans">km</span>
                       </strong>
                     </div>
 
                     <div className="bg-[#F4F0E8] p-2.5 rounded-xl border border-[#E4DDD2]">
-                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block">
+                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block font-sans">
                         Trip Time
                       </span>
-                      <strong className="text-base text-[#145A46] font-extrabold tracking-tight">
+                      <strong className="text-base text-[#145A46] font-mono font-bold tracking-tight">
                         {plan.total_trip_time_hours}
-                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5">hrs</span>
+                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5 font-sans">hrs</span>
                       </strong>
                     </div>
 
                     <div className="bg-[#F4F0E8] p-2.5 rounded-xl border border-[#E4DDD2]">
-                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block">
+                      <span className="text-[10px] text-[#5E564B] uppercase font-bold tracking-wider block font-sans">
                         Tariff
                       </span>
-                      <strong className="text-base text-[#25201A] font-extrabold tracking-tight">
+                      <strong className="text-base text-[#25201A] font-mono font-bold tracking-tight">
                         {Number(plan.total_charging_cost_pkr).toLocaleString()}
-                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5">PKR</span>
+                        <span className="text-[10px] font-normal text-[#5E564B] ml-0.5 font-sans">PKR</span>
                       </strong>
                     </div>
                   </div>

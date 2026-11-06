@@ -80,7 +80,7 @@ export default function VehicleSpecsTelemetryView({
               OBD-II CAN-Bus Live
             </span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-[#25201A] tracking-tight mt-0.5">
+          <h1 className="text-2xl lg:text-3xl font-display font-extrabold text-[#25201A] tracking-tight mt-0.5">
             Vehicle Specs &amp; Battery Telemetry
           </h1>
           <p className="text-sm text-[#5E564B] mt-1 max-w-2xl leading-relaxed">

@@ -55,7 +55,7 @@ export default function SavedTripsAnalyticsView({ plan }) {
         <span className="text-xs font-bold uppercase tracking-wider text-[#145A46]">
           Economic Fleet Telemetry &amp; Historical Logs
         </span>
-        <h1 className="text-2xl lg:text-3xl font-extrabold text-[#25201A] tracking-tight mt-0.5">
+        <h1 className="text-2xl lg:text-3xl font-display font-extrabold text-[#25201A] tracking-tight mt-0.5">
           Saved Trips &amp; Cost Analytics
         </h1>
         <p className="text-sm text-[#5E564B] mt-1 max-w-2xl leading-relaxed">

@@ -1,80 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VoltPath — EV Trip & Energy Intelligence (NED CT-363 DAA)</title>
-    <!-- Custom Uploaded Favicon -->
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <!-- Fonts & Icons from Stitch Kinetic Horizon -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Tailwind CDN with Warm Coffee Eye-Safety Design Tokens -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              surface: "#F7F5F0",
-              "surface-dim": "#EEEAE1",
-              "surface-bright": "#FAF9F5",
-              "surface-container-lowest": "#FFFFFF",
-              "surface-container-low": "#F4F0E8",
-              "surface-container": "#ECE6DC",
-              "surface-container-high": "#E2DBD0",
-              "surface-container-highest": "#D4CBC0",
-              "on-surface": "#25201A",
-              "on-surface-variant": "#5E564B",
-              "inverse-surface": "#25201A",
-              "inverse-on-surface": "#F7F5F0",
-              outline: "#A3998A",
-              "outline-variant": "#E4DDD2",
-              primary: "#145A46",
-              "on-primary": "#ffffff",
-              "primary-container": "#1E7B60",
-              "on-primary-container": "#08281E",
-              "inverse-primary": "#34D399",
-              secondary: "#235E75",
-              "on-secondary": "#ffffff",
-              "secondary-container": "#38BDF8",
-              tertiary: "#92592B",
-              "tertiary-container": "#B46F38",
-              error: "#B91C1C",
-              "error-container": "#FEE2E2",
-              "primary-fixed": "#6EE7B7",
-              "primary-fixed-dim": "#34D399",
-              "tertiary-fixed": "#FDE68A"
-            },
-            borderRadius: {
-              DEFAULT: "0.75rem",
-              sm: "0.375rem",
-              md: "0.5rem",
-              lg: "1rem",
-              xl: "1.25rem",
-              "2xl": "1.5rem",
-              full: "9999px"
-            },
-            fontFamily: {
-              sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
-              mono: ["JetBrains Mono", "monospace"]
-            }
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoltPath — EV Trip & Energy Intelligence (NED CT-363 DAA)</title>
+  <!-- Custom Uploaded Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <!-- Fonts & Icons from Stitch Kinetic Horizon -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Big+Shoulders:opsz,wght@10..72,100..900&family=Bungee&family=Changa+One:ital@0;1&family=Geist+Mono:ital,wght@0,100..900;1,100..900&family=Geist+Pixel&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Outfit:wght@100..900&family=Ranchers&family=Red+Hat+Mono:ital,wght@0,300..700;1,300..700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Rubik+Spray+Paint&family=Saira:ital,wght@0,100..900;1,100..900&family=Sekuya&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <!-- Tailwind CDN with Warm Coffee Eye-Safety Design Tokens -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            surface: "#F7F5F0",
+            "surface-dim": "#EEEAE1",
+            "surface-bright": "#FAF9F5",
+            "surface-container-lowest": "#FFFFFF",
+            "surface-container-low": "#F4F0E8",
+            "surface-container": "#ECE6DC",
+            "surface-container-high": "#E2DBD0",
+            "surface-container-highest": "#D4CBC0",
+            "on-surface": "#25201A",
+            "on-surface-variant": "#5E564B",
+            "inverse-surface": "#25201A",
+            "inverse-on-surface": "#F7F5F0",
+            outline: "#A3998A",
+            "outline-variant": "#E4DDD2",
+            primary: "#145A46",
+            "on-primary": "#ffffff",
+            "primary-container": "#1E7B60",
+            "on-primary-container": "#08281E",
+            "inverse-primary": "#34D399",
+            secondary: "#235E75",
+            "on-secondary": "#ffffff",
+            "secondary-container": "#38BDF8",
+            tertiary: "#92592B",
+            "tertiary-container": "#B46F38",
+            error: "#B91C1C",
+            "error-container": "#FEE2E2",
+            "primary-fixed": "#6EE7B7",
+            "primary-fixed-dim": "#34D399",
+            "tertiary-fixed": "#FDE68A"
+          },
+          borderRadius: {
+            DEFAULT: "0.75rem",
+            sm: "0.375rem",
+            md: "0.5rem",
+            lg: "1rem",
+            xl: "1.25rem",
+            "2xl": "1.5rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            sans: ["'Hanken Grotesk'", "'Plus Jakarta Sans'", "system-ui", "sans-serif"],
+            display: ["'Outfit'", "'Plus Jakarta Sans'", "sans-serif"],
+            nav: ["'Outfit'", "sans-serif"],
+            mono: ["'Geist Mono'", "'JetBrains Mono'", "monospace"],
+            heading: ["'Outfit'", "'Saira'", "sans-serif"],
+            impact: ["'Archivo Black'", "sans-serif"]
           }
         }
       }
-    </script>
-  </head>
-  <body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-container">
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    }
+  </script>
+</head>
+
+<body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-container">
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>

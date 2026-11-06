@@ -37,7 +37,7 @@ export default function ChargingNetworkView({ network, onSelectStation }) {
             <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
             <span>Corridor Live Intelligence • KHI → ISB Supercorridor</span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-[#25201A] tracking-tight">
+          <h1 className="text-2xl lg:text-3xl font-display font-extrabold text-[#25201A] tracking-tight">
             Charging Network Directory
           </h1>
           <p className="text-sm text-[#5E564B] mt-1 leading-relaxed">
