@@ -11,7 +11,8 @@ import {
   MOCK_EDGE_CASES,
   MOCK_INCREMENTAL,
   MOCK_NETWORK,
-  MOCK_SENSITIVITY
+  MOCK_SENSITIVITY,
+  computeDynamicEVPlan
 } from './mockFallback.js'
 
 const NAV_ITEMS = [
@@ -65,6 +66,7 @@ export default function App() {
   const [mapMode, setMapMode] = useState('leaflet')
   const [network, setNetwork] = useState(MOCK_NETWORK)
   const [plan, setPlan] = useState(MOCK_DEFAULT_PLAN)
+  const [backendStatus, setBackendStatus] = useState('checking') // 'checking' | 'connected' | 'autonomous'
   const [incResult, setIncResult] = useState(MOCK_INCREMENTAL)
   const [edgeCases, setEdgeCases] = useState(MOCK_EDGE_CASES)
   const [sensitivity, setSensitivity] = useState(MOCK_SENSITIVITY)
@@ -72,6 +74,16 @@ export default function App() {
   const [activeStationPopup, setActiveStationPopup] = useState(null)
   const [showItemizedCost, setShowItemizedCost] = useState(false)
   const [selectedCorridorRoute, setSelectedCorridorRoute] = useState('M5') // 'M5' or 'N5'
+
+  // Probe FastAPI Backend Health on startup
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/health')
+      .then((res) => {
+        if (res.ok) setBackendStatus('connected')
+        else setBackendStatus('autonomous')
+      })
+      .catch(() => setBackendStatus('autonomous'))
+  }, [])
 
   // Form Controls
   const [originId, setOriginId] = useState('N01')
@@ -223,10 +235,10 @@ export default function App() {
           lineJoin: 'round'
         }).addTo(lg)
 
-        // Auto Fit map bounds to show complete Karachi to Islamabad transit corridor
+        // Auto Fit map bounds to show complete transit corridor (adaptive zoom for local or national routes)
         map.fitBounds(routeLatLngs, {
           padding: [50, 50],
-          maxZoom: 7
+          maxZoom: 13
         })
       }
     }
@@ -286,7 +298,7 @@ export default function App() {
       const marker = L.marker([n.lat, n.lon], { icon: customIcon })
 
       const popupHtml = `
-        <div style="font-family:'Plus Jakarta Sans',sans-serif; min-width:220px; color:#25201A;">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif; min-width:230px; color:#25201A;">
           <div style="font-size:13px; font-weight:bold; margin-bottom:2px;">${n.name}</div>
           <div style="font-size:11px; color:#5E564B;">Waypoint ID: ${n.node_id}</div>
           ${
@@ -318,6 +330,14 @@ export default function App() {
                 </div>`
               : ''
           }
+          <div style="display:flex; gap:6px; margin-top:10px; padding-top:8px; border-top:1px solid #E4DDD2;">
+            <button onclick="window.__setOrigin && window.__setOrigin('${n.node_id}')" style="flex:1; background:#145A46; color:#ffffff; border:none; padding:5px 8px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">
+              Set Origin
+            </button>
+            <button onclick="window.__setDest && window.__setDest('${n.node_id}')" style="flex:1; background:#25201A; color:#ffffff; border:none; padding:5px 8px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">
+              Set Dest
+            </button>
+          </div>
         </div>
       `
 
@@ -326,31 +346,77 @@ export default function App() {
     })
   }, [network, plan, originId, destId, activeTab])
 
-  // Recalculate Trip Function (Pure Client-Side Algorithm Solver)
-  function handleRunOptimization() {
+  // Recalculate Trip Function (Hybrid Live FastAPI + Real Client-Side A* Solver)
+  async function handleRunOptimization(
+    customOrigin = originId,
+    customDest = destId,
+    customBattery = batteryCap,
+    customSoc = initialSoc,
+    customMinRes = minReserve,
+    customMaxTime = maxTime,
+    customCorridor = selectedCorridorRoute
+  ) {
     setLoading(true)
-    setTimeout(() => {
-      const isM5 = selectedCorridorRoute === 'M5'
-      const baseDist = isM5 ? 1505.0 : 1543.0
-      const driveTime = isM5 ? 14.69 : 16.45
-      const chargeTime = (75 / batteryCap) * 3.81
-      const totalTime = driveTime + chargeTime
-      const cost = isM5 ? 11012 : 12450
 
-      const recalculatedPlan = {
-        ...MOCK_DEFAULT_PLAN,
-        total_distance_km: baseDist,
-        driving_time_hours: parseFloat(driveTime.toFixed(2)),
-        charging_time_hours: parseFloat(chargeTime.toFixed(2)),
-        total_trip_time_hours: parseFloat(totalTime.toFixed(2)),
-        total_charging_cost_pkr: cost,
-        final_arrival_soc_kwh: minReserve
+    // 1. Try Live FastAPI Backend First
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 1200)
+
+      const response = await fetch('http://127.0.0.1:8000/api/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          origin_id: customOrigin,
+          dest_id: customDest,
+          battery_capacity_kwh: customBattery,
+          initial_soc_kwh: customSoc,
+          min_reserve_kwh: customMinRes,
+          max_allowed_time_hours: customMaxTime
+        }),
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        const data = await response.json()
+        const livePlan = data.plan ? data.plan : data
+        setPlan(livePlan)
+        setBackendStatus('connected')
+        setLoading(false)
+        return
       }
+    } catch (err) {
+      // Backend not running -> fallback to client-side A* solver
+    }
 
-      setPlan(recalculatedPlan)
-      setLoading(false)
-    }, 280)
+    // 2. Pure Client-Side Dynamic A* Pathfinder + Energy Schedule Generator
+    setBackendStatus('autonomous')
+    const recalculatedPlan = computeDynamicEVPlan(
+      network,
+      customOrigin,
+      customDest,
+      customBattery,
+      customSoc,
+      customMinRes,
+      customMaxTime,
+      customCorridor
+    )
+    setPlan(recalculatedPlan)
+    setLoading(false)
   }
+
+  // Interactive Marker Window Handlers
+  useEffect(() => {
+    window.__setOrigin = (id) => {
+      setOriginId(id)
+      handleRunOptimization(id, destId)
+    }
+    window.__setDest = (id) => {
+      setDestId(id)
+      handleRunOptimization(originId, id)
+    }
+  }, [originId, destId, batteryCap, initialSoc, minReserve, maxTime, selectedCorridorRoute])
 
   // Preset Configurations
   function applyPreset(presetType) {
@@ -426,7 +492,7 @@ export default function App() {
         .map((n) => [n.lat, n.lon])
 
       if (routeLatLngs.length > 0) {
-        leafletMapRef.current.fitBounds(routeLatLngs, { padding: [50, 50], maxZoom: 7 })
+        leafletMapRef.current.fitBounds(routeLatLngs, { padding: [50, 50], maxZoom: 13 })
       } else {
         leafletMapRef.current.setView([30.15, 71.52], 6)
       }
@@ -583,6 +649,24 @@ export default function App() {
 
           {/* Right Live Status Telemetry & Controls (Clean sharp rounded-lg) */}
           <div className="flex items-center gap-2.5">
+            {/* Backend Connection Status Badge */}
+            {backendStatus === 'connected' ? (
+              <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-900 border border-emerald-300 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                <span className="hidden sm:inline">FastAPI Backend (:8000)</span>
+                <span className="sm:hidden">FastAPI</span>
+              </div>
+            ) : (
+              <div
+                className="flex items-center gap-1.5 bg-[#FAF9F5] text-amber-900 border border-amber-300 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm"
+                title="Running Autonomous Client-Side A* Solver (Zero Backend Required)"
+              >
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <span className="hidden sm:inline">Autonomous A* Engine</span>
+                <span className="sm:hidden">Autonomous</span>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 bg-[#FAF9F5] px-3 py-1.5 rounded-lg border border-[#E4DDD2] shadow-sm text-xs font-semibold text-[#25201A]">
               <span className="material-symbols-outlined text-emerald-700 text-[18px]">electric_car</span>
               <span className="font-mono">82% • 274 mi</span>
@@ -1064,7 +1148,11 @@ export default function App() {
                       </label>
                       <select
                         value={originId}
-                        onChange={(e) => setOriginId(e.target.value)}
+                        onChange={(e) => {
+                          const newOrigin = e.target.value
+                          setOriginId(newOrigin)
+                          handleRunOptimization(newOrigin, destId)
+                        }}
                         className="w-full bg-[#FCFAF6] border border-[#E4DDD2] rounded-lg px-2 py-1.5 text-xs text-[#25201A] font-semibold focus:outline-none focus:border-[#145A46]"
                       >
                         {network.nodes.map((n) => (
@@ -1081,7 +1169,11 @@ export default function App() {
                       </label>
                       <select
                         value={destId}
-                        onChange={(e) => setDestId(e.target.value)}
+                        onChange={(e) => {
+                          const newDest = e.target.value
+                          setDestId(newDest)
+                          handleRunOptimization(originId, newDest)
+                        }}
                         className="w-full bg-[#FCFAF6] border border-[#E4DDD2] rounded-lg px-2 py-1.5 text-xs text-[#25201A] font-semibold focus:outline-none focus:border-[#145A46]"
                       >
                         {network.nodes.map((n) => (
@@ -1173,33 +1265,45 @@ export default function App() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      {(plan.charging_stops || []).map((stop, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#FCFAF6] border border-[#E4DDD2] shadow-sm hover:border-emerald-600 transition-colors"
-                        >
-                          <div className="w-6 h-6 rounded-full bg-[#145A46] text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
-                            {idx + 1}
+                      {plan.charging_stops && plan.charging_stops.length > 0 ? (
+                        plan.charging_stops.map((stop, idx) => (
+                          <div
+                            key={idx}
+                            className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#FCFAF6] border border-[#E4DDD2] shadow-sm hover:border-emerald-600 transition-colors"
+                          >
+                            <div className="w-6 h-6 rounded-full bg-[#145A46] text-white flex items-center justify-center font-bold text-[11px] shrink-0 mt-0.5">
+                              {idx + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-[#25201A] truncate text-xs">
+                                  {stop.city_name}
+                                </span>
+                                <span className="text-[11px] font-bold text-emerald-800">
+                                  +{stop.charged_kwh} kWh
+                                </span>
+                              </div>
+                              <div className="text-[11px] text-[#5E564B] truncate mt-0.5">
+                                {stop.station_name} • {Math.round(stop.charge_time_hours * 60)} min
+                              </div>
+                              <div className="flex items-center justify-between text-[10px] text-[#8A8073] mt-1 pt-1 border-t border-[#EAE5DA]">
+                                <span>PKR {Number(stop.charge_cost_pkr).toLocaleString()}</span>
+                                <span>{stop.arrival_soc_kwh} kWh → {stop.departure_soc_kwh} kWh</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-[#25201A] truncate text-xs">
-                                {stop.city_name}
-                              </span>
-                              <span className="text-[11px] font-bold text-emerald-800">
-                                +{stop.charged_kwh} kWh
-                              </span>
-                            </div>
-                            <div className="text-[11px] text-[#5E564B] truncate mt-0.5">
-                              {stop.station_name} • {Math.round(stop.charge_time_hours * 60)} min
-                            </div>
-                            <div className="flex items-center justify-between text-[10px] text-[#8A8073] mt-1 pt-1 border-t border-[#EAE5DA]">
-                              <span>PKR {Number(stop.charge_cost_pkr).toLocaleString()}</span>
-                              <span>{stop.arrival_soc_kwh} kWh → {stop.departure_soc_kwh} kWh</span>
-                            </div>
+                        ))
+                      ) : (
+                        <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-emerald-950 flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-emerald-800">
+                            <span className="material-symbols-outlined text-[17px]">verified</span>
+                            <span>Direct Reachable (No Stops Required)</span>
                           </div>
+                          <p className="text-[11px] text-emerald-900/80 leading-relaxed">
+                            Trip energy consumption is within battery safety range. Arrival battery is estimated at <strong>{plan.final_arrival_soc_kwh} kWh</strong>.
+                          </p>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
 

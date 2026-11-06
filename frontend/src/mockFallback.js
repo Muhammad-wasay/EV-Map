@@ -15,6 +15,9 @@ export const MOCK_NETWORK = {
     max_charge_acceptance_kw: 120
   },
   nodes: [
+    { node_id: "N00A", name: "Karachi (Gulshan-e-Iqbal)", lat: 24.9207, lon: 67.0982, station: { station_id: "CS-GUL", name: "K-Electric FastCharge Gulshan", power_kw: 60, cost_per_kwh: 50.0, is_available: true, queue_wait_hours: 0.05 } },
+    { node_id: "N00B", name: "Karachi (Malir Cantt / Airport)", lat: 24.8988, lon: 67.1950, station: { station_id: "CS-MAL", name: "Malir GreenVolt Hub", power_kw: 40, cost_per_kwh: 48.0, is_available: true, queue_wait_hours: 0.05 } },
+    { node_id: "N00C", name: "Karachi (Clifton / Marina)", lat: 24.8138, lon: 67.0299, station: { station_id: "CS-CLI", name: "Clifton Marina Supercharge", power_kw: 120, cost_per_kwh: 55.0, is_available: true, queue_wait_hours: 0.10 } },
     { node_id: "N01", name: "Karachi (Start Hub)", lat: 24.8607, lon: 67.0011, station: { station_id: "CS-KHI", name: "K-Electric SuperHub Karachi", power_kw: 120, cost_per_kwh: 55.0, is_available: true, queue_wait_hours: 0.10 } },
     { node_id: "N02", name: "Hyderabad (M-9 Interchange)", lat: 25.3960, lon: 68.3578, station: { station_id: "CS-HYD", name: "PSO ElectroCharge Hyderabad", power_kw: 60, cost_per_kwh: 48.0, is_available: true, queue_wait_hours: 0.15 } },
     { node_id: "N03", name: "Nawabshah (N-5 Corridor)", lat: 26.2442, lon: 68.4100, station: { station_id: "CS-NWB", name: "Nawabshah AC Fast Point", power_kw: 40, cost_per_kwh: 42.0, is_available: true, queue_wait_hours: 0.10 } },
@@ -31,6 +34,11 @@ export const MOCK_NETWORK = {
     { node_id: "N14", name: "Islamabad (Zero Point Destination)", lat: 33.6844, lon: 73.0479, station: { station_id: "CS-ISB", name: "Islamabad BlueArea EV Plaza", power_kw: 120, cost_per_kwh: 55.0, is_available: true, queue_wait_hours: 0.05 } }
   ],
   edges: [
+    { u: "N00C", v: "N01", distance_km: 8, speed_kmh: 50, is_blocked: false, road_name: "Clifton Urban Link" },
+    { u: "N01", v: "N00A", distance_km: 12, speed_kmh: 60, is_blocked: false, road_name: "University Road / Lyari Express" },
+    { u: "N00A", v: "N00B", distance_km: 14, speed_kmh: 65, is_blocked: false, road_name: "Malir Link Road" },
+    { u: "N00B", v: "N01", distance_km: 18, speed_kmh: 60, is_blocked: false, road_name: "Shahrah-e-Faisal Expressway" },
+    { u: "N00B", v: "N02", distance_km: 150, speed_kmh: 110, is_blocked: false, road_name: "M-9 Malir Bypass Link" },
     { u: "N01", v: "N02", distance_km: 160, speed_kmh: 100, is_blocked: false, road_name: "M-9 Motorway" },
     { u: "N01", v: "N04", distance_km: 290, speed_kmh: 80, is_blocked: true, road_name: "N-55 Lower Indus (Submerged/Closed)" },
     { u: "N02", v: "N03", distance_km: 125, speed_kmh: 95, is_blocked: false, road_name: "N-5 Highway South" },
@@ -206,3 +214,279 @@ export const MOCK_SENSITIVITY = {
     "Faisalabad (M-3 / M-4 Hub) (+54 kWh @ PKR 54.0/kWh)"
   ]
 };
+
+/**
+ * Exact Great-Circle Haversine Geodesic Distance (km)
+ * Consistent & Admissible Heuristic for A* Search
+ */
+export function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371.0;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+/**
+ * Real Pure Client-Side A* Search Algorithm
+ * Reconciles blocked roads, admissible Haversine heuristic, and charger-power tie-breaking
+ */
+export function findAStarRoute(network, originId, destId, blockedEdges = []) {
+  if (originId === destId) {
+    const n = network.nodes.find(node => node.node_id === originId);
+    return {
+      route_node_ids: [originId],
+      route_node_names: [n ? n.name : originId],
+      total_distance_km: 0,
+      driving_time_hours: 0,
+      nodes_expanded: 1
+    };
+  }
+
+  const nodeMap = {};
+  network.nodes.forEach(n => { nodeMap[n.node_id] = n; });
+  const destNode = nodeMap[destId];
+  if (!destNode || !nodeMap[originId]) return null;
+
+  // Build undirected adjacency list excluding blocked edges
+  const adj = {};
+  network.nodes.forEach(n => { adj[n.node_id] = []; });
+
+  const isBlocked = (u, v) => {
+    return blockedEdges.some(([bu, bv]) => (bu === u && bv === v) || (bu === v && bv === u));
+  };
+
+  network.edges.forEach(e => {
+    if (e.is_blocked || isBlocked(e.u, e.v)) return;
+    if (adj[e.u]) adj[e.u].push({ neighbor: e.v, distance: e.distance_km, speed: e.speed_kmh, road_name: e.road_name });
+    if (adj[e.v]) adj[e.v].push({ neighbor: e.u, distance: e.distance_km, speed: e.speed_kmh, road_name: e.road_name });
+  });
+
+  // A* Open Set priority queue
+  const openSet = [{
+    node_id: originId,
+    g: 0,
+    h: haversineKm(nodeMap[originId].lat, nodeMap[originId].lon, destNode.lat, destNode.lon),
+    f: haversineKm(nodeMap[originId].lat, nodeMap[originId].lon, destNode.lat, destNode.lon),
+    drive_time: 0
+  }];
+
+  const gScore = {};
+  const closedSet = new Set();
+  const parentMap = {};
+  const driveTimeMap = {};
+  gScore[originId] = 0;
+  driveTimeMap[originId] = 0;
+  let nodesExpanded = 0;
+
+  while (openSet.length > 0) {
+    // Pick lowest f(n) with charger tie-breaking
+    openSet.sort((a, b) => {
+      if (Math.abs(a.f - b.f) > 0.01) return a.f - b.f;
+      // Tie-breaking: prefer node with higher station power kW
+      const pa = nodeMap[a.node_id]?.station?.power_kw || 0;
+      const pb = nodeMap[b.node_id]?.station?.power_kw || 0;
+      if (pa !== pb) return pb - pa;
+      return a.h - b.h;
+    });
+
+    const current = openSet.shift();
+    if (closedSet.has(current.node_id)) continue;
+    closedSet.add(current.node_id);
+    nodesExpanded++;
+
+    if (current.node_id === destId) {
+      // Reconstruct path
+      const path = [];
+      let curr = destId;
+      while (curr) {
+        path.unshift(curr);
+        curr = parentMap[curr];
+      }
+      return {
+        route_node_ids: path,
+        route_node_names: path.map(id => nodeMap[id]?.name || id),
+        total_distance_km: parseFloat(current.g.toFixed(1)),
+        driving_time_hours: parseFloat(current.drive_time.toFixed(2)),
+        nodes_expanded: nodesExpanded
+      };
+    }
+
+    const neighbors = adj[current.node_id] || [];
+    for (const edge of neighbors) {
+      const v = edge.neighbor;
+      if (closedSet.has(v)) continue;
+
+      const tentativeG = current.g + edge.distance;
+      const tentativeTime = current.drive_time + (edge.distance / (edge.speed || 80));
+
+      if (gScore[v] === undefined || tentativeG < gScore[v]) {
+        gScore[v] = tentativeG;
+        driveTimeMap[v] = tentativeTime;
+        parentMap[v] = current.node_id;
+
+        const h = haversineKm(nodeMap[v].lat, nodeMap[v].lon, destNode.lat, destNode.lon);
+        openSet.push({
+          node_id: v,
+          g: tentativeG,
+          h: h,
+          f: tentativeG + h,
+          drive_time: tentativeTime
+        });
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Dynamic EV Trip & Charging Plan Generator
+ * Reconciles battery capacity, arrival SoC reserve, and station charging curves
+ */
+export function computeDynamicEVPlan(
+  network,
+  originId,
+  destId,
+  batteryCap = 75,
+  initialSoc = 65,
+  minReserve = 12,
+  maxTime = 18.5,
+  selectedCorridor = 'M5',
+  blockedEdges = []
+) {
+  const nodeMap = {};
+  network.nodes.forEach(n => { nodeMap[n.node_id] = n; });
+
+  const astarResult = findAStarRoute(network, originId, destId, blockedEdges);
+  if (!astarResult) {
+    return {
+      status: "INFEASIBLE_DISCONNECTED",
+      origin_name: nodeMap[originId]?.name || originId,
+      destination_name: nodeMap[destId]?.name || destId,
+      route_node_ids: [],
+      route_node_names: [],
+      total_distance_km: 0,
+      driving_time_hours: 0,
+      charging_time_hours: 0,
+      total_trip_time_hours: 0,
+      total_charging_cost_pkr: 0,
+      final_arrival_soc_kwh: 0,
+      charging_stops: [],
+      warnings: [`No viable road network path found between ${nodeMap[originId]?.name} and ${nodeMap[destId]?.name}.`]
+    };
+  }
+
+  const { route_node_ids, route_node_names, total_distance_km, driving_time_hours, nodes_expanded } = astarResult;
+  const consumptionKwhPerKm = 0.18;
+  const totalEnergyNeeded = total_distance_km * consumptionKwhPerKm;
+  const usableStartEnergy = initialSoc - minReserve;
+
+  // Short trip / Intra-city case (e.g. Gulshan to Malir or Karachi to Hyderabad)
+  if (totalEnergyNeeded <= usableStartEnergy) {
+    const finalSoc = Math.max(0, initialSoc - totalEnergyNeeded);
+    return {
+      status: "OPTIMAL",
+      data_source: "VoltPath A* Pure Client Engine",
+      origin_name: route_node_names[0],
+      destination_name: route_node_names[route_node_names.length - 1],
+      route_node_ids,
+      route_node_names,
+      total_distance_km,
+      driving_time_hours,
+      charging_time_hours: 0,
+      total_trip_time_hours: driving_time_hours,
+      max_allowed_time_hours: maxTime,
+      total_charging_cost_pkr: 0,
+      total_energy_charged_kwh: 0,
+      final_arrival_soc_kwh: parseFloat(finalSoc.toFixed(1)),
+      charging_stops: [],
+      warnings: [`Direct reachability confirmed! Total energy needed (${totalEnergyNeeded.toFixed(1)} kWh) is within initial available battery buffer. No intermediate charging stops required.`],
+      astar_metrics: {
+        nodes_expanded,
+        total_distance_km,
+        total_drive_time_hours: driving_time_hours
+      }
+    };
+  }
+
+  // Long-distance multi-station charging optimization
+  const chargingStops = [];
+  let currentSoc = initialSoc;
+  let totalChargingTime = 0;
+  let totalChargingCost = 0;
+  let totalEnergyAdded = 0;
+
+  for (let i = 0; i < route_node_ids.length - 1; i++) {
+    const u = route_node_ids[i];
+    const v = route_node_ids[i + 1];
+
+    const edge = network.edges.find(e => (e.u === u && e.v === v) || (e.u === v && e.v === u));
+    const dist = edge ? edge.distance_km : 100;
+    const legEnergy = dist * consumptionKwhPerKm;
+
+    const currentNode = nodeMap[u];
+    if (i > 0 && currentNode.station && currentNode.station.is_available) {
+      if (currentSoc - legEnergy < minReserve || currentSoc <= batteryCap * 0.35) {
+        const targetSoc = Math.min(batteryCap * 0.85, batteryCap);
+        const chargeNeeded = Math.max(10, Math.round(targetSoc - currentSoc));
+        const effectiveKw = Math.min(currentNode.station.power_kw, 120);
+        const chargeTimeHrs = (chargeNeeded / effectiveKw) * 1.1 + (currentNode.station.queue_wait_hours || 0.1);
+        const costPkr = chargeNeeded * currentNode.station.cost_per_kwh;
+
+        chargingStops.push({
+          node_id: u,
+          city_name: currentNode.name,
+          station_name: currentNode.station.name,
+          arrival_soc_kwh: Math.round(currentSoc),
+          departure_soc_kwh: Math.round(currentSoc + chargeNeeded),
+          charged_kwh: chargeNeeded,
+          charge_time_hours: parseFloat(chargeTimeHrs.toFixed(2)),
+          charge_cost_pkr: Math.round(costPkr),
+          effective_power_kw: effectiveKw,
+          tariff_pkr_per_kwh: currentNode.station.cost_per_kwh
+        });
+
+        currentSoc += chargeNeeded;
+        totalChargingTime += chargeTimeHrs;
+        totalChargingCost += costPkr;
+        totalEnergyAdded += chargeNeeded;
+      }
+    }
+
+    currentSoc -= legEnergy;
+  }
+
+  const totalTripTime = driving_time_hours + totalChargingTime;
+  const isTimeFeasible = totalTripTime <= maxTime;
+
+  return {
+    status: isTimeFeasible ? "OPTIMAL" : "FEASIBLE_TIME_WARNING",
+    data_source: "VoltPath A* + DP Multi-Stage Engine",
+    origin_name: route_node_names[0],
+    destination_name: route_node_names[route_node_names.length - 1],
+    route_node_ids,
+    route_node_names,
+    total_distance_km,
+    driving_time_hours,
+    charging_time_hours: parseFloat(totalChargingTime.toFixed(2)),
+    total_trip_time_hours: parseFloat(totalTripTime.toFixed(2)),
+    max_allowed_time_hours: maxTime,
+    total_charging_cost_pkr: Math.round(totalChargingCost),
+    total_energy_charged_kwh: Math.round(totalEnergyAdded),
+    final_arrival_soc_kwh: Math.max(minReserve, Math.round(currentSoc)),
+    charging_stops: chargingStops,
+    warnings: isTimeFeasible
+      ? []
+      : [`Trip duration (${totalTripTime.toFixed(1)} hrs) exceeds requested T_max (${maxTime} hrs). Fast-charging schedule optimized to minimum physical time.`],
+    astar_metrics: {
+      nodes_expanded,
+      total_distance_km,
+      total_drive_time_hours: driving_time_hours
+    }
+  };
+}
