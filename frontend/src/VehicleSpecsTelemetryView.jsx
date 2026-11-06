@@ -10,271 +10,256 @@ export default function VehicleSpecsTelemetryView({
   maxTime,
   setMaxTime
 }) {
-  const [activeModel, setActiveModel] = useState('BYD_ATTO_3')
+  const [activeModel, setActiveModel] = useState('TESLA_M3')
 
   const vehicleModels = {
-    BYD_ATTO_3: {
-      name: 'BYD Atto 3 Long Range',
-      type: 'Blade LFP Battery (AWD)',
-      capacity: 75,
-      acceptanceKW: 120,
-      consumption: '0.18 kWh/km',
-      rangeWLTP: '420 km',
-      health: '98.4% SOH',
-      temp: '28°C Optimal'
-    },
-    MG_ZS_EV: {
-      name: 'MG ZS EV Trophy Edition',
-      type: 'CATL Lithium-Ion (FWD)',
-      capacity: 72,
-      acceptanceKW: 90,
-      consumption: '0.19 kWh/km',
-      rangeWLTP: '380 km',
-      health: '96.8% SOH',
-      temp: '29°C Pre-conditioned'
-    },
     TESLA_M3: {
-      name: 'Tesla Model 3 Long Range',
-      type: 'Nickel-Cobalt 2170 (Dual Motor)',
-      capacity: 82,
+      name: '2024 Tesla Model 3 Long Range',
+      edition: 'Highland Revision AWD',
+      architecture: '78.1 kWh NMC (400V)',
+      capacity: 78,
+      rangeReal: '485 km',
+      acceptanceKW: 250,
+      dragCd: '0.219 Cd',
+      variance: '±0.008 V',
+      cycles: '64 Cycles',
+      health: '98.4% SoH',
+      temp: '27.5°C Clamped',
+      consumption: 0.16
+    },
+    BYD_SEAL: {
+      name: 'BYD Seal Performance',
+      edition: 'Cell-to-Body (CTB) AWD',
+      architecture: '82.5 kWh Blade LFP',
+      capacity: 82.5,
+      rangeReal: '510 km',
       acceptanceKW: 150,
-      consumption: '0.16 kWh/km',
-      rangeWLTP: '530 km',
-      health: '99.1% SOH',
-      temp: '27°C Thermal Clamped'
+      dragCd: '0.219 Cd',
+      variance: '±0.006 V',
+      cycles: '42 Cycles',
+      health: '99.2% SoH',
+      temp: '28.1°C Optimal',
+      consumption: 0.17
+    },
+    MG4_TROPHY: {
+      name: 'MG4 EV Trophy Long Range',
+      edition: 'Modular Scalable Platform',
+      architecture: '64.0 kWh Rubik Battery',
+      capacity: 64,
+      rangeReal: '390 km',
+      acceptanceKW: 135,
+      dragCd: '0.279 Cd',
+      variance: '±0.012 V',
+      cycles: '88 Cycles',
+      health: '96.8% SoH',
+      temp: '29.4°C Pre-conditioned',
+      consumption: 0.18
     }
   }
 
-  const currentVehicle = vehicleModels[activeModel]
+  const v = vehicleModels[activeModel]
 
   function handleSelectModel(key) {
     setActiveModel(key)
     const spec = vehicleModels[key]
     setBatteryCap(spec.capacity)
-    setInitialSoc(Math.round(spec.capacity * 0.85))
+    setInitialSoc(Math.round(spec.capacity * 0.82))
   }
 
   return (
     <div className="w-full px-4 lg:px-8 py-6 max-w-7xl mx-auto flex flex-col gap-6">
-      {/* Header */}
+      {/* 1. Header & Live Vehicle Switcher */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-primary">
-              Fleet Profile &amp; Telemetry
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
+              Fleet Profile &amp; CAN-Bus Telemetry
             </span>
-            <span className="text-outline">•</span>
-            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold">
-              OBD-II CAN-Bus Connected
+            <span className="text-slate-300">•</span>
+            <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">
+              OBD-II CAN-Bus Live
             </span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold text-on-surface tracking-tight mt-0.5">
+          <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight mt-0.5">
             Vehicle Specs &amp; Battery Telemetry
           </h1>
-          <p className="text-sm text-outline mt-1 max-w-2xl">
-            Real-time battery degradation curves, peak DC fast-charge acceptance profiles, and motorway aero efficiency benchmarks for active vehicles across the Pakistan Motorway Network (M-2 / M-5).
+          <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+            Real-time battery degradation curves, peak DC fast-charge acceptance profiles, and motorway aero efficiency benchmarks across the Pakistan Motorway Network.
           </p>
         </div>
 
-        {/* Vehicle Switcher */}
-        <div className="flex items-center gap-2">
-          {Object.entries(vehicleModels).map(([key, v]) => (
+        {/* Model Switcher */}
+        <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+          {Object.entries(vehicleModels).map(([key, item]) => (
             <button
               key={key}
               type="button"
               onClick={() => handleSelectModel(key)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 activeModel === key
-                  ? 'bg-primary text-on-primary shadow-sm'
-                  : 'bg-surface-container-low text-on-surface hover:bg-surface-container'
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
-              {v.name.split(' ')[0]} {v.name.split(' ')[1]}
+              {item.name.split(' ')[1]} {item.name.split(' ')[2] || ''}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Live Telemetry KPI Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[24px]">battery_charging_80</span>
-          </div>
+      {/* 2. Primary Connected Vehicle Hero Card (Stitch Highland Design) */}
+      <div className="w-full bg-white rounded-xl p-6 shadow-sm border border-slate-200 flex flex-col xl:flex-row gap-6">
+        <div className="flex-1 flex flex-col justify-between gap-5">
           <div>
-            <span className="text-[10px] font-bold uppercase text-outline block">State of Charge (SoC)</span>
-            <div className="text-xl font-extrabold text-on-surface mt-0.5">
-              {initialSoc} kWh{' '}
-              <span className="text-primary text-sm font-semibold">
-                ({Math.round((initialSoc / batteryCap) * 100)}%)
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
+                Primary Connected Unit
+              </span>
+              <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-semibold">
+                {v.edition}
               </span>
             </div>
-            <span className="text-[10px] text-outline font-semibold">
-              {(initialSoc / 0.18).toFixed(0)} km highway range
-            </span>
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              {v.name}
+            </h2>
+            <p className="text-xs text-slate-600 mt-1">
+              Optimized for trans-provincial transit on Pakistan M-5 (Sukkur—Multan) &amp; M-2 (Lahore—Islamabad) corridors with active dual-motor torque vectoring.
+            </p>
           </div>
-        </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-tertiary-fixed/30 text-tertiary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[24px]">speed</span>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold uppercase text-outline block">Max Acceptance Speed</span>
-            <div className="text-xl font-extrabold text-tertiary mt-0.5">
-              {currentVehicle.acceptanceKW} kW DC
+          {/* 6-Grid Technical Specs Matrix */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] text-slate-500 uppercase font-bold">Battery Architecture</span>
+              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.architecture}</span>
+              <span className="text-[10px] text-slate-500">Nominal 400V Pack</span>
             </div>
-            <span className="text-[10px] text-outline font-semibold">CCS2 Protocol Clamped</span>
-          </div>
-        </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-secondary-fixed/40 text-secondary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[24px]">health_and_safety</span>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold uppercase text-outline block">State of Health (SOH)</span>
-            <div className="text-xl font-extrabold text-secondary mt-0.5">
-              {currentVehicle.health}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] text-slate-500 uppercase font-bold">Real Motorway Range</span>
+              <span className="text-sm font-extrabold text-emerald-700 font-mono">{v.rangeReal}</span>
+              <span className="text-[10px] text-slate-500">@ 110 km/h (Sindh 32°C)</span>
             </div>
-            <span className="text-[10px] text-outline font-semibold">Zero Cell Imbalance</span>
-          </div>
-        </div>
 
-        <div className="bg-surface-container-lowest rounded-2xl p-5 shadow-sm border border-outline-variant/30 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-surface-container-high text-primary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[24px]">device_thermostat</span>
-          </div>
-          <div>
-            <span className="text-[10px] font-bold uppercase text-outline block">Pack Temperature</span>
-            <div className="text-xl font-extrabold text-on-surface mt-0.5">
-              {currentVehicle.temp}
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] text-slate-500 uppercase font-bold">Peak Fast Charge</span>
+              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.acceptanceKW} kW</span>
+              <span className="text-[10px] text-slate-500">CCS2 / Supercharger V3</span>
             </div>
-            <span className="text-[10px] text-tertiary font-semibold">Liquid Coolant Nominal</span>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] text-slate-500 uppercase font-bold">Aerodynamic Drag</span>
+              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.dragCd}</span>
+              <span className="text-[10px] text-slate-500">Aero wheel covers</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] text-slate-500 uppercase font-bold">Cell Voltage Variance</span>
+              <span className="text-sm font-extrabold text-emerald-700 font-mono">{v.variance}</span>
+              <span className="text-[10px] text-slate-500">Nominal pack balance</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex flex-col gap-0.5">
+              <span className="text-[9px] text-slate-500 uppercase font-bold">Battery Health (SoH)</span>
+              <span className="text-sm font-extrabold text-slate-900 font-mono">{v.health}</span>
+              <span className="text-[10px] text-slate-500">{v.cycles} logged</span>
+            </div>
+          </div>
+
+          {/* Port and Thermal Tags */}
+          <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 text-xs">
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
+              <span className="material-symbols-outlined text-[15px] text-emerald-600">ev_charger</span>
+              <span>Port: Combined CCS2 + Type 2 AC (11 kW)</span>
+            </div>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
+              <span className="material-symbols-outlined text-[15px] text-slate-500">thermostat</span>
+              <span>Pack Temp: {v.temp}</span>
+            </div>
+            <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
+              <span className="material-symbols-outlined text-[15px] text-slate-500">tire_repair</span>
+              <span>Tire Pressure: 42 PSI (Cold)</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Interactive Spec Configuration Controls */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/30 flex flex-col gap-4">
-          <h3 className="font-bold text-base text-on-surface">
-            Active Vehicle Telemetry Calibration
+      {/* 3. Real-Time Battery Simulation Sliders (Engineering Controls) */}
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200 flex flex-col gap-4">
+        <div>
+          <span className="text-xs font-bold uppercase text-slate-500 tracking-wider">Dynamic Tuning</span>
+          <h3 className="text-base font-bold text-slate-900 mt-0.5">
+            Real-Time Vehicle &amp; Trip Constraints (A* / DP Inputs)
           </h3>
-          <p className="text-xs text-outline">
-            Modify internal battery constraints. The Dynamic Programming engine strictly abides by these specifications during stage transitions.
+          <p className="text-xs text-slate-600 mt-0.5">
+            Changes made here directly alter the state-space in the DP charging algorithm and safety bounds.
           </p>
-
-          <div className="flex flex-col gap-3">
-            <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
-                <span className="text-outline">Total Usable Battery Capacity (B_max)</span>
-                <strong className="text-primary">{batteryCap} kWh</strong>
-              </div>
-              <input
-                type="range"
-                min="50"
-                max="100"
-                value={batteryCap}
-                onChange={(e) => setBatteryCap(Number(e.target.value))}
-                className="w-full h-1.5"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
-                <span className="text-outline">Current Departure SoC (B_0)</span>
-                <strong className="text-tertiary">{initialSoc} kWh</strong>
-              </div>
-              <input
-                type="range"
-                min="20"
-                max={batteryCap}
-                value={initialSoc}
-                onChange={(e) => setInitialSoc(Number(e.target.value))}
-                className="w-full h-1.5"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
-                <span className="text-outline">Arrival Safety Floor (B_min)</span>
-                <strong className="text-error">{minReserve} kWh (Mandatory Reserve)</strong>
-              </div>
-              <input
-                type="range"
-                min="8"
-                max="25"
-                value={minReserve}
-                onChange={(e) => setMinReserve(Number(e.target.value))}
-                className="w-full h-1.5"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between text-xs font-semibold mb-1">
-                <span className="text-outline">Maximum Allowed Trip Duration (T_max)</span>
-                <strong className="text-secondary">{maxTime} hrs</strong>
-              </div>
-              <input
-                type="range"
-                min="10"
-                max="24"
-                step="0.25"
-                value={maxTime}
-                onChange={(e) => setMaxTime(Number(e.target.value))}
-                className="w-full h-1.5"
-              />
-            </div>
-          </div>
         </div>
 
-        {/* Charge Acceptance Curve Graphic */}
-        <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm border border-outline-variant/30 flex flex-col justify-between gap-4">
-          <div>
-            <h3 className="font-bold text-base text-on-surface">DC Fast-Charge Acceptance Curve</h3>
-            <span className="text-xs text-outline">
-              Power taper characteristic across SoC states (0% &rarr; 100%)
-            </span>
-          </div>
-
-          <div className="w-full h-44 bg-surface-container-low rounded-xl p-3 flex flex-col justify-between relative overflow-hidden">
-            <svg viewBox="0 0 500 120" className="w-full h-full">
-              <path
-                d="M 20 20 Q 200 25 300 50 T 480 110"
-                fill="none"
-                stroke="#006b5c"
-                strokeWidth="3.5"
-              />
-              <path
-                d="M 20 20 Q 200 25 300 50 T 480 110 L 480 120 L 20 120 Z"
-                fill="rgba(0, 194, 168, 0.15)"
-              />
-              <circle cx="20" cy="20" r="4" fill="#00c2a8" />
-              <circle cx="200" cy="25" r="4" fill="#00c2a8" />
-              <circle cx="300" cy="50" r="4" fill="#00c2a8" />
-              <circle cx="480" cy="110" r="4" fill="#ba1a1a" />
-              <text x="25" y="15" fill="#006b5c" fontSize="10" fontWeight="bold">
-                Peak: {currentVehicle.acceptanceKW} kW (10%-60% SoC)
-              </text>
-              <text x="310" y="80" fill="#6c7a76" fontSize="9">
-                Taper Zone (&gt;75% SoC)
-              </text>
-            </svg>
-            <div className="flex justify-between text-[10px] text-outline pt-1 border-t border-outline-variant/20">
-              <span>0% SoC</span>
-              <span>25% SoC</span>
-              <span>50% SoC</span>
-              <span>75% SoC</span>
-              <span>100% SoC</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-700">Battery Capacity (B_max)</span>
+              <span className="font-bold font-mono text-emerald-800">{batteryCap} kWh</span>
             </div>
+            <input
+              type="range"
+              min="40"
+              max="120"
+              value={batteryCap}
+              onChange={(e) => setBatteryCap(Number(e.target.value))}
+              className="w-full accent-emerald-600 cursor-pointer"
+            />
+            <span className="text-[10px] text-slate-500">Standard range: 50–100 kWh</span>
           </div>
 
-          <div className="bg-primary/5 rounded-xl p-2.5 text-xs text-on-surface-variant flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px] text-primary shrink-0">info</span>
-            <span>
-              DP engine automatically prioritizes rapid charging within the <strong>10% &rarr; 70% SoC</strong> sweet-spot to minimize total journey duration.
-            </span>
+          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-700">Starting Charge (SoC_init)</span>
+              <span className="font-bold font-mono text-emerald-800">{initialSoc} kWh ({Math.round((initialSoc / batteryCap) * 100)}%)</span>
+            </div>
+            <input
+              type="range"
+              min="15"
+              max={batteryCap}
+              value={initialSoc}
+              onChange={(e) => setInitialSoc(Number(e.target.value))}
+              className="w-full accent-emerald-600 cursor-pointer"
+            />
+            <span className="text-[10px] text-slate-500">Home/Depot departure charge</span>
+          </div>
+
+          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-700">Safety Reserve Floor (B_min)</span>
+              <span className="font-bold font-mono text-rose-700">{minReserve} kWh</span>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="25"
+              value={minReserve}
+              onChange={(e) => setMinReserve(Number(e.target.value))}
+              className="w-full accent-emerald-600 cursor-pointer"
+            />
+            <span className="text-[10px] text-slate-500">Strict arrival reserve (WP2 guard)</span>
+          </div>
+
+          <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200 flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-700">Trip Time Budget (T_max)</span>
+              <span className="font-bold font-mono text-slate-900">{maxTime} hrs</span>
+            </div>
+            <input
+              type="range"
+              min="10"
+              max="26"
+              step="0.5"
+              value={maxTime}
+              onChange={(e) => setMaxTime(Number(e.target.value))}
+              className="w-full accent-emerald-600 cursor-pointer"
+            />
+            <span className="text-[10px] text-slate-500">DP upper bound (drive + charge)</span>
           </div>
         </div>
       </div>
