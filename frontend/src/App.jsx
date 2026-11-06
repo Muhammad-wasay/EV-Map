@@ -110,188 +110,213 @@ export default function App() {
     bootstrap()
   }, [])
 
-  // Robust Leaflet Map Rendering & Lifecycle Management
+  // 1. Initialize Leaflet Map Instance ONCE when container mounts
   useEffect(() => {
-    if (activeTab !== 'route-planner' || mapMode !== 'leaflet') return
-
-    // Allow DOM to settle
-    const initTimer = setTimeout(() => {
-      const container = mapContainerRef.current
-      if (!container) return
-
-      // Clean up previous instance cleanly
+    if (activeTab !== 'route-planner' || mapMode !== 'leaflet') {
       if (leafletMapRef.current) {
         leafletMapRef.current.remove()
         leafletMapRef.current = null
+        layerGroupRef.current = null
       }
+      return
+    }
 
-      // Reset any internal Leaflet ID on the DOM node to prevent "already initialized" error
-      if (container._leaflet_id) {
-        delete container._leaflet_id
+    const container = mapContainerRef.current
+    if (!container) return
+
+    // If map already exists on this container, don't recreate
+    if (leafletMapRef.current) {
+      leafletMapRef.current.invalidateSize()
+      return
+    }
+
+    // Reset container leaflet ID to prevent any duplicate initialization error
+    if (container._leaflet_id) {
+      delete container._leaflet_id
+    }
+
+    const map = L.map(container, {
+      center: [29.5, 70.5],
+      zoom: 6,
+      zoomControl: false,
+      attributionControl: false,
+      preferCanvas: true
+    })
+
+    // OpenStreetMap & CartoDB Voyager Tile Layer
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      {
+        attribution: '&copy; OpenStreetMap &copy; CARTO',
+        maxZoom: 19,
+        subdomains: 'abcd'
       }
+    ).addTo(map)
 
-      // Initialize fresh Leaflet Map centered on Pakistan EV Supercorridor
-      const map = L.map(container, {
-        zoomControl: false,
-        attributionControl: false,
-        preferCanvas: true
-      }).setView([29.3, 70.8], 6)
+    const lg = L.layerGroup().addTo(map)
+    layerGroupRef.current = lg
+    leafletMapRef.current = map
 
-      // Add CartoDB Voyager Tile Layer (clean, high-contrast, modern)
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    // Trigger invalidation multiple times to guarantee render on all viewports
+    setTimeout(() => map.invalidateSize(), 50)
+    setTimeout(() => map.invalidateSize(), 200)
+
+    const handleResize = () => map.invalidateSize()
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      if (leafletMapRef.current) {
+        leafletMapRef.current.remove()
+        leafletMapRef.current = null
+        layerGroupRef.current = null
+      }
+    }
+  }, [activeTab, mapMode])
+
+  // 2. Render Highway Edges, Route Polyline, and Markers on Data Change
+  useEffect(() => {
+    const map = leafletMapRef.current
+    const lg = layerGroupRef.current
+    if (!map || !lg || activeTab !== 'route-planner' || mapMode !== 'leaflet') return
+
+    lg.clearLayers()
+
+    const nodeMap = {}
+    network.nodes.forEach((n) => {
+      nodeMap[n.node_id] = n
+    })
+
+    // 1. Highway Edge Network
+    network.edges.forEach((e) => {
+      const u = nodeMap[e.u]
+      const v = nodeMap[e.v]
+      if (!u || !v) return
+      L.polyline(
+        [
+          [u.lat, u.lon],
+          [v.lat, v.lon]
+        ],
         {
-          attribution: '&copy; OpenStreetMap &copy; CARTO',
-          maxZoom: 19,
-          subdomains: 'abcd'
+          color: e.is_blocked ? '#B91C1C' : '#D4CBC0',
+          weight: e.is_blocked ? 2.5 : 4,
+          dashArray: e.is_blocked ? '6, 6' : null,
+          opacity: e.is_blocked ? 0.8 : 0.75
         }
-      ).addTo(map)
-
-      const lg = L.layerGroup().addTo(map)
-      layerGroupRef.current = lg
-      leafletMapRef.current = map
-
-      const nodeMap = {}
-      network.nodes.forEach((n) => {
-        nodeMap[n.node_id] = n
-      })
-
-      // 1. Draw highway edge network
-      network.edges.forEach((e) => {
-        const u = nodeMap[e.u]
-        const v = nodeMap[e.v]
-        if (!u || !v) return
-        L.polyline(
-          [
-            [u.lat, u.lon],
-            [v.lat, v.lon]
-          ],
-          {
-            color: e.is_blocked ? '#e11d48' : '#cbd5e1',
-            weight: e.is_blocked ? 2.5 : 4,
-            dashArray: e.is_blocked ? '6, 6' : null,
-            opacity: e.is_blocked ? 0.8 : 0.7
-          }
+      )
+        .bindPopup(
+          `<div class="p-2 text-xs font-sans">
+            <strong class="text-[#25201A] font-bold block mb-0.5">${e.road_name}</strong>
+            <div class="text-[#5E564B]">${e.distance_km} km • ${e.speed_kmh} km/h</div>
+            ${
+              e.is_blocked
+                ? '<div class="text-rose-700 font-bold mt-1 uppercase text-[10px]">⚠️ Road Blocked / Submerged</div>'
+                : '<div class="text-[#145A46] font-bold mt-1 text-[10px]">✓ Open Motorway Corridor</div>'
+            }
+          </div>`
         )
-          .bindPopup(
-            `<div class="p-2 text-xs font-sans">
-              <strong class="text-slate-900 font-bold block mb-0.5">${e.road_name}</strong>
-              <div class="text-slate-600">${e.distance_km} km • ${e.speed_kmh} km/h</div>
-              ${
-                e.is_blocked
-                  ? '<div class="text-rose-600 font-bold mt-1 uppercase text-[10px]">⚠️ Road Blocked / Submerged</div>'
-                  : '<div class="text-emerald-700 font-bold mt-1 text-[10px]">✓ Open Motorway Corridor</div>'
-              }
-            </div>`
-          )
-          .addTo(lg)
-      })
+        .addTo(lg)
+    })
 
-      // 2. Highlight active A* route corridor
-      if (plan.route_node_ids && plan.route_node_ids.length > 1) {
-        const routeLatLngs = plan.route_node_ids
-          .map((id) => nodeMap[id])
-          .filter(Boolean)
-          .map((n) => [n.lat, n.lon])
+    // 2. Active A* Route Corridor Polyline with Dual Glow
+    if (plan.route_node_ids && plan.route_node_ids.length > 1) {
+      const routeLatLngs = plan.route_node_ids
+        .map((id) => nodeMap[id])
+        .filter(Boolean)
+        .map((n) => [n.lat, n.lon])
 
-        // Outer neon glow line
+      if (routeLatLngs.length > 0) {
+        // Outer neon glow
         L.polyline(routeLatLngs, {
-          color: '#10b981',
-          weight: 9,
-          opacity: 0.35,
+          color: '#34D399',
+          weight: 10,
+          opacity: 0.4,
           lineCap: 'round',
           lineJoin: 'round'
         }).addTo(lg)
 
         // Inner solid route line
         const routeLine = L.polyline(routeLatLngs, {
-          color: '#0f766e',
-          weight: 4.5,
+          color: '#145A46',
+          weight: 5,
           opacity: 0.95,
           lineCap: 'round',
           lineJoin: 'round'
         }).addTo(lg)
 
-        if (routeLatLngs.length > 0) {
+        try {
           map.fitBounds(routeLine.getBounds(), { padding: [50, 50], maxZoom: 8 })
+        } catch (e) {
+          // fallback if bounds fail
         }
-      }
-
-      // 3. Charging Stop Lookups
-      const stopLookup = {}
-      ;(plan.charging_stops || []).forEach((s) => {
-        stopLookup[s.node_id] = s
-      })
-
-      // 4. Node Markers
-      network.nodes.forEach((n) => {
-        const st = n.station
-        const stopInfo = stopLookup[n.node_id]
-        const isRoute = (plan.route_node_ids || []).includes(n.node_id)
-        const isOrigin = n.node_id === originId
-        const isDest = n.node_id === destId
-
-        let fillColor = '#64748b'
-        let radius = 6
-        let strokeColor = '#ffffff'
-        let strokeWidth = 2
-
-        if (isOrigin) {
-          fillColor = '#0f766e'
-          radius = 10
-          strokeWidth = 3
-        } else if (isDest) {
-          fillColor = '#e11d48'
-          radius = 10
-          strokeWidth = 3
-        } else if (stopInfo) {
-          fillColor = '#10b981'
-          radius = 9
-          strokeWidth = 2.5
-        } else if (isRoute) {
-          fillColor = '#0284c7'
-          radius = 7
-        }
-
-        const marker = L.circleMarker([n.lat, n.lon], {
-          radius,
-          fillColor,
-          color: strokeColor,
-          weight: strokeWidth,
-          fillOpacity: 1
-        }).addTo(lg)
-
-        marker.bindTooltip(
-          `<span class="font-bold text-xs">${n.name}</span>${
-            stopInfo ? ` <span class="text-emerald-700 font-bold">(DP Stop: +${stopInfo.charged_kwh} kWh)</span>` : ''
-          }`,
-          { direction: 'top', offset: [0, -8] }
-        )
-
-        marker.on('click', () => {
-          if (st) {
-            setActiveStationPopup({
-              ...st,
-              cityName: n.name,
-              nodeId: n.node_id,
-              stopInfo
-            })
-          }
-        })
-      })
-
-      // Force recalculation of container dimensions
-      map.invalidateSize()
-    }, 60)
-
-    return () => {
-      clearTimeout(initTimer)
-      if (leafletMapRef.current) {
-        leafletMapRef.current.remove()
-        leafletMapRef.current = null
       }
     }
-  }, [activeTab, mapMode, network, plan, originId, destId])
+
+    // 3. Charging Stop Lookups
+    const stopLookup = {}
+    ;(plan.charging_stops || []).forEach((s) => {
+      stopLookup[s.node_id] = s
+    })
+
+    // 4. Node Markers
+    network.nodes.forEach((n) => {
+      const st = n.station
+      const stopInfo = stopLookup[n.node_id]
+      const isRoute = (plan.route_node_ids || []).includes(n.node_id)
+      const isOrigin = n.node_id === originId
+      const isDest = n.node_id === destId
+
+      let fillColor = '#A3998A'
+      let radius = 6
+      let strokeColor = '#FCFAF6'
+      let strokeWidth = 2
+
+      if (isOrigin) {
+        fillColor = '#145A46'
+        radius = 11
+        strokeWidth = 3
+      } else if (isDest) {
+        fillColor = '#B91C1C'
+        radius = 11
+        strokeWidth = 3
+      } else if (stopInfo) {
+        fillColor = '#10B981'
+        radius = 9.5
+        strokeWidth = 2.5
+      } else if (isRoute) {
+        fillColor = '#235E75'
+        radius = 7.5
+      }
+
+      const marker = L.circleMarker([n.lat, n.lon], {
+        radius,
+        fillColor,
+        color: strokeColor,
+        weight: strokeWidth,
+        fillOpacity: 1
+      }).addTo(lg)
+
+      marker.bindTooltip(
+        `<span class="font-bold text-xs">${n.name}</span>${
+          stopInfo ? ` <span class="text-[#145A46] font-bold">(DP Stop: +${stopInfo.charged_kwh} kWh)</span>` : ''
+        }`,
+        { direction: 'top', offset: [0, -8] }
+      )
+
+      marker.on('click', () => {
+        if (st) {
+          setActiveStationPopup({
+            ...st,
+            cityName: n.name,
+            nodeId: n.node_id,
+            stopInfo
+          })
+        }
+      })
+    })
+
+    map.invalidateSize()
+  }, [network, plan, originId, destId, activeTab, mapMode])
 
   function handleMapZoom(direction) {
     if (!leafletMapRef.current) return
@@ -451,28 +476,21 @@ export default function App() {
       <header className="fixed top-0 left-0 w-full z-50 pointer-events-none">
         <div className="h-16 w-full px-4 lg:px-8 flex items-center justify-between">
           <div className="pointer-events-auto flex items-center gap-4">
-            {/* Brand Logo with Custom User-Uploaded Logo */}
+            {/* Brand Logo: ONLY Logo as requested by user */}
             <div
               onClick={() => setActiveTab('route-planner')}
-              className="flex items-center gap-2.5 bg-[#FCFAF6]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-sm border border-[#E4DDD2] cursor-pointer hover:border-emerald-700 transition-all"
+              className="flex items-center justify-center bg-[#FCFAF6]/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl shadow-sm border border-[#E4DDD2] cursor-pointer hover:border-emerald-700 transition-all"
+              title="VoltPath — EV Intelligence Dashboard"
             >
               <img
                 src={brandLogo}
                 alt="VoltPath Logo"
-                className="w-8 h-8 rounded-lg object-contain shadow-sm"
+                className="w-9 h-9 object-contain"
                 onError={(e) => {
                   e.target.onerror = null
                   e.target.src = '/main_logo.png'
                 }}
               />
-              <div className="flex flex-col">
-                <span className="font-extrabold text-base text-[#25201A] tracking-tight leading-none">
-                  VoltPath
-                </span>
-                <span className="text-[10px] text-[#5E564B] font-semibold leading-none mt-0.5">
-                  EV Intelligence
-                </span>
-              </div>
             </div>
 
             {/* Top Navigation: EXACT 4 TABS MATCHING STITCH DESIGN */}
