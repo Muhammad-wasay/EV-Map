@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import brandLogo from './assets/logo.png'
+import navbarSideLogo from './assets/navbar_side_logo.png'
 import ChargingNetworkView from './ChargingNetworkView.jsx'
 import SavedTripsAnalyticsView from './SavedTripsAnalyticsView.jsx'
 import VehicleSpecsTelemetryView from './VehicleSpecsTelemetryView.jsx'
@@ -21,6 +22,43 @@ const NAV_ITEMS = [
 ]
 
 export default function App() {
+  // 0. Website Startup Splash & Branding Screen
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [loadProgress, setLoadProgress] = useState(15)
+  const [loadStatus, setLoadStatus] = useState('Initializing Corridor Telemetry...')
+  const [isExiting, setIsExiting] = useState(false)
+
+  useEffect(() => {
+    const startTime = Date.now()
+    const duration = 1500
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime
+      const progress = Math.min(100, Math.round((elapsed / duration) * 100))
+      setLoadProgress(progress)
+
+      if (progress < 30) {
+        setLoadStatus('Initializing National Highway Network (M-5 / N-5)...')
+      } else if (progress < 65) {
+        setLoadStatus('Loading 240+ kW DC Supercharger Grid...')
+      } else if (progress < 90) {
+        setLoadStatus('Synthesizing Optimal Dijkstra & Bellman-Ford Routing...')
+      } else {
+        setLoadStatus('VoltPath Engine Online')
+      }
+
+      if (progress >= 100) {
+        clearInterval(interval)
+        setIsExiting(true)
+        setTimeout(() => {
+          setIsInitialLoading(false)
+        }, 450)
+      }
+    }, 35)
+
+    return () => clearInterval(interval)
+  }, [])
+
   // Navigation: EXACT 4 STITCH TABS
   const [activeTab, setActiveTab] = useState('route-planner')
   // Default map mode: 'leaflet' (Live Interactive GIS) or 'vector' (Stitch Vector Schematic)
@@ -411,52 +449,82 @@ export default function App() {
   return (
     <div className="bg-[#F7F5F0] text-[#25201A] antialiased min-h-screen flex flex-col font-sans selection:bg-amber-100 selection:text-amber-900">
       
-      {/* 1. TOP WEBSITE HEADER BAR (MATCHES EXACT STITCH NAVBAR WITH CLEAN SINGLE-LINE BRANDING) */}
-      <header className="sticky top-0 left-0 w-full z-50 bg-[#FCFAF6]/90 backdrop-blur-xl border-b border-[#E4DDD2]/80 shadow-[0_2px_12px_-2px_rgba(37,32,26,0.04)]">
-        <div className="w-full px-4 lg:px-8 h-16 flex items-center justify-between gap-6">
-          
-          {/* Left Brand Lockup (Clean, professional, flat - no rounded pill capsule) */}
-          <div className="flex items-center gap-8">
-            <div
-              onClick={() => setActiveTab('route-planner')}
-              className="flex items-center gap-3 cursor-pointer py-1 group select-none shrink-0"
-              title="VoltPath — Intelligent EV Route & Energy Orchestration"
-            >
-              <div className="w-8 h-8 rounded-lg bg-[#EBF5EE] flex items-center justify-center p-1 border border-emerald-200 shrink-0 group-hover:border-emerald-600 transition-colors">
+      {/* 0. CINEMATIC BRANDING SPLASH / LOADING SCREEN (Main Logo with Lightning Strike) */}
+      {isInitialLoading && (
+        <div
+          className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center transition-all duration-500 ease-out select-none ${
+            isExiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'
+          }`}
+          style={{
+            background: 'radial-gradient(circle at center, #FCFAF6 0%, #EDE7DD 100%)'
+          }}
+        >
+          {/* Ambient Energy Glow & Floating Lightning Core Logo */}
+          <div className="relative flex flex-col items-center max-w-sm w-full px-6 text-center">
+            <div className="relative mb-6">
+              {/* Soft emerald/amber pulsing aura behind lightning strike */}
+              <div className="absolute inset-0 -m-8 rounded-full bg-emerald-500/15 blur-3xl splash-glow-aura" />
+
+              {/* Main Core Logo with Lightning Strike (Prominent & Large) */}
+              <div className="relative splash-logo-float">
                 <img
                   src={brandLogo}
-                  alt="VoltPath Logo"
-                  className="w-full h-full object-contain"
+                  alt="VoltPath Core"
+                  className="h-32 sm:h-36 md:h-44 w-auto max-w-[200px] object-contain drop-shadow-[0_16px_32px_rgba(20,90,70,0.22)]"
                   onError={(e) => {
                     e.target.onerror = null
                     e.target.src = '/main_logo.png'
                   }}
                 />
               </div>
-              <span className="relative inline-flex overflow-hidden h-[24px] leading-[24px] font-bold text-[18px] text-[#25201A] tracking-tight group-hover:text-emerald-950 transition-colors">
-                <span className="inline-flex">
-                  {'VoltPath'.split('').map((char, i) => (
-                    <span
-                      key={`top-logo-${i}`}
-                      className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:-translate-y-full"
-                      style={{ transitionDelay: `${i * 18}ms` }}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </span>
-                <span className="absolute top-full left-0 inline-flex" aria-hidden="true">
-                  {'VoltPath'.split('').map((char, i) => (
-                    <span
-                      key={`bot-logo-${i}`}
-                      className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] group-hover:-translate-y-full"
-                      style={{ transitionDelay: `${i * 18}ms` }}
-                    >
-                      {char}
-                    </span>
-                  ))}
-                </span>
-              </span>
+            </div>
+
+            {/* Subtitle / Brand Typography */}
+            <h2 className="text-2xl sm:text-3xl font-black text-[#25201A] tracking-tight mb-1">
+              VoltPath
+            </h2>
+            <p className="text-xs sm:text-sm font-medium text-[#5E564B] tracking-wide mb-6">
+              Intelligent EV Route & Energy Engine
+            </p>
+
+            {/* Fluid Progress Bar */}
+            <div className="w-full bg-[#E4DDD2]/90 h-2.5 rounded-full overflow-hidden p-[2px] shadow-inner mb-3">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-700 via-[#00C2A8] to-emerald-600 transition-all duration-100 ease-out"
+                style={{ width: `${loadProgress}%` }}
+              />
+            </div>
+
+            {/* Live Telemetry Calibration Status */}
+            <div className="flex items-center justify-between w-full text-[11px] font-mono text-[#8A8073]">
+              <span className="truncate pr-2">{loadStatus}</span>
+              <span className="font-bold text-[#145A46]">{loadProgress}%</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 1. TOP WEBSITE HEADER BAR (MATCHES EXACT STITCH NAVBAR WITH CLEAN SINGLE-LINE BRANDING) */}
+      <header className="sticky top-0 left-0 w-full z-50 bg-[#FCFAF6]/90 backdrop-blur-xl border-b border-[#E4DDD2]/80 shadow-[0_2px_12px_-2px_rgba(37,32,26,0.04)]">
+        <div className="w-full px-4 lg:px-8 h-16 flex items-center justify-between gap-6">
+          
+          {/* Left Brand Lockup: ONLY the new uploaded logo, fluidly responsive to zoom & screen size */}
+          <div className="flex items-center gap-8">
+            <div
+              onClick={() => setActiveTab('route-planner')}
+              className="flex items-center cursor-pointer py-1 group select-none shrink-0"
+              title="VoltPath — Intelligent EV Route & Energy Orchestration"
+            >
+              {/* Only the new logo at top-left: Responsive fluid height that adapts dynamically when zooming in/out */}
+              <img
+                src={navbarSideLogo}
+                alt="VoltPath"
+                className="h-[clamp(30px,2.8vw,46px)] w-auto max-w-[min(50vw,200px)] object-contain transition-transform duration-200 group-hover:scale-105"
+                onError={(e) => {
+                  e.target.onerror = null
+                  e.target.src = '/navbar_side_logo.png'
+                }}
+              />
             </div>
 
             {/* Center Navigation: Staggered Kinetic Wave Rolling Text (Ghoom Kar Wapis Aana - Exact Same Styling!) */}
@@ -1235,13 +1303,18 @@ export default function App() {
         <footer className="w-full bg-[#FAF9F5] border-t border-[#E4DDD2] py-8 px-4 sm:px-6 lg:px-8 mt-auto text-xs text-[#5E564B]">
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-full bg-[#EBF5EE] flex items-center justify-center p-1 border border-emerald-200">
-                <img src={brandLogo} alt="VoltPath" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <span className="font-bold text-[#25201A] text-sm">VoltPath</span>
-                <span className="text-[#8A8073] ml-2">Intelligent EV Route & Energy Orchestration Engine</span>
-              </div>
+              <img
+                src={navbarSideLogo}
+                alt="VoltPath"
+                className="h-[clamp(24px,2.2vw,36px)] w-auto object-contain"
+                onError={(e) => {
+                  e.target.onerror = null
+                  e.target.src = '/navbar_side_logo.png'
+                }}
+              />
+              <span className="text-[#8A8073] ml-2 hidden sm:inline">
+                Intelligent EV Route & Energy Orchestration Engine • NED University CEP
+              </span>
             </div>
 
             <div className="flex flex-wrap items-center gap-4 text-[#5E564B]">
