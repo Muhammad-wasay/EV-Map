@@ -479,11 +479,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* Subtitle / Brand Typography */}
-            <h2 className="text-2xl sm:text-3xl font-black text-[#25201A] tracking-tight mb-1">
-              VoltPath
-            </h2>
-            <p className="text-xs sm:text-sm font-medium text-[#5E564B] tracking-wide mb-6">
+            {/* Subtitle / Engine Tagline */}
+            <p className="text-xs sm:text-sm font-medium text-[#5E564B] tracking-wide mb-6 mt-2">
               Intelligent EV Route & Energy Engine
             </p>
 
