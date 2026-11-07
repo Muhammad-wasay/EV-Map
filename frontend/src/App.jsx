@@ -113,11 +113,12 @@ export default function App() {
     if (!container) return
 
     // If map already exists, just invalidate size
-    if (leafletMapRef.current) {
+    if (leafletMapRef.current && leafletMapRef.current.getContainer() === container) { leafletMapRef.current.invalidateSize(); setTimeout(() => leafletMapRef.current?.invalidateSize(), 180);
       setTimeout(() => leafletMapRef.current?.invalidateSize(), 50)
       return
     }
 
+    if (leafletMapRef.current) { try { leafletMapRef.current.remove() } catch (e) {} leafletMapRef.current = null; layerGroupRef.current = null; }
     if (container._leaflet_id) {
       delete container._leaflet_id
     }
@@ -240,6 +241,8 @@ export default function App() {
         }).addTo(lg)
 
         // Auto Fit map bounds accounting for left sidebar drawer so Pakistan corridor is centered
+        map.invalidateSize()
+        setTimeout(() => { if (leafletMapRef.current === map) { map.invalidateSize(); map.fitBounds(routeLatLngs, { paddingTopLeft: [400, 45], paddingBottomRight: [45, 45], maxZoom: 12 }); } }, 90)
         map.fitBounds(routeLatLngs, {
           paddingTopLeft: [400, 45],
           paddingBottomRight: [45, 45],
