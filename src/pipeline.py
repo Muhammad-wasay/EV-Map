@@ -42,6 +42,28 @@ class VoltPathPipeline:
         origin_name = nodes[origin_id].name if origin_id in nodes else origin_id
         dest_name = nodes[dest_id].name if dest_id in nodes else dest_id
 
+        # Same origin & destination short-circuit
+        if origin_id == dest_id and origin_id in nodes:
+            return TripPlan(
+                status="OPTIMAL",
+                data_source=data_source,
+                origin_name=origin_name,
+                destination_name=dest_name,
+                route_node_ids=[origin_id],
+                route_node_names=[origin_name],
+                total_distance_km=0.0,
+                driving_time_hours=0.0,
+                charging_time_hours=0.0,
+                total_trip_time_hours=0.0,
+                max_allowed_time_hours=max_allowed_time_hours,
+                total_charging_cost_pkr=0.0,
+                total_energy_charged_kwh=0,
+                final_arrival_soc_kwh=min(ev.battery_capacity_kwh, ev.initial_soc_kwh),
+                charging_stops=[],
+                isolated_nodes=isolated_names,
+                warnings=["Origin and Destination are the same hub (0 km transit)."],
+            )
+
         # Check if destination is in a disconnected component (Edge Case 1)
         if dest_id not in reachable_set:
             return TripPlan(
@@ -87,6 +109,7 @@ class VoltPathPipeline:
                 route_node_names=[n.name for n in corridor_nodes],
                 total_distance_km=astar_metrics["total_distance_km"],
                 driving_time_hours=astar_metrics["total_drive_time_hours"],
+                total_trip_time_hours=round(astar_metrics["total_drive_time_hours"], 2),
                 max_allowed_time_hours=max_allowed_time_hours,
                 isolated_nodes=isolated_names,
                 warnings=charger_notes + [deadzone_error],

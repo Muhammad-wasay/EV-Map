@@ -224,6 +224,70 @@ export function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 /**
+ * Exact Binary Min-Heap Priority Queue for O(log V) A* Frontier Extraction
+ */
+class MinHeap {
+  constructor(compareFn) {
+    this.heap = [];
+    this.compare = compareFn;
+  }
+
+  size() {
+    return this.heap.length;
+  }
+
+  push(item) {
+    this.heap.push(item);
+    this._siftUp(this.heap.length - 1);
+  }
+
+  pop() {
+    if (this.heap.length === 0) return null;
+    const top = this.heap[0];
+    const bottom = this.heap.pop();
+    if (this.heap.length > 0) {
+      this.heap[0] = bottom;
+      this._siftDown(0);
+    }
+    return top;
+  }
+
+  _siftUp(idx) {
+    while (idx > 0) {
+      const parentIdx = (idx - 1) >> 1;
+      if (this.compare(this.heap[idx], this.heap[parentIdx]) < 0) {
+        [this.heap[idx], this.heap[parentIdx]] = [this.heap[parentIdx], this.heap[idx]];
+        idx = parentIdx;
+      } else {
+        break;
+      }
+    }
+  }
+
+  _siftDown(idx) {
+    const len = this.heap.length;
+    while (true) {
+      let smallest = idx;
+      const left = 2 * idx + 1;
+      const right = 2 * idx + 2;
+
+      if (left < len && this.compare(this.heap[left], this.heap[smallest]) < 0) {
+        smallest = left;
+      }
+      if (right < len && this.compare(this.heap[right], this.heap[smallest]) < 0) {
+        smallest = right;
+      }
+      if (smallest !== idx) {
+        [this.heap[idx], this.heap[smallest]] = [this.heap[smallest], this.heap[idx]];
+        idx = smallest;
+      } else {
+        break;
+      }
+    }
+  }
+}
+
+/**
  * Real Pure Client-Side A* Search Algorithm
  * Reconciles blocked roads, admissible Haversine heuristic, and charger-power tie-breaking
  */
@@ -258,14 +322,23 @@ export function findAStarRoute(network, originId, destId, blockedEdges = []) {
     if (adj[e.v]) adj[e.v].push({ neighbor: e.u, distance: e.distance_km, speed: e.speed_kmh, road_name: e.road_name });
   });
 
-  // A* Open Set priority queue
-  const openSet = [{
+  // A* Open Set Binary Min-Heap priority queue with charger tie-breaking
+  const openSet = new MinHeap((a, b) => {
+    if (Math.abs(a.f - b.f) > 0.01) return a.f - b.f;
+    const pa = nodeMap[a.node_id]?.station?.power_kw || 0;
+    const pb = nodeMap[b.node_id]?.station?.power_kw || 0;
+    if (pa !== pb) return pb - pa;
+    return a.h - b.h;
+  });
+
+  const initialH = haversineKm(nodeMap[originId].lat, nodeMap[originId].lon, destNode.lat, destNode.lon);
+  openSet.push({
     node_id: originId,
     g: 0,
-    h: haversineKm(nodeMap[originId].lat, nodeMap[originId].lon, destNode.lat, destNode.lon),
-    f: haversineKm(nodeMap[originId].lat, nodeMap[originId].lon, destNode.lat, destNode.lon),
+    h: initialH,
+    f: initialH,
     drive_time: 0
-  }];
+  });
 
   const gScore = {};
   const closedSet = new Set();
@@ -275,18 +348,8 @@ export function findAStarRoute(network, originId, destId, blockedEdges = []) {
   driveTimeMap[originId] = 0;
   let nodesExpanded = 0;
 
-  while (openSet.length > 0) {
-    // Pick lowest f(n) with charger tie-breaking
-    openSet.sort((a, b) => {
-      if (Math.abs(a.f - b.f) > 0.01) return a.f - b.f;
-      // Tie-breaking: prefer node with higher station power kW
-      const pa = nodeMap[a.node_id]?.station?.power_kw || 0;
-      const pb = nodeMap[b.node_id]?.station?.power_kw || 0;
-      if (pa !== pb) return pb - pa;
-      return a.h - b.h;
-    });
-
-    const current = openSet.shift();
+  while (openSet.size() > 0) {
+    const current = openSet.pop();
     if (closedSet.has(current.node_id)) continue;
     closedSet.add(current.node_id);
     nodesExpanded++;
@@ -351,15 +414,28 @@ export function computeDynamicEVPlan(
   selectedCorridor = 'M5',
   blockedEdges = []
 ) {
+  const safeOriginId = typeof originId === 'string' ? originId : 'N01';
+  const safeDestId = typeof destId === 'string' ? destId : 'N14';
+  const safeBatteryCap = Number(batteryCap) || 75;
+  const safeMinReserve = Number(minReserve) || 12;
+  const safeInitialSoc = Math.max(safeMinReserve, Math.min(safeBatteryCap, Number(initialSoc) || 65));
+  const safeMaxTime = Number(maxTime) || 18.5;
+
   const nodeMap = {};
   network.nodes.forEach(n => { nodeMap[n.node_id] = n; });
 
-  const astarResult = findAStarRoute(network, originId, destId, blockedEdges);
+  // If user selected N-5 alternative corridor, prefer N-5 branches by blocking M-5/M-4 bypasses
+  const effectiveBlocked = [...blockedEdges];
+  if (selectedCorridor === 'N5') {
+    effectiveBlocked.push(['N08', 'N10'], ['N09', 'N11'], ['N11', 'N13']);
+  }
+
+  const astarResult = findAStarRoute(network, safeOriginId, safeDestId, effectiveBlocked);
   if (!astarResult) {
     return {
       status: "INFEASIBLE_DISCONNECTED",
-      origin_name: nodeMap[originId]?.name || originId,
-      destination_name: nodeMap[destId]?.name || destId,
+      origin_name: nodeMap[safeOriginId]?.name || safeOriginId,
+      destination_name: nodeMap[safeDestId]?.name || safeDestId,
       route_node_ids: [],
       route_node_names: [],
       total_distance_km: 0,
@@ -369,21 +445,21 @@ export function computeDynamicEVPlan(
       total_charging_cost_pkr: 0,
       final_arrival_soc_kwh: 0,
       charging_stops: [],
-      warnings: [`No viable road network path found between ${nodeMap[originId]?.name} and ${nodeMap[destId]?.name}.`]
+      warnings: [`No viable road network path found between ${nodeMap[safeOriginId]?.name} and ${nodeMap[safeDestId]?.name}.`]
     };
   }
 
   const { route_node_ids, route_node_names, total_distance_km, driving_time_hours, nodes_expanded } = astarResult;
   const consumptionKwhPerKm = 0.18;
   const totalEnergyNeeded = total_distance_km * consumptionKwhPerKm;
-  const usableStartEnergy = initialSoc - minReserve;
+  const usableStartEnergy = safeInitialSoc - safeMinReserve;
 
-  // Short trip / Intra-city case (e.g. Gulshan to Malir or Karachi to Hyderabad)
+  // Short trip / Direct reachable case without any charging stops
   if (totalEnergyNeeded <= usableStartEnergy) {
-    const finalSoc = Math.max(0, initialSoc - totalEnergyNeeded);
+    const finalSoc = Math.max(safeMinReserve, safeInitialSoc - totalEnergyNeeded);
     return {
       status: "OPTIMAL",
-      data_source: "VoltPath A* Pure Client Engine",
+      data_source: "VoltPath A* + DP Engine",
       origin_name: route_node_names[0],
       destination_name: route_node_names[route_node_names.length - 1],
       route_node_ids,
@@ -392,12 +468,14 @@ export function computeDynamicEVPlan(
       driving_time_hours,
       charging_time_hours: 0,
       total_trip_time_hours: driving_time_hours,
-      max_allowed_time_hours: maxTime,
+      max_allowed_time_hours: safeMaxTime,
       total_charging_cost_pkr: 0,
       total_energy_charged_kwh: 0,
       final_arrival_soc_kwh: parseFloat(finalSoc.toFixed(1)),
       charging_stops: [],
-      warnings: [`Direct reachability confirmed! Total energy needed (${totalEnergyNeeded.toFixed(1)} kWh) is within initial available battery buffer. No intermediate charging stops required.`],
+      warnings: total_distance_km === 0
+        ? ["Origin and Destination are the same hub (0 km transit)."]
+        : [`Direct reachability confirmed! Total energy needed (${totalEnergyNeeded.toFixed(1)} kWh) is within initial available battery buffer.`],
       astar_metrics: {
         nodes_expanded,
         total_distance_km,
@@ -408,10 +486,11 @@ export function computeDynamicEVPlan(
 
   // Long-distance multi-station charging optimization
   const chargingStops = [];
-  let currentSoc = initialSoc;
+  let currentSoc = safeInitialSoc;
   let totalChargingTime = 0;
   let totalChargingCost = 0;
   let totalEnergyAdded = 0;
+  const maxUsableSpanKwh = safeBatteryCap - safeMinReserve;
 
   for (let i = 0; i < route_node_ids.length - 1; i++) {
     const u = route_node_ids[i];
@@ -419,34 +498,66 @@ export function computeDynamicEVPlan(
 
     const edge = network.edges.find(e => (e.u === u && e.v === v) || (e.u === v && e.v === u));
     const dist = edge ? edge.distance_km : 100;
-    const legEnergy = dist * consumptionKwhPerKm;
+    const legEnergy = Math.ceil(dist * consumptionKwhPerKm);
+
+    // Check if single highway stretch exceeds maximum usable battery capacity (Dead-Zone)
+    if (legEnergy > maxUsableSpanKwh) {
+      return {
+        status: "INFEASIBLE_DEADZONE",
+        data_source: "VoltPath A* + DP Engine",
+        origin_name: route_node_names[0],
+        destination_name: route_node_names[route_node_names.length - 1],
+        route_node_ids,
+        route_node_names,
+        total_distance_km,
+        driving_time_hours,
+        charging_time_hours: 0,
+        total_trip_time_hours: driving_time_hours,
+        max_allowed_time_hours: safeMaxTime,
+        total_charging_cost_pkr: 0,
+        total_energy_charged_kwh: 0,
+        final_arrival_soc_kwh: 0,
+        charging_stops: [],
+        warnings: [
+          `RANGE DEAD-ZONE DETECTED between '${nodeMap[u]?.name}' and '${nodeMap[v]?.name}': Requires ${legEnergy} kWh (${dist} km), which exceeds maximum usable battery capacity ${maxUsableSpanKwh} kWh (B_max=${safeBatteryCap} kWh, B_min=${safeMinReserve} kWh). Increase Battery Pack capacity to at least ${legEnergy + safeMinReserve} kWh.`
+        ],
+        astar_metrics: {
+          nodes_expanded,
+          total_distance_km,
+          total_drive_time_hours: driving_time_hours
+        }
+      };
+    }
 
     const currentNode = nodeMap[u];
-    if (i > 0 && currentNode.station && currentNode.station.is_available) {
-      if (currentSoc - legEnergy < minReserve || currentSoc <= batteryCap * 0.35) {
-        const targetSoc = Math.min(batteryCap * 0.85, batteryCap);
-        const chargeNeeded = Math.max(10, Math.round(targetSoc - currentSoc));
-        const effectiveKw = Math.min(currentNode.station.power_kw, 120);
-        const chargeTimeHrs = (chargeNeeded / effectiveKw) * 1.1 + (currentNode.station.queue_wait_hours || 0.1);
-        const costPkr = chargeNeeded * currentNode.station.cost_per_kwh;
+    if (currentNode && currentNode.station && currentNode.station.is_available) {
+      if (currentSoc - legEnergy < safeMinReserve || (i > 0 && currentSoc <= safeBatteryCap * 0.35)) {
+        const minTarget = legEnergy + safeMinReserve + 4;
+        const targetSoc = Math.min(safeBatteryCap, Math.max(Math.round(safeBatteryCap * 0.88), minTarget));
+        const chargeNeeded = Math.max(5, Math.min(safeBatteryCap - Math.round(currentSoc), Math.round(targetSoc - currentSoc)));
+        if (chargeNeeded > 0) {
+          const effectiveKw = Math.min(currentNode.station.power_kw, 120);
+          const chargeTimeHrs = (chargeNeeded / effectiveKw) + (currentNode.station.queue_wait_hours || 0.1);
+          const costPkr = chargeNeeded * currentNode.station.cost_per_kwh;
 
-        chargingStops.push({
-          node_id: u,
-          city_name: currentNode.name,
-          station_name: currentNode.station.name,
-          arrival_soc_kwh: Math.round(currentSoc),
-          departure_soc_kwh: Math.round(currentSoc + chargeNeeded),
-          charged_kwh: chargeNeeded,
-          charge_time_hours: parseFloat(chargeTimeHrs.toFixed(2)),
-          charge_cost_pkr: Math.round(costPkr),
-          effective_power_kw: effectiveKw,
-          tariff_pkr_per_kwh: currentNode.station.cost_per_kwh
-        });
+          chargingStops.push({
+            node_id: u,
+            city_name: currentNode.name,
+            station_name: currentNode.station.name,
+            arrival_soc_kwh: Math.round(currentSoc),
+            departure_soc_kwh: Math.round(currentSoc + chargeNeeded),
+            charged_kwh: chargeNeeded,
+            charge_time_hours: parseFloat(chargeTimeHrs.toFixed(2)),
+            charge_cost_pkr: Math.round(costPkr),
+            effective_power_kw: effectiveKw,
+            tariff_pkr_per_kwh: currentNode.station.cost_per_kwh
+          });
 
-        currentSoc += chargeNeeded;
-        totalChargingTime += chargeTimeHrs;
-        totalChargingCost += costPkr;
-        totalEnergyAdded += chargeNeeded;
+          currentSoc += chargeNeeded;
+          totalChargingTime += chargeTimeHrs;
+          totalChargingCost += costPkr;
+          totalEnergyAdded += chargeNeeded;
+        }
       }
     }
 
@@ -454,7 +565,7 @@ export function computeDynamicEVPlan(
   }
 
   const totalTripTime = driving_time_hours + totalChargingTime;
-  const isTimeFeasible = totalTripTime <= maxTime;
+  const isTimeFeasible = totalTripTime <= safeMaxTime;
 
   return {
     status: isTimeFeasible ? "OPTIMAL" : "FEASIBLE_TIME_WARNING",
@@ -467,14 +578,14 @@ export function computeDynamicEVPlan(
     driving_time_hours,
     charging_time_hours: parseFloat(totalChargingTime.toFixed(2)),
     total_trip_time_hours: parseFloat(totalTripTime.toFixed(2)),
-    max_allowed_time_hours: maxTime,
+    max_allowed_time_hours: safeMaxTime,
     total_charging_cost_pkr: Math.round(totalChargingCost),
     total_energy_charged_kwh: Math.round(totalEnergyAdded),
-    final_arrival_soc_kwh: Math.max(minReserve, Math.round(currentSoc)),
+    final_arrival_soc_kwh: Math.max(safeMinReserve, Math.round(currentSoc)),
     charging_stops: chargingStops,
     warnings: isTimeFeasible
       ? []
-      : [`Trip duration (${totalTripTime.toFixed(1)} hrs) exceeds requested T_max (${maxTime} hrs). Fast-charging schedule optimized to minimum physical time.`],
+      : [`Trip duration (${totalTripTime.toFixed(1)} hrs) exceeds requested T_max (${safeMaxTime} hrs). Fast-charging schedule optimized to minimum physical time.`],
     astar_metrics: {
       nodes_expanded,
       total_distance_km,

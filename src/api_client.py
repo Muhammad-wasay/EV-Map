@@ -19,22 +19,50 @@ from typing import Any, Dict, List, Optional, Tuple
 from src.models import ChargingStation, EVProfile, Node, RoadEdge
 
 
+def _load_dotenv_files() -> None:
+    """Automatically loads key=value pairs from .env or .env.example into os.environ."""
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for filename in (".env", ".env.example"):
+        env_path = os.path.join(root_dir, filename)
+        if not os.path.exists(env_path):
+            continue
+        try:
+            with open(env_path, "r", encoding="utf-8") as f:
+                for raw_line in f:
+                    line = raw_line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, val = line.split("=", 1)
+                    key = key.strip()
+                    val = val.strip().strip('"').strip("'")
+                    if key and key not in os.environ:
+                        os.environ[key] = val
+        except Exception:
+            pass
+
+
+_load_dotenv_files()
+
+
 class VoltPathAPIClient:
     """Fetches network and charger telemetry from live APIs with automatic Mock Fallback."""
 
     OPENCHARGEMAP_URL = "https://api.openchargemap.io/v3/poi/"
-    OSRM_ROUTE_URL = "https://router.project-osrm.org/route/v1/driving/"
+    DEFAULT_OSRM_BASE = "https://router.project-osrm.org"
 
     def __init__(
         self,
         mock_dataset_path: str = "data/highway_network.json",
-        use_live_api: bool = False,
+        use_live_api: Optional[bool] = None,
         timeout_sec: float = 3.5,
     ):
+        _load_dotenv_files()
         self.mock_dataset_path = mock_dataset_path
         self.api_key = os.environ.get("OPENCHARGEMAP_API_KEY", "").strip()
+        osrm_base = os.environ.get("OSRM_BASE_URL", self.DEFAULT_OSRM_BASE).strip().rstrip("/")
+        self.OSRM_ROUTE_URL = f"{osrm_base}/route/v1/driving/"
         env_force_api = os.environ.get("VOLTPATH_USE_LIVE_API", "false").lower() == "true"
-        self.use_live_api = use_live_api or env_force_api
+        self.use_live_api = env_force_api if use_live_api is None else bool(use_live_api)
         self.timeout_sec = timeout_sec
         self.last_source_used = "MOCK_FALLBACK"
         self.api_status_log: List[str] = []
@@ -141,7 +169,7 @@ class VoltPathAPIClient:
                     if resp.status == 200:
                         pois = json.loads(resp.read().decode("utf-8"))
                         self.api_status_log.append(
-                            f"[API-Client] OpenChargeMap API returned {len(pois)} live POIs."
+                            f"[API-Client] OpenChargeMap API returned {len(pois)} live POIs in Pakistan."
                         )
             except Exception as exc:
                 self.api_status_log.append(

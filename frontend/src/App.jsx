@@ -122,20 +122,24 @@ export default function App() {
       delete container._leaflet_id
     }
 
+    const pakistanBounds = L.latLngBounds([23.2, 60.5], [37.3, 78.0])
+
     const map = L.map(container, {
-      center: [30.15, 71.52], // Central Pakistan
+      center: [30.15, 70.5], // Central Pakistan Highway Spine
       zoom: 6,
-      minZoom: 5,
+      minZoom: 5.5,
       maxZoom: 18,
+      maxBounds: pakistanBounds,
+      maxBoundsViscosity: 0.95,
       zoomControl: false,
       attributionControl: false,
       preferCanvas: true
     })
 
-    // High-performance Google Maps Roads Tile Layer (Fastest in Pakistan, zero timeouts)
-    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+    // High-performance Google Maps Roads Tile Layer with Pakistan Regional Bias (&gl=PK)
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&hl=en&gl=PK', {
       maxZoom: 20,
-      attribution: '&copy; Google Maps'
+      attribution: '&copy; Google Maps Pakistan'
     }).addTo(map)
 
     const lg = L.layerGroup().addTo(map)
@@ -235,10 +239,11 @@ export default function App() {
           lineJoin: 'round'
         }).addTo(lg)
 
-        // Auto Fit map bounds to show complete transit corridor (adaptive zoom for local or national routes)
+        // Auto Fit map bounds accounting for left sidebar drawer so Pakistan corridor is centered
         map.fitBounds(routeLatLngs, {
-          padding: [50, 50],
-          maxZoom: 13
+          paddingTopLeft: [400, 45],
+          paddingBottomRight: [45, 45],
+          maxZoom: 12
         })
       }
     }
@@ -348,73 +353,96 @@ export default function App() {
 
   // Recalculate Trip Function (Hybrid Live FastAPI + Real Client-Side A* Solver)
   async function handleRunOptimization(
-    customOrigin = originId,
-    customDest = destId,
-    customBattery = batteryCap,
-    customSoc = initialSoc,
-    customMinRes = minReserve,
-    customMaxTime = maxTime,
-    customCorridor = selectedCorridorRoute
+    customOrigin,
+    customDest,
+    customBattery,
+    customSoc,
+    customMinRes,
+    customMaxTime,
+    customCorridor
   ) {
+    // Strict type-guards so React SyntheticEvent (onClick) can never corrupt parameters
+    const safeOrigin = typeof customOrigin === 'string' && customOrigin.startsWith('N') ? customOrigin : originId
+    const safeDest = typeof customDest === 'string' && customDest.startsWith('N') ? customDest : destId
+    const safeBattery = typeof customBattery === 'number' && !Number.isNaN(customBattery) ? customBattery : batteryCap
+    const safeMinRes = typeof customMinRes === 'number' && !Number.isNaN(customMinRes) ? customMinRes : minReserve
+    const rawSoc = typeof customSoc === 'number' && !Number.isNaN(customSoc) ? customSoc : initialSoc
+    const safeSoc = Math.max(safeMinRes, Math.min(safeBattery, rawSoc))
+    const safeMaxTime = typeof customMaxTime === 'number' && !Number.isNaN(customMaxTime) ? customMaxTime : maxTime
+    const safeCorridor = typeof customCorridor === 'string' ? customCorridor : selectedCorridorRoute
+
     setLoading(true)
 
-    // 1. Try Live FastAPI Backend First
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 1200)
+    // 1. Try Live FastAPI Backend First (when using standard M-5 corridor)
+    if (safeCorridor !== 'N5') {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 1500)
 
-      const response = await fetch('http://127.0.0.1:8000/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          origin_id: customOrigin,
-          dest_id: customDest,
-          battery_capacity_kwh: customBattery,
-          initial_soc_kwh: customSoc,
-          min_reserve_kwh: customMinRes,
-          max_allowed_time_hours: customMaxTime
-        }),
-        signal: controller.signal
-      })
-      clearTimeout(timeoutId)
+        const response = await fetch('http://127.0.0.1:8000/api/plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            origin_id: safeOrigin,
+            dest_id: safeDest,
+            battery_capacity_kwh: Math.round(safeBattery),
+            initial_soc_kwh: Math.round(safeSoc),
+            min_reserve_kwh: Math.round(safeMinRes),
+            max_allowed_time_hours: safeMaxTime
+          }),
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
 
-      if (response.ok) {
-        const data = await response.json()
-        const livePlan = data.plan ? data.plan : data
-        setPlan(livePlan)
-        setBackendStatus('connected')
-        setLoading(false)
-        return
+        if (response.ok) {
+          const data = await response.json()
+          const livePlan = data.plan ? data.plan : data
+          setPlan(livePlan)
+          setBackendStatus('connected')
+          setLoading(false)
+          return
+        }
+      } catch (err) {
+        // Backend not running -> fallback to client-side A* solver
       }
-    } catch (err) {
-      // Backend not running -> fallback to client-side A* solver
     }
 
     // 2. Pure Client-Side Dynamic A* Pathfinder + Energy Schedule Generator
-    setBackendStatus('autonomous')
     const recalculatedPlan = computeDynamicEVPlan(
       network,
-      customOrigin,
-      customDest,
-      customBattery,
-      customSoc,
-      customMinRes,
-      customMaxTime,
-      customCorridor
+      safeOrigin,
+      safeDest,
+      safeBattery,
+      safeSoc,
+      safeMinRes,
+      safeMaxTime,
+      safeCorridor
     )
     setPlan(recalculatedPlan)
     setLoading(false)
   }
 
-  // Interactive Marker Window Handlers
+  // Interactive Marker Window Handlers (with auto-swap if Origin == Dest)
   useEffect(() => {
     window.__setOrigin = (id) => {
-      setOriginId(id)
-      handleRunOptimization(id, destId)
+      if (id === destId) {
+        setOriginId(id)
+        setDestId(originId)
+        handleRunOptimization(id, originId)
+      } else {
+        setOriginId(id)
+        handleRunOptimization(id, destId)
+      }
     }
     window.__setDest = (id) => {
-      setDestId(id)
-      handleRunOptimization(originId, id)
+      if (id === originId) {
+        setDestId(id)
+        setOriginId(destId)
+        handleRunOptimization(destId, id)
+      } else {
+        setDestId(id)
+        handleRunOptimization(originId, id)
+      }
     }
   }, [originId, destId, batteryCap, initialSoc, minReserve, maxTime, selectedCorridorRoute])
 
@@ -492,9 +520,13 @@ export default function App() {
         .map((n) => [n.lat, n.lon])
 
       if (routeLatLngs.length > 0) {
-        leafletMapRef.current.fitBounds(routeLatLngs, { padding: [50, 50], maxZoom: 13 })
+        leafletMapRef.current.fitBounds(routeLatLngs, {
+          paddingTopLeft: [400, 45],
+          paddingBottomRight: [45, 45],
+          maxZoom: 12
+        })
       } else {
-        leafletMapRef.current.setView([30.15, 71.52], 6)
+        leafletMapRef.current.setView([30.15, 70.5], 6)
       }
     }
   }
@@ -506,12 +538,14 @@ export default function App() {
     }
   }
 
-  const totalCostPKR = Number(plan.total_charging_cost_pkr || 11012)
-  const estTollsPKR = 4350
+  const activeDistanceKm = Number(plan.total_distance_km ?? 1505)
+  const totalCostPKR = Number(plan.total_charging_cost_pkr ?? 0)
+  const estTollsPKR = activeDistanceKm > 0 ? Math.round(activeDistanceKm * 2.89) : 0
   const grandTotalPKR = totalCostPKR + estTollsPKR
   const petrolBenchmarkPKR = 352.59
-  const petrolComparisonPKR = Math.round((1505 / 12) * petrolBenchmarkPKR) // 12 km/L @ 352.59 PKR = 44,220 PKR
+  const petrolComparisonPKR = Math.round((activeDistanceKm / 12) * petrolBenchmarkPKR)
   const fuelSavingsPKR = Math.max(0, petrolComparisonPKR - grandTotalPKR)
+  const clampedSocPercent = Math.min(100, Math.max(0, Math.round((Math.min(initialSoc, batteryCap) / Math.max(1, batteryCap)) * 100)))
 
   return (
     <div className="bg-[#F7F5F0] text-[#25201A] antialiased min-h-screen flex flex-col font-sans selection:bg-amber-100 selection:text-amber-900">
@@ -1127,7 +1161,7 @@ export default function App() {
 
                     <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EAE5DA] border border-[#DDD5C7] text-[#145A46] text-xs font-semibold font-mono">
                       <span className="material-symbols-outlined text-[14px]">battery_charging_full</span>
-                      <span>{Math.round((initialSoc / batteryCap) * 100)}% SoC</span>
+                      <span>{clampedSocPercent}% SoC</span>
                     </div>
                   </div>
 
@@ -1141,8 +1175,14 @@ export default function App() {
                         value={originId}
                         onChange={(e) => {
                           const newOrigin = e.target.value
-                          setOriginId(newOrigin)
-                          handleRunOptimization(newOrigin, destId)
+                          if (newOrigin === destId) {
+                            setOriginId(newOrigin)
+                            setDestId(originId)
+                            handleRunOptimization(newOrigin, originId)
+                          } else {
+                            setOriginId(newOrigin)
+                            handleRunOptimization(newOrigin, destId)
+                          }
                         }}
                         className="w-full bg-[#FCFAF6] border border-[#E4DDD2] rounded-lg px-2 py-1.5 text-xs text-[#25201A] font-semibold focus:outline-none focus:border-[#145A46]"
                       >
@@ -1162,8 +1202,14 @@ export default function App() {
                         value={destId}
                         onChange={(e) => {
                           const newDest = e.target.value
-                          setDestId(newDest)
-                          handleRunOptimization(originId, newDest)
+                          if (newDest === originId) {
+                            setDestId(newDest)
+                            setOriginId(destId)
+                            handleRunOptimization(destId, newDest)
+                          } else {
+                            setDestId(newDest)
+                            handleRunOptimization(originId, newDest)
+                          }
                         }}
                         className="w-full bg-[#FCFAF6] border border-[#E4DDD2] rounded-lg px-2 py-1.5 text-xs text-[#25201A] font-semibold focus:outline-none focus:border-[#145A46]"
                       >
@@ -1225,21 +1271,31 @@ export default function App() {
                       max="100"
                       step="5"
                       value={batteryCap}
-                      onChange={(e) => setBatteryCap(Number(e.target.value))}
+                      onChange={(e) => {
+                        const newCap = Number(e.target.value)
+                        const clampedSoc = Math.min(initialSoc, newCap)
+                        setBatteryCap(newCap)
+                        setInitialSoc(clampedSoc)
+                        handleRunOptimization(originId, destId, newCap, clampedSoc)
+                      }}
                       className="w-full"
                     />
 
                     <div className="flex items-center justify-between mt-1">
                       <span className="font-bold text-[#25201A]">Departure Charge</span>
-                      <span className="font-mono text-emerald-800 font-bold">{initialSoc} kWh</span>
+                      <span className="font-mono text-emerald-800 font-bold">{Math.min(initialSoc, batteryCap)} kWh</span>
                     </div>
                     <input
                       type="range"
                       min="15"
                       max={batteryCap}
                       step="5"
-                      value={initialSoc}
-                      onChange={(e) => setInitialSoc(Number(e.target.value))}
+                      value={Math.min(initialSoc, batteryCap)}
+                      onChange={(e) => {
+                        const newSoc = Math.min(batteryCap, Number(e.target.value))
+                        setInitialSoc(newSoc)
+                        handleRunOptimization(originId, destId, batteryCap, newSoc)
+                      }}
                       className="w-full"
                     />
                   </div>
@@ -1284,6 +1340,29 @@ export default function App() {
                             </div>
                           </div>
                         ))
+                      ) : plan.status && plan.status.startsWith('INFEASIBLE') ? (
+                        <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-950 flex flex-col gap-2">
+                          <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900">
+                            <span className="material-symbols-outlined text-[17px] text-amber-700">warning</span>
+                            <span>Range Dead-Zone (Battery Capacity Too Low)</span>
+                          </div>
+                          <p className="text-[11px] text-amber-900/90 leading-relaxed">
+                            {plan.warnings && plan.warnings.length > 0
+                              ? plan.warnings[plan.warnings.length - 1]
+                              : `A ${batteryCap} kWh battery pack cannot cross the longest highway stretch with ${minReserve} kWh safety reserve.`}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setBatteryCap(75)
+                              setInitialSoc(65)
+                              handleRunOptimization(originId, destId, 75, 65)
+                            }}
+                            className="mt-1 py-1.5 px-3 rounded-lg bg-[#145A46] text-white font-bold text-[11px] self-start hover:bg-emerald-800 transition-colors"
+                          >
+                            Reset to 75 kWh Long-Range Pack
+                          </button>
+                        </div>
                       ) : (
                         <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-emerald-950 flex flex-col gap-1">
                           <div className="flex items-center gap-1.5 font-bold text-xs text-emerald-800">
@@ -1340,7 +1419,7 @@ export default function App() {
                 <div className="p-3 bg-[#F4F0E8]/70 border-t border-[#E4DDD2]">
                   <button
                     type="button"
-                    onClick={handleRunOptimization}
+                    onClick={() => handleRunOptimization()}
                     disabled={loading}
                     className="w-full py-2.5 px-4 rounded-xl bg-[#145A46] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-800 active:scale-[0.99] transition-all"
                   >
