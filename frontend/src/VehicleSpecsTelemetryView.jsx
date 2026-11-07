@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import PixelCard from './components/PixelCard'
 
 export default function VehicleSpecsTelemetryView({
   batteryCap = 75,
@@ -605,7 +606,7 @@ export default function VehicleSpecsTelemetryView({
       </div>
 
       {/* 2. "SAAMNE CAR BHI AJAYE" — FRONT & CENTER VISUAL SHOWCASE BANNER */}
-      <div className="relative bg-[#FCFAF6] rounded-2xl p-6 sm:p-8 flex flex-col lg:flex-row items-center justify-between gap-8 border border-[#E4DDD2] shadow-sm overflow-hidden">
+      <PixelCard variant="emerald" theme="light" radius={16} gap={10} intro={false} className="p-6 sm:p-8"><div className="w-full flex flex-col lg:flex-row items-center justify-between gap-8">
         {/* Left Column: Model Badges, Title & Aero Telemetry */}
         <div className="flex flex-col gap-2 max-w-xl w-full">
           <div className="flex items-center gap-2">
@@ -657,6 +658,8 @@ export default function VehicleSpecsTelemetryView({
         </div>
       </div>
 
+      </PixelCard>
+
       {/* 3. BATTERY CELL HEALTH & BMS TELEMETRY GRID (WITH HOVER ICON SPIN) */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
@@ -695,7 +698,7 @@ export default function VehicleSpecsTelemetryView({
         <div className="group bg-[#FCFAF6] hover:bg-[#FDFBF7] p-4 rounded-xl border border-[#E4DDD2] hover:border-[#145A46] shadow-sm hover:shadow-md transition-all flex flex-col justify-between cursor-default">
           <div className="flex items-center justify-between text-[#5E564B]">
             <span className="text-[10px] font-bold uppercase tracking-wider font-sans">Lifetime Cycles</span>
-            <span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">sync</span>
+            <div className="kpi-icon-badge"><span className="material-symbols-outlined text-[18px] text-[#145A46] kpi-icon-spin">sync</span></div>
           </div>
           <div className="text-2xl font-mono font-extrabold text-[#25201A] mt-1">{currentCar.cycles}</div>
           <span className="text-[11px] text-[#5E564B] mt-1 pt-1 border-t border-[#E4DDD2]">
