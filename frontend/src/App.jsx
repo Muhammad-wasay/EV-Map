@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import brandLogo from './assets/logo.png'
@@ -132,19 +132,18 @@ export default function App() {
       preferCanvas: true
     })
 
-    // High-performance Google Maps Roads Tile Layer (Fastest in Pakistan, zero timeouts)
-    L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-      maxZoom: 20,
-      attribution: '&copy; Google Maps'
+    // OpenStreetMap tile layer — free, legal, no API key required
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map)
 
     const lg = L.layerGroup().addTo(map)
     layerGroupRef.current = lg
     leafletMapRef.current = map
 
-    // Ensure map tiles stretch crisply to full viewport
-    setTimeout(() => map.invalidateSize(), 80)
-    setTimeout(() => map.invalidateSize(), 300)
+    // Ensure map tiles stretch crisply to full viewport (single call after layout settles)
+    setTimeout(() => map.invalidateSize(), 150)
 
     const handleResize = () => {
       if (leafletMapRef.current) leafletMapRef.current.invalidateSize()
@@ -153,6 +152,12 @@ export default function App() {
 
     return () => {
       window.removeEventListener('resize', handleResize)
+      // Cleanup: destroy the Leaflet map instance to prevent "container already initialized" errors
+      if (leafletMapRef.current) {
+        leafletMapRef.current.remove()
+        leafletMapRef.current = null
+        layerGroupRef.current = null
+      }
     }
   }, [activeTab])
 
@@ -297,10 +302,13 @@ export default function App() {
 
       const marker = L.marker([n.lat, n.lon], { icon: customIcon })
 
+      // Sanitize node_id to only allow safe alphanumeric characters (prevents XSS)
+      const safeNodeId = n.node_id.replace(/[^A-Za-z0-9_-]/g, '')
+
       const popupHtml = `
         <div style="font-family:'Plus Jakarta Sans',sans-serif; min-width:230px; color:#25201A;">
           <div style="font-size:13px; font-weight:bold; margin-bottom:2px;">${n.name}</div>
-          <div style="font-size:11px; color:#5E564B;">Waypoint ID: ${n.node_id}</div>
+          <div style="font-size:11px; color:#5E564B;">Waypoint ID: ${safeNodeId}</div>
           ${
             n.station
               ? `<div style="margin-top:8px; padding-top:6px; border-top:1px solid #E4DDD2;">
@@ -331,23 +339,43 @@ export default function App() {
               : ''
           }
           <div style="display:flex; gap:6px; margin-top:10px; padding-top:8px; border-top:1px solid #E4DDD2;">
-            <button onclick="window.__setOrigin && window.__setOrigin('${n.node_id}')" style="flex:1; background:#145A46; color:#ffffff; border:none; padding:5px 8px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">
+            <button data-action="set-origin" data-node-id="${safeNodeId}" style="flex:1; background:#145A46; color:#ffffff; border:none; padding:5px 8px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">
               Set Origin
             </button>
-            <button onclick="window.__setDest && window.__setDest('${n.node_id}')" style="flex:1; background:#25201A; color:#ffffff; border:none; padding:5px 8px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">
+            <button data-action="set-dest" data-node-id="${safeNodeId}" style="flex:1; background:#25201A; color:#ffffff; border:none; padding:5px 8px; border-radius:6px; font-size:11px; font-weight:600; cursor:pointer;">
               Set Dest
             </button>
           </div>
         </div>
       `
 
+      // Use popupopen event to safely attach click listeners — avoids inline onclick & global window.* calls
       marker.bindPopup(popupHtml)
+      marker.on('popupopen', () => {
+        const popupEl = marker.getPopup().getElement()
+        if (!popupEl) return
+        popupEl.querySelectorAll('button[data-action]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const nodeId = btn.getAttribute('data-node-id')
+            const action = btn.getAttribute('data-action')
+            if (action === 'set-origin') {
+              setOriginId(nodeId)
+              handleRunOptimization(nodeId, destIdRef.current)
+            } else if (action === 'set-dest') {
+              setDestId(nodeId)
+              handleRunOptimization(originIdRef.current, nodeId)
+            }
+            marker.closePopup()
+          })
+        })
+      })
       marker.addTo(lg)
     })
   }, [network, plan, originId, destId, activeTab])
 
   // Recalculate Trip Function (Hybrid Live FastAPI + Real Client-Side A* Solver)
-  async function handleRunOptimization(
+  // Memoized with useCallback to prevent stale closure bugs in event handlers
+  const handleRunOptimization = useCallback(async (
     customOrigin = originId,
     customDest = destId,
     customBattery = batteryCap,
@@ -355,7 +383,7 @@ export default function App() {
     customMinRes = minReserve,
     customMaxTime = maxTime,
     customCorridor = selectedCorridorRoute
-  ) {
+  ) => {
     setLoading(true)
 
     // 1. Try Live FastAPI Backend First
@@ -404,19 +432,29 @@ export default function App() {
     )
     setPlan(recalculatedPlan)
     setLoading(false)
-  }
+  }, [originId, destId, batteryCap, initialSoc, minReserve, maxTime, selectedCorridorRoute, network])
 
-  // Interactive Marker Window Handlers
+  // Interactive Marker Window Handlers — use refs to avoid stale closure issues
+  // These are called from inside Leaflet popup HTML, so must go through window.*
+  const originIdRef = useRef(originId)
+  const destIdRef = useRef(destId)
+  useEffect(() => { originIdRef.current = originId }, [originId])
+  useEffect(() => { destIdRef.current = destId }, [destId])
+
   useEffect(() => {
     window.__setOrigin = (id) => {
       setOriginId(id)
-      handleRunOptimization(id, destId)
+      handleRunOptimization(id, destIdRef.current)
     }
     window.__setDest = (id) => {
       setDestId(id)
-      handleRunOptimization(originId, id)
+      handleRunOptimization(originIdRef.current, id)
     }
-  }, [originId, destId, batteryCap, initialSoc, minReserve, maxTime, selectedCorridorRoute])
+    return () => {
+      delete window.__setOrigin
+      delete window.__setDest
+    }
+  }, [handleRunOptimization])
 
   // Preset Configurations
   function applyPreset(presetType) {
@@ -903,10 +941,10 @@ export default function App() {
                       <div>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold mb-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                          4 of 6 Available • 150 kW DC
+                          4 of 6 Available • 90 kW DC
                         </span>
-                        <h3 className="text-sm font-bold text-[#25201A]">Moro HyperCharge Hub</h3>
-                        <div className="text-[11px] text-[#5E564B]">M-9 / N-5 Junction • ⭐ 4.8 (142 reviews)</div>
+                        <h3 className="text-sm font-bold text-[#25201A]">Moro Highway DC Hub</h3>
+                        <div className="text-[11px] text-[#5E564B]">N-5 Highway Service Area • ⭐ 4.8 (142 reviews)</div>
                       </div>
                       <button
                         onClick={() => setActiveStationPopup(null)}
@@ -918,11 +956,11 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-2 bg-[#F4F0E8] rounded-xl p-2.5 text-xs">
                       <div>
                         <span className="text-[10px] text-[#5E564B] uppercase block">Tariff</span>
-                        <strong className="text-[#25201A]">PKR 65 / kWh</strong>
+                        <strong className="text-[#25201A]">PKR 52 / kWh</strong>
                       </div>
                       <div>
                         <span className="text-[10px] text-[#5E564B] uppercase block">Est. Charge</span>
-                        <strong className="text-emerald-700">30 min (18%→82%)</strong>
+                        <strong className="text-emerald-700">44 min (18%→82%)</strong>
                       </div>
                     </div>
                     <button className="w-full py-1.5 px-3 rounded-full bg-[#145A46] text-white font-semibold text-xs shadow-sm hover:bg-emerald-800 transition-colors">
@@ -940,9 +978,9 @@ export default function App() {
                       <div>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold mb-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                          6 of 8 Available • 180 kW DC
+                          6 of 8 Available • 100 kW DC
                         </span>
-                        <h3 className="text-sm font-bold text-[#25201A]">RYK Oasis Superhub</h3>
+                        <h3 className="text-sm font-bold text-[#25201A]">RYK Motorway Oasis DC</h3>
                         <div className="text-[11px] text-[#5E564B]">M-5 Motorway • ⭐ 4.9 (218 reviews)</div>
                       </div>
                       <button
@@ -955,11 +993,11 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-2 bg-[#F4F0E8] rounded-xl p-2.5 text-xs">
                       <div>
                         <span className="text-[10px] text-[#5E564B] uppercase block">Tariff</span>
-                        <strong className="text-[#25201A]">PKR 70 / kWh</strong>
+                        <strong className="text-[#25201A]">PKR 58 / kWh</strong>
                       </div>
                       <div>
                         <span className="text-[10px] text-[#5E564B] uppercase block">Est. Charge</span>
-                        <strong className="text-emerald-700">45 min (14%→85%)</strong>
+                        <strong className="text-emerald-700">37 min (14%→85%)</strong>
                       </div>
                     </div>
                     <button className="w-full py-1.5 px-3 rounded-full bg-[#145A46] text-white font-semibold text-xs shadow-sm hover:bg-emerald-800 transition-colors">
@@ -976,10 +1014,11 @@ export default function App() {
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-semibold mb-1">
-                          ⚡ 80 kW Express
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                          150 kW DC (capped to 120 kW)
                         </span>
-                        <h3 className="text-sm font-bold text-[#25201A]">Multan Metro Volt</h3>
-                        <div className="text-[11px] text-[#5E564B]">M-4/M-5 Jct • Dining & Restrooms</div>
+                        <h3 className="text-sm font-bold text-[#25201A]">Multan SuperGrid</h3>
+                        <div className="text-[11px] text-[#5E564B]">M-4/M-5 Jct • Dining &amp; Restrooms</div>
                       </div>
                       <button
                         onClick={() => setActiveStationPopup(null)}
@@ -988,7 +1027,17 @@ export default function App() {
                         ✕
                       </button>
                     </div>
-                    <button className="w-full py-1.5 px-3 rounded-full bg-[#145A46] text-white font-semibold text-xs shadow-sm">
+                    <div className="grid grid-cols-2 gap-2 bg-[#F4F0E8] rounded-xl p-2.5 text-xs">
+                      <div>
+                        <span className="text-[10px] text-[#5E564B] uppercase block">Tariff</span>
+                        <strong className="text-[#25201A]">PKR 68 / kWh</strong>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-[#5E564B] uppercase block">Queue Wait</span>
+                        <strong className="text-emerald-700">~5 min</strong>
+                      </div>
+                    </div>
+                    <button className="w-full py-1.5 px-3 rounded-full bg-[#145A46] text-white font-semibold text-xs shadow-sm hover:bg-emerald-800 transition-colors">
                       Reserve Stall
                     </button>
                   </div>

@@ -208,6 +208,53 @@ export const MOCK_SENSITIVITY = {
 };
 
 /**
+ * Binary Min-Heap priority queue for A* open set.
+ * O(log n) push & pop vs O(n log n) for Array.sort().
+ * Comparison is by f-score, then by station power (tie-break), then by h.
+ */
+class MinHeap {
+  constructor(compareFn) {
+    this._heap = []
+    this._cmp = compareFn
+  }
+  get size() { return this._heap.length }
+  push(item) {
+    this._heap.push(item)
+    this._bubbleUp(this._heap.length - 1)
+  }
+  pop() {
+    const top = this._heap[0]
+    const last = this._heap.pop()
+    if (this._heap.length > 0) {
+      this._heap[0] = last
+      this._sinkDown(0)
+    }
+    return top
+  }
+  _bubbleUp(i) {
+    while (i > 0) {
+      const parent = (i - 1) >> 1
+      if (this._cmp(this._heap[i], this._heap[parent]) < 0) {
+        [this._heap[i], this._heap[parent]] = [this._heap[parent], this._heap[i]]
+        i = parent
+      } else break
+    }
+  }
+  _sinkDown(i) {
+    const n = this._heap.length
+    while (true) {
+      let smallest = i
+      const l = 2 * i + 1, r = 2 * i + 2
+      if (l < n && this._cmp(this._heap[l], this._heap[smallest]) < 0) smallest = l
+      if (r < n && this._cmp(this._heap[r], this._heap[smallest]) < 0) smallest = r
+      if (smallest === i) break
+      ;[this._heap[i], this._heap[smallest]] = [this._heap[smallest], this._heap[i]]
+      i = smallest
+    }
+  }
+}
+
+/**
  * Exact Great-Circle Haversine Geodesic Distance (km)
  * Consistent & Admissible Heuristic for A* Search
  */
@@ -258,14 +305,22 @@ export function findAStarRoute(network, originId, destId, blockedEdges = []) {
     if (adj[e.v]) adj[e.v].push({ neighbor: e.u, distance: e.distance_km, speed: e.speed_kmh, road_name: e.road_name });
   });
 
-  // A* Open Set priority queue
-  const openSet = [{
+  // A* Open Set — binary min-heap for O(log n) extract-min (vs O(n log n) Array.sort)
+  const openSet = new MinHeap((a, b) => {
+    if (Math.abs(a.f - b.f) > 0.01) return a.f - b.f
+    // Tie-breaking: prefer node with higher station power kW
+    const pa = nodeMap[a.node_id]?.station?.power_kw || 0
+    const pb = nodeMap[b.node_id]?.station?.power_kw || 0
+    if (pa !== pb) return pb - pa
+    return a.h - b.h
+  })
+  openSet.push({
     node_id: originId,
     g: 0,
     h: haversineKm(nodeMap[originId].lat, nodeMap[originId].lon, destNode.lat, destNode.lon),
     f: haversineKm(nodeMap[originId].lat, nodeMap[originId].lon, destNode.lat, destNode.lon),
     drive_time: 0
-  }];
+  });
 
   const gScore = {};
   const closedSet = new Set();
@@ -275,18 +330,9 @@ export function findAStarRoute(network, originId, destId, blockedEdges = []) {
   driveTimeMap[originId] = 0;
   let nodesExpanded = 0;
 
-  while (openSet.length > 0) {
-    // Pick lowest f(n) with charger tie-breaking
-    openSet.sort((a, b) => {
-      if (Math.abs(a.f - b.f) > 0.01) return a.f - b.f;
-      // Tie-breaking: prefer node with higher station power kW
-      const pa = nodeMap[a.node_id]?.station?.power_kw || 0;
-      const pb = nodeMap[b.node_id]?.station?.power_kw || 0;
-      if (pa !== pb) return pb - pa;
-      return a.h - b.h;
-    });
-
-    const current = openSet.shift();
+  while (openSet.size > 0) {
+    // Extract node with lowest f(n) — O(log n) with min-heap
+    const current = openSet.pop()
     if (closedSet.has(current.node_id)) continue;
     closedSet.add(current.node_id);
     nodesExpanded++;
