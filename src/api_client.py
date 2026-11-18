@@ -47,7 +47,7 @@ class VoltPathAPIClient:
         Attempts live API enrichment if enabled; always falls back cleanly to local Mock JSON.
         """
         target_path = dataset_override or self.mock_dataset_path
-        raw_mock = self._read_local_mock_json(target_path)
+        raw_mock = self._read_dataset(target_path)
 
         nodes: Dict[str, Node] = {}
         for n in raw_mock.get("nodes", []):
@@ -174,6 +174,25 @@ class VoltPathAPIClient:
                 )
 
         return False
+
+    def _read_dataset(self, path: str) -> Dict[str, Any]:
+        """Read from Neon DB when DATABASE_URL is set; otherwise (or on failure) use JSON."""
+        from src import db
+
+        if db.database_url():
+            try:
+                data = db.load_dataset_dict(db.dataset_name_from_path(path))
+                if data is not None:
+                    self.api_status_log.append("[API-Client] Dataset loaded from Neon database.")
+                    return data
+                self.api_status_log.append(
+                    "[API-Client] Dataset not in database (run scripts.seed_db) -> using JSON file."
+                )
+            except Exception as exc:
+                self.api_status_log.append(
+                    f"[API-Client] Database unavailable ({exc}) -> using JSON file."
+                )
+        return self._read_local_mock_json(path)
 
     @staticmethod
     def _read_local_mock_json(path: str) -> Dict[str, Any]:

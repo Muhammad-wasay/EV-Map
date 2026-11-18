@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "network_name": "Northern Pakistan EV Corridor (M-1 / N-35 / N-75 / N-15)",
+    "source": "SEED_EXTENSION_DATASET",
+    "version": "1.0"
+  },
+  "default_ev": {
+    "model_name": "BYD Atto 3 / MG ZS EV Long Range",
+    "battery_capacity_kwh": 75,
+    "initial_soc_kwh": 65,
+    "min_reserve_kwh": 12,
+    "consumption_kwh_per_km": 0.18,
+    "max_charge_acceptance_kw": 120
+  },
+  "nodes": [
+    {"node_id": "N01", "name": "Islamabad (Zero Point Hub)", "lat": 33.6844, "lon": 73.0479, "station": {"station_id": "CS-ISB2", "name": "Islamabad Zero Point SuperHub", "power_kw": 150, "cost_per_kwh": 58.0, "is_available": true, "queue_wait_hours": 0.15}},
+    {"node_id": "N02", "name": "Rawalpindi (Faizabad Interchange)", "lat": 33.5651, "lon": 73.0169, "station": {"station_id": "CS-RWP", "name": "Rawalpindi Faizabad Charger", "power_kw": 120, "cost_per_kwh": 56.0, "is_available": true, "queue_wait_hours": 0.15}},
+    {"node_id": "N03", "name": "Attock (Indus Bridge)", "lat": 33.7667, "lon": 72.3598, "station": {"station_id": "CS-ATK", "name": "Attock Bridge Point", "power_kw": 100, "cost_per_kwh": 54.0, "is_available": true, "queue_wait_hours": 0.10}},
+    {"node_id": "N04", "name": "Nowshera (M-1 Service Area)", "lat": 34.0153, "lon": 71.9747, "station": {"station_id": "CS-NSR", "name": "Nowshera M-1 Charger", "power_kw": 100, "cost_per_kwh": 54.0, "is_available": true, "queue_wait_hours": 0.10}},
+    {"node_id": "N05", "name": "Peshawar (Ring Road Hub)", "lat": 34.0151, "lon": 71.5249, "station": {"station_id": "CS-PEW", "name": "Peshawar Ring Road SuperHub", "power_kw": 150, "cost_per_kwh": 57.0, "is_available": true, "queue_wait_hours": 0.20}},
+    {"node_id": "N06", "name": "Mardan (N-45 Junction)", "lat": 34.1989, "lon": 72.0402, "station": {"station_id": "CS-MRD", "name": "Mardan Junction Point", "power_kw": 60, "cost_per_kwh": 52.0, "is_available": true, "queue_wait_hours": 0.10}},
+    {"node_id": "N07", "name": "Haripur (Hazara Motorway)", "lat": 33.9946, "lon": 72.9333, "station": {"station_id": "CS-HRP", "name": "Haripur Hazara Charger", "power_kw": 100, "cost_per_kwh": 53.0, "is_available": true, "queue_wait_hours": 0.10}},
+    {"node_id": "N08", "name": "Abbottabad (Karakoram Highway)", "lat": 34.1688, "lon": 73.2215, "station": {"station_id": "CS-ABT", "name": "Abbottabad KKH Station", "power_kw": 100, "cost_per_kwh": 55.0, "is_available": true, "queue_wait_hours": 0.15}},
+    {"node_id": "N09", "name": "Mansehra (KKH Gateway)", "lat": 34.3333, "lon": 73.2000, "station": {"station_id": "CS-MNS", "name": "Mansehra Gateway Point", "power_kw": 60, "cost_per_kwh": 52.0, "is_available": true, "queue_wait_hours": 0.10}},
+    {"node_id": "N10", "name": "Murree (Expressway Terminal)", "lat": 33.9070, "lon": 73.3943, "station": {"station_id": "CS-MUR", "name": "Murree Expressway Charger", "power_kw": 60, "cost_per_kwh": 60.0, "is_available": true, "queue_wait_hours": 0.25}},
+    {"node_id": "N11", "name": "Swabi (Motorway Interchange)", "lat": 34.1200, "lon": 72.4700, "station": {"station_id": "CS-SWB", "name": "Swabi Interchange Point", "power_kw": 100, "cost_per_kwh": 53.0, "is_available": true, "queue_wait_hours": 0.10}}
+  ],
+  "edges": [
+    {"u": "N01", "v": "N02", "distance_km": 25, "speed_kmh": 90, "is_blocked": false, "road_name": "Islamabad Highway"},
+    {"u": "N01", "v": "N03", "distance_km": 75, "speed_kmh": 110, "is_blocked": false, "road_name": "M-1 Motorway (Islamabad-Attock)"},
+    {"u": "N02", "v": "N03", "distance_km": 80, "speed_kmh": 95, "is_blocked": false, "road_name": "GT Road N-5 North"},
+    {"u": "N03", "v": "N11", "distance_km": 70, "speed_kmh": 110, "is_blocked": false, "road_name": "M-1 Swabi Section"},
+    {"u": "N03", "v": "N04", "distance_km": 55, "speed_kmh": 100, "is_blocked": false, "road_name": "N-5 Attock-Nowshera"},
+    {"u": "N11", "v": "N04", "distance_km": 45, "speed_kmh": 110, "is_blocked": false, "road_name": "M-1 Swabi-Nowshera"},
+    {"u": "N11", "v": "N06", "distance_km": 35, "speed_kmh": 85, "is_blocked": false, "road_name": "Swabi-Mardan Road"},
+    {"u": "N04", "v": "N06", "distance_km": 40, "speed_kmh": 85, "is_blocked": false, "road_name": "N-45 Mardan Link"},
+    {"u": "N04", "v": "N05", "distance_km": 45, "speed_kmh": 110, "is_blocked": false, "road_name": "M-1 Peshawar Section"},
+    {"u": "N06", "v": "N05", "distance_km": 65, "speed_kmh": 80, "is_blocked": false, "road_name": "Mardan-Peshawar Road"},
+    {"u": "N01", "v": "N07", "distance_km": 65, "speed_kmh": 110, "is_blocked": false, "road_name": "M-15 Hazara Motorway"},
+    {"u": "N07", "v": "N08", "distance_km": 40, "speed_kmh": 100, "is_blocked": false, "road_name": "M-15 Hazara Motorway North"},
+    {"u": "N08", "v": "N09", "distance_km": 25, "speed_kmh": 80, "is_blocked": false, "road_name": "Karakoram Highway N-35"},
+    {"u": "N01", "v": "N10", "distance_km": 62, "speed_kmh": 60, "is_blocked": false, "road_name": "Murree Expressway"},
+    {"u": "N10", "v": "N08", "distance_km": 70, "speed_kmh": 55, "is_blocked": false, "road_name": "Murree-Abbottabad Road"},
+    {"u": "N03", "v": "N07", "distance_km": 60, "speed_kmh": 90, "is_blocked": false, "road_name": "Attock-Haripur Link"},
+    {"u": "N07", "v": "N05", "distance_km": 110, "speed_kmh": 85, "is_blocked": true, "road_name": "Haripur-Peshawar Link (Blocked for Flooding)"}
+  ]
+}

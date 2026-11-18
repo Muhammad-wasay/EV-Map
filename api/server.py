@@ -9,6 +9,7 @@ Exposes REST endpoints for the React Frontend:
   - GET  /api/edge-cases          : Runs all 3 mandatory WP5 edge-case scenarios
   - GET  /api/sensitivity         : Runs Part C sensitivity analysis (disabling top hubs)
 """
+import re
 from dataclasses import asdict
 from typing import List, Optional, Tuple
 
@@ -49,6 +50,8 @@ class PlanRequest(BaseModel):
     max_charge_acceptance_kw: float = 120.0
     use_live_api: bool = False
     dataset_path: Optional[str] = None
+    # Named network (from DB/data dir) to plan on, keeping the custom EV settings.
+    dataset: Optional[str] = None
 
 
 class IncrementalUpdateRequest(BaseModel):
@@ -77,10 +80,24 @@ def health_check():
     }
 
 
+def _dataset_to_path(dataset: Optional[str]) -> Optional[str]:
+    """Map a dataset name (e.g. 'northern_network') to its data/<name>.json identifier."""
+    if not dataset:
+        return None
+    if not re.fullmatch(r"[A-Za-z0-9_\-]+", dataset):
+        raise HTTPException(status_code=400, detail="Invalid dataset name.")
+    return f"data/{dataset}.json"
+
+
 @app.get("/api/network")
-def get_network(use_live_api: bool = False):
+def get_network(use_live_api: bool = False, dataset: Optional[str] = None):
     client = VoltPathAPIClient(use_live_api=use_live_api)
-    nodes, edges, ev, source = client.load_network_and_ev()
+    try:
+        nodes, edges, ev, source = client.load_network_and_ev(
+            dataset_override=_dataset_to_path(dataset)
+        )
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Unknown dataset '{dataset}'.")
     return {
         "data_source": source,
         "api_logs": client.api_status_log,
@@ -88,6 +105,30 @@ def get_network(use_live_api: bool = False):
         "nodes": [asdict(n) for n in nodes.values()],
         "edges": [asdict(e) for e in edges],
     }
+
+
+@app.get("/api/vehicles")
+def list_vehicles():
+    from src import db
+
+    if not db.database_url():
+        raise HTTPException(status_code=503, detail="DATABASE_URL is not configured.")
+    try:
+        return {"vehicles": db.load_vehicles()}
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Database error: {exc}")
+
+
+@app.get("/api/datasets")
+def list_datasets():
+    from src import db
+
+    if not db.database_url():
+        raise HTTPException(status_code=503, detail="DATABASE_URL is not configured.")
+    try:
+        return {"datasets": db.list_datasets()}
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Database error: {exc}")
 
 
 @app.post("/api/plan")
@@ -106,7 +147,7 @@ def compute_trip_plan(req: PlanRequest):
             origin_id=req.origin_id,
             dest_id=req.dest_id,
             max_allowed_time_hours=req.max_allowed_time_hours,
-            dataset_path=req.dataset_path,
+            dataset_path=req.dataset_path or _dataset_to_path(req.dataset),
             ev_override=ev_custom if req.dataset_path is None else None,
         )
         return {

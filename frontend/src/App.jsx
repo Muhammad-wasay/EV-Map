@@ -85,6 +85,23 @@ export default function App() {
       .catch(() => setBackendStatus('autonomous'))
   }, [])
 
+  // Network datasets (served from the Neon DB through the backend)
+  const [datasets, setDatasets] = useState([])
+  const [datasetName, setDatasetName] = useState('highway_network')
+  const datasetRef = useRef('highway_network')
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/datasets')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(res.status))))
+      .then((data) => {
+        const usable = (data.datasets || []).filter(
+          (d) => d.nodes > 0 && !d.name.startsWith('edge_case')
+        )
+        setDatasets(usable)
+      })
+      .catch(() => setDatasets([]))
+  }, [])
+
   // Form Controls
   const [originId, setOriginId] = useState('N01')
   const [destId, setDestId] = useState('N14')
@@ -400,7 +417,8 @@ export default function App() {
           battery_capacity_kwh: customBattery,
           initial_soc_kwh: customSoc,
           min_reserve_kwh: customMinRes,
-          max_allowed_time_hours: customMaxTime
+          max_allowed_time_hours: customMaxTime,
+          dataset: datasetRef.current
         }),
         signal: controller.signal
       })
@@ -433,6 +451,37 @@ export default function App() {
     setPlan(recalculatedPlan)
     setLoading(false)
   }, [originId, destId, batteryCap, initialSoc, minReserve, maxTime, selectedCorridorRoute, network])
+
+  // Switch the active road network dataset (loaded from the backend / Neon DB)
+  async function handleDatasetChange(name) {
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/network?dataset=${encodeURIComponent(name)}`
+      )
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      if (!data.nodes || data.nodes.length < 2) return
+
+      datasetRef.current = name
+      setDatasetName(name)
+      setNetwork(data)
+
+      const first = data.nodes[0].node_id
+      const last = data.nodes[data.nodes.length - 1].node_id
+      setOriginId(first)
+      setDestId(last)
+      originIdRef.current = first
+      destIdRef.current = last
+
+      // Frame the new network on the map
+      const pts = data.nodes.map((n) => [n.lat, n.lon])
+      leafletMapRef.current?.fitBounds(pts, { padding: [50, 50] })
+
+      handleRunOptimization(first, last)
+    } catch (err) {
+      console.warn('Dataset switch failed:', err)
+    }
+  }
 
   // Interactive Marker Window Handlers — use refs to avoid stale closure issues
   // These are called from inside Leaflet popup HTML, so must go through window.*
@@ -1179,6 +1228,26 @@ export default function App() {
                       <span>{Math.round((initialSoc / batteryCap) * 100)}% SoC</span>
                     </div>
                   </div>
+
+                  {/* Network Dataset Selector (from database) */}
+                  {datasets.length > 1 && (
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-[#5E564B] uppercase tracking-wider font-sans">
+                        Road Network
+                      </label>
+                      <select
+                        value={datasetName}
+                        onChange={(e) => handleDatasetChange(e.target.value)}
+                        className="w-full bg-[#FCFAF6] border border-[#E4DDD2] rounded-lg px-2 py-1.5 text-xs text-[#25201A] font-semibold focus:outline-none focus:border-[#145A46]"
+                      >
+                        {datasets.map((d) => (
+                          <option key={d.name} value={d.name}>
+                            {d.network_name || d.name} ({d.nodes} cities)
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {/* Origin & Destination Selectors */}
                   <div className="grid grid-cols-2 gap-2">

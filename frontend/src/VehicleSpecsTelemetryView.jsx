@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 
 export default function VehicleSpecsTelemetryView({
   batteryCap = 75,
@@ -313,6 +313,52 @@ export default function VehicleSpecsTelemetryView({
       accel: '6.9s 0-100'
     }
   })
+
+  // Load vehicle specs from the backend (Neon DB). The built-in catalog above stays as
+  // an offline fallback and supplies telemetry-only fields the DB doesn't store.
+  useEffect(() => {
+    let cancelled = false
+    fetch('http://127.0.0.1:8000/api/vehicles')
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(res.status))))
+      .then((data) => {
+        if (cancelled || !Array.isArray(data.vehicles)) return
+        setVehicleCatalog((prev) => {
+          const next = { ...prev }
+          for (const v of data.vehicles) {
+            const base = prev[v.id] || {
+              dragCd: '0.250 Cd',
+              voltage: '400V Architecture',
+              variance: '±0.008 V',
+              cycles: '40 Cycles',
+              health: '98.5% SoH',
+              temp: '28.0°C Ambient',
+            }
+            next[v.id] = {
+              ...base,
+              id: v.id,
+              name: v.name,
+              brand: v.brand,
+              bodyType: v.body_type || base.bodyType,
+              edition: v.edition || base.edition || '',
+              capacity: v.capacity_kwh,
+              usableKwh: v.usable_kwh,
+              rangeReal: `${v.range_real_km} km`,
+              acceptanceKW: v.acceptance_kw,
+              consumption: v.consumption_kwh_per_km,
+              accel: v.accel_0_100_s != null ? `${v.accel_0_100_s}s 0-100` : base.accel,
+              image: v.image || base.image,
+            }
+          }
+          return next
+        })
+      })
+      .catch(() => {
+        /* backend/DB unavailable: keep built-in catalog */
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const [activeModelKey, setActiveModelKey] = useState('BYD_SEAL')
   const [searchInput, setSearchInput] = useState('')
